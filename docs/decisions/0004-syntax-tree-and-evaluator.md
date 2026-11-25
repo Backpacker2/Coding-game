@@ -1,6 +1,6 @@
 # 0004: The syntax tree and the evaluator
 
-- **Status:** proposed
+- **Status:** accepted (built in 0.1.0)
 - **Date:** 2026-11-25
 
 ## Context
@@ -94,6 +94,20 @@ Build order, each step leaving the tests green:
 4. `FunctionDefinition` and calls to player functions, with the frame stack.
 5. `ScriptError` and its wording per language.
 6. The Python front end, then the JavaScript front end. The second one is the real test of the tree: the same script in both must give the same end state and the same tick count.
+
+## Details settled while building
+
+- A block is a plain `IReadOnlyList<Statement>`; a wrapper type added nothing.
+- `Compare` carries a `CompareOperator` (`Equal`, `NotEqual`). Values of different kinds are simply not equal.
+- `Value` has a `None` kind (its default), returned by commands that give nothing back.
+- A command reports a broken game rule as a `CommandOutcome` with a failure detail, never as an exception. `plant` is the only command that can fail this way.
+- `StepResult` is a `readonly record struct` with a `StepStatus`, so a step allocates nothing.
+- Time: the effect of a command happens at once, then the field advances by exactly one tick per `Step()` that returns `Running`, never on `Finished` or `Failed`. A sensor in a condition is charged together with the branch it chooses.
+- A player function call is a statement on its own. Used inside an expression it is a `WrongArgument` error, because functions return nothing yet and expressions never pause.
+- Functions are registered when their definition runs, as in Python. JavaScript hoists functions; its front end can move definitions to the top.
+- `Evaluator.MaxCallDepth` is 100: a runaway recursion ends as a `TooDeep` script error long before it uses up memory.
+- `NotUnlocked` has its wording and a test, but nothing produces it until unlocks exist (milestone 10).
+- The analyzer rule CA1716 is off, so tree nodes can be named after what scripts write (`If`, `While`, `Call`).
 
 ## Consequences
 
