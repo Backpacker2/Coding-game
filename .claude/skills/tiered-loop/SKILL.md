@@ -12,5 +12,8 @@ You are the orchestrator. Follow `docs/workflow.md`; this is the short form.
 5. Review the whole milestone diff yourself. Check design, interfaces and the design documents, not style the lead already checked.
 6. Run the checklist from `CLAUDE.md`, add the `CHANGELOG.md` entry, and run the privacy check from `docs/workflow.md` (files, commit authors and messages, pull request text: no names or personal data, "the owner" instead). Never upload anything that fails it. Then commit (Conventional Commits, author per `CLAUDE.md`), push, and open a pull request. The description lists what changed, why, and what the reviews found.
 7. Tick the milestone in `docs/TODO.md` with the pull request link, then go back to step 1.
+8. At the end of the coding session, start the `merger` agent with the list of open pull requests. It reviews them, resolves conflicts and merges into `main` with git (never the GitHub website, which leaks the owner's email). Read its report and tell the owner what was merged and what was not.
 
-Stop and ask the owner before a design decision, a new dependency, or a merge into `main`. Do the volume work through the agents, not yourself: that is what keeps the cost down.
+Every commit, including merge commits, ends with the trailer `Co-Authored-By: Claude <noreply@anthropic.com>`.
+
+Stop and ask the owner before a design decision or a new dependency. Do the volume work through the agents, not yourself: that is what keeps the cost down.

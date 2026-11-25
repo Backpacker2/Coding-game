@@ -4,7 +4,7 @@ Every version of Coding Game, newest first. Version numbers follow the rules in 
 
 ## 0.0.4 — 2026-11-25
 
-- Add the tiered agent workflow: `.claude/agents/` (lead on Sonnet, coder on Haiku), the `tiered-loop` skill and `docs/workflow.md`.
+- Add the tiered agent workflow: `.claude/agents/` (lead and merger on Sonnet, coder on Haiku), the `tiered-loop` skill and `docs/workflow.md`.
 - Add `docs/TODO.md`, the road map toward a playable prototype.
 - Decide to build the game in C# with Godot (`docs/decisions/0003-game-engine.md`).
 - Add the .NET solution skeleton: `CodingGame.sln`, the `CodingGame.Core` library with `Direction`, and an xUnit test project.
