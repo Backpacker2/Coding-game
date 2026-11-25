@@ -190,6 +190,21 @@ An error in a script stops the drone and shows a message with the line number, i
 
 When the player uses something that exists in the real language but is not unlocked yet, the message says so: `'import' is not unlocked yet`. That keeps principle 2: the code is not wrong, it is just ahead of the game.
 
+A script that is not valid code gives a syntax error. Python reports its own error names for indentation as well:
+
+- Python: `SyntaxError on line 1: expected ':'`, for `if ripe()` with no colon.
+- Python: `IndentationError on line 2: unexpected indent`, for an indented line that does not follow a block header.
+- Python: `IndentationError on line 2: expected an indented block after 'if' statement on line 1`, for `if ripe():` with no indented line after it.
+
+In Python, the following give `'...' is not unlocked yet`:
+
+- Keywords such as `import`, `from`, `return`, `and`, `or`, `not`, `None`, `class` and `try`.
+- Operators other than `( ) , : == !=`, such as `+`, `=`, `<`, `[`, `.` and `;`.
+- Strings and decimal numbers.
+- Parameters in `def`, `for` without `range`, `range` with more than one argument, and chained comparisons such as `a == b == c`.
+
+Python errors stop at the first problem in the script, in source order, as in real Python.
+
 ## How scripts run
 
 Scripts run in the game's own small interpreter: one front end per language subset, one shared program format, and one evaluator that owns the tick costs and the drone API ([`decisions/0001-how-player-scripts-run.md`](decisions/0001-how-player-scripts-run.md)). This document is the list of features each front end supports and how they map onto each other.
