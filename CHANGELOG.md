@@ -2,6 +2,13 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.0.6 — 2026-11-25
+
+- Add the game data: `data/crops.json` (clover, radish, potato) and `data/ticks.json`, loaded and checked by `GameRules.Load`, with a clear error naming the file for anything invalid.
+- Decide how the interpreter is built: a tree walker with a frame stack (`docs/decisions/0004-syntax-tree-and-evaluator.md`).
+- Let CI tag every changelog version on `main`, since cloud sessions cannot push tags.
+- Name constants in PascalCase in `.editorconfig`.
+
 ## 0.0.5 — 2026-11-25
 
 - Add the tiered agent workflow: `.claude/agents/` (lead and merger on Sonnet, coder on Haiku), the `tiered-loop` skill and `docs/workflow.md`.

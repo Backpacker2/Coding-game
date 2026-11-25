@@ -1,0 +1,10 @@
+{
+  "moveTicks": 20,
+  "harvestTicks": 20,
+  "plantTicks": 20,
+  "ripeTicks": 1,
+  "tillTicks": 20,
+  "groundTicks": 1,
+  "loopIterationTicks": 1,
+  "functionCallTicks": 1
+}

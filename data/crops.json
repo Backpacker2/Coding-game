@@ -1,0 +1,32 @@
+[
+  {
+    "name": "CLOVER",
+    "ground": "GRASS",
+    "growTimeTicks": 200,
+    "yieldItems": 1,
+    "seed": null,
+    "regrows": true
+  },
+  {
+    "name": "RADISH",
+    "ground": "GRASS",
+    "growTimeTicks": 300,
+    "yieldItems": 4,
+    "seed": {
+      "item": "CLOVER",
+      "count": 2
+    },
+    "regrows": false
+  },
+  {
+    "name": "POTATO",
+    "ground": "SOIL",
+    "growTimeTicks": 500,
+    "yieldItems": 6,
+    "seed": {
+      "item": "RADISH",
+      "count": 2
+    },
+    "regrows": false
+  }
+]

@@ -9,9 +9,9 @@ The prototype is done when a player can write a Python or JavaScript script in t
 - [x] **0. Workflow.** ([#4](https://github.com/Backpacker2/Coding-game/pull/4)) Agent definitions, the `tiered-loop` skill, `workflow.md`, this list, and the engine decision.
 - [x] **1. One set of design documents.** ([#3](https://github.com/Backpacker2/Coding-game/pull/3)) `languages.md` and `game-design.md` agree: sensors `ripe()` and `ground()`, crop constants, clover grows on grass.
 - [x] **2. Project skeleton.** ([#4](https://github.com/Backpacker2/Coding-game/pull/4)) `CodingGame.Core` library, xUnit test project, `.editorconfig`, analyzers with warnings as errors, `dotnet format`, one passing test, a GitHub Actions check. Fill in "Still to fill in" in `CLAUDE.md`.
-- [ ] **3. Game data.** Crops and tick costs in `data/` (JSON), loaded and checked at the edge into precise types.
+- [x] **3. Game data.** (0.0.6) Crops and tick costs in `data/` (JSON), loaded and checked at the edge into precise types.
 - [ ] **4. Simulation.** Farm grid with wrap-around, tile states, the drone, the six commands, growth over ticks, items. Deterministic, fully tested.
-- [ ] **5. Syntax tree and evaluator.** The shared tree, an evaluator that runs one tick at a time, the drone API bound once, tick costs for loop iterations and function calls, script errors with line numbers. Design sketch first (two designs, one rejected) in `docs/decisions/`.
+- [ ] **5. Syntax tree and evaluator.** The shared tree, an evaluator that runs one tick at a time, the drone API bound once, tick costs for loop iterations and function calls, script errors with line numbers. Design sketch done: `docs/decisions/0004-syntax-tree-and-evaluator.md`.
 - [ ] **6. Python front end.** Tokenizer with indentation, parser for subset steps 1 to 5, Python-style error messages.
 - [ ] **7. JavaScript front end.** Tokenizer and parser for the same subset, required semicolons, `===` only, JavaScript-style error messages.
 - [ ] **8. Same script, same result.** Example scripts in both languages with expected end state and tick count, checked by tests.
