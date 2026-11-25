@@ -57,11 +57,26 @@ public sealed partial class PythonFrontEnd
     private void ParseStatement(List<Statement> into)
     {
         Token first = Current;
-        if (first.Kind == TokenKind.Keyword && first.Text == "pass")
+        switch (first)
         {
-            Advance();
-            Expect(TokenKind.Newline, string.Empty);
-            return;
+            case { Kind: TokenKind.Indent }:
+                throw Failure(ScriptErrorKind.IndentationError, first.Line, "unexpected indent");
+            case { Kind: TokenKind.Keyword, Text: "pass" }:
+                Advance();
+                Expect(TokenKind.Newline, string.Empty);
+                return;
+            case { Kind: TokenKind.Keyword, Text: "if" }:
+                into.Add(ParseIf());
+                return;
+            case { Kind: TokenKind.Keyword, Text: "while" }:
+                into.Add(ParseWhile());
+                return;
+            case { Kind: TokenKind.Keyword, Text: "for" }:
+                into.Add(ParseFor());
+                return;
+            case { Kind: TokenKind.Keyword, Text: "def" }:
+                into.Add(ParseFunctionDefinition());
+                return;
         }
 
         Expression expression = ParseExpression();
