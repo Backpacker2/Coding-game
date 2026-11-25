@@ -171,9 +171,10 @@ public partial class Main : Control
         _itemsLabel.Text = items.Length == 0 ? "Items: none" : $"Items: {items}";
 
         _errorLabel.Text = session?.ErrorMessage ?? "";
-        _editor.Editable = session is null;
+        bool running = session?.Status == StepStatus.Running;
+        _editor.Editable = !running;
         _stopButton.Disabled = session is null;
-        _languagePicker.Disabled = session is not null;
+        _languagePicker.Disabled = running;
 
         int line = session?.Error?.Line ?? session?.CurrentLine ?? 0;
         if (session is null || line == 0)

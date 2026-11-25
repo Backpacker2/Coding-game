@@ -49,4 +49,4 @@ The starting field is 3x3. This is for testing only, so that nested loops can be
 
 - **Godot cannot find the .NET SDK:** install the SDK from step 1, then restart Godot.
 - **NU1201 error when building:** a `net8.0` line was added to `src/CodingGame.Godot/CodingGame.Godot.csproj`. Remove the `net8.0` line. The `net10.0` line must stay.
-- **Black or empty farm:** the `data` folder was not copied. Run `dotnet build src/CodingGame.Godot` in the code folder, then restart the game.
+- **Empty window and a `GameRulesException` in Godot's output:** the `data` folder was not copied. Run `dotnet build src/CodingGame.Godot` in the code folder, then restart the game.

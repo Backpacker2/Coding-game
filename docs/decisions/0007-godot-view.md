@@ -45,14 +45,15 @@
 
 - `CodingGame.Core.Session.RunSession` wraps parsing, the field, the evaluator and the error text. It has xUnit tests.
 - `GameRules` gets `StartField` (width and height) from a new `data/field.json`. The start size is data, not a number in the view.
-- The Godot code only holds UI state: the session, whether playing, and the tick budget.
+- The Godot code only holds UI state: the session, the language, whether playing, and the tick budget.
+- Godot has its own `ScriptLanguage` type, so `Main.cs` aliases the Core one.
 
 ### Run, Step and Stop
 
 - **Run** starts a fresh session if there is none or the old one is no longer running. Otherwise it resumes. It always sets playing.
-- **Step** pauses playing and runs until the next statement starts, so the current line changes. It starts a session first if there is none. A step is capped at 10,000 ticks, because a loop like `while (ripe()) {}` never changes line.
+- **Step** pauses playing and runs until the next statement starts, so the current line changes. Like Run, it starts a fresh session if there is none or the old one is no longer running. A step is capped at 10,000 ticks, because a loop like `while (ripe()) {}` never changes line.
 - **Stop** discards the session, pauses and shows a fresh field. Stopping costs nothing.
-- The editor is read-only while a session exists.
+- The editor and the language picker are locked while the script is running. After it finishes or fails, the player can fix the script and press Run again.
 - The highlight shows the line the evaluator last started. An error, including a parse error, highlights its line in red.
 
 ## Rejected alternatives
