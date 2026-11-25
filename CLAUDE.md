@@ -30,7 +30,7 @@ Complexity is the main enemy. Choose the simplest solution that solves today's p
 
 ## Structure
 
-- Fixed folders in the root: `src/` (code), `tests/`, `data/` (game rules and numbers), `docs/`. No loose files in the root except README, LICENSE, CLAUDE.md and tool configuration.
+- Fixed folders in the root: `src/` (code), `tests/`, `data/` (game rules and numbers), `docs/`. `private/` holds the owner's private notes and plans; it is in `.gitignore` and must never be committed or published. No loose files in the root except README, LICENSE, CLAUDE.md and tool configuration.
 - Inside `src/`, organise code by part of the game (for example interpreter, simulation, rendering), not by technical kind of file.
 - Order within a file: imports, constants, types, functions.
 - Split a file by purpose as soon as it becomes hard to oversee (guideline: around 400 lines).

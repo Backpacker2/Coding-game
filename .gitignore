@@ -16,3 +16,6 @@
 *.pem
 *.key
 secrets/
+
+# Private notes and plans (never published)
+private/
