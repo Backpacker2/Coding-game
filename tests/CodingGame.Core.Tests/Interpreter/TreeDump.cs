@@ -1,7 +1,7 @@
 using System.Globalization;
 using CodingGame.Core.Interpreter;
 
-namespace CodingGame.Core.Tests.Interpreter.Python;
+namespace CodingGame.Core.Tests.Interpreter;
 
 /// <summary>
 /// Test-only text form of a program, so parser tests can compare strings instead of record trees.

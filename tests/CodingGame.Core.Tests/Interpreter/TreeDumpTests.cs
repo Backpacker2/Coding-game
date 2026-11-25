@@ -1,7 +1,7 @@
 using CodingGame.Core.Interpreter;
 using Xunit;
 
-namespace CodingGame.Core.Tests.Interpreter.Python;
+namespace CodingGame.Core.Tests.Interpreter;
 
 public class TreeDumpTests
 {
