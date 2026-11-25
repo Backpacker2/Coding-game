@@ -2,6 +2,13 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.4.0 — 2026-11-25
+
+- Add the first playable window, built with Godot 4.7.2 (.NET): a script editor with line numbers, a Python/JavaScript picker, Run, Step and Stop, a tick counter, an error panel, and a farm view that draws the field, the crops and the drone. The running line is highlighted yellow, an error line red.
+- Add `RunSession` in Core, which parses a script and runs it on a fresh field one tick or one line at a time, with tests.
+- Read the starting field size from `data/field.json` (3x3 for testing) and add starter scripts in `data/starter.py` and `data/starter.js`.
+- Record the design in decision 0007 and add the owner's play-test guide, `docs/playtest.md`.
+
 ## 0.3.1 — 2026-11-25
 
 - Add thirteen example scripts in `tests/examples/`, each written in Python and in JavaScript with one expected result: end state, tick count, or error kind and line. One test runs them all in both languages, so the same script must give the same result.
