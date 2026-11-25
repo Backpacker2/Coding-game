@@ -141,9 +141,12 @@ Go through this before proposing or committing anything:
 - [ ] Working on a separate branch, not on `main`?
 - [ ] `CHANGELOG.md` entry with the new version, before merging?
 
-## Still to fill in
+## Commands
 
-Now that C# and Godot are chosen (milestone 2 in `docs/TODO.md`):
-- Commands for building, testing and linting.
-- The official formatter and linter of that language. Rules the linter already enforces are not repeated here.
-- The test framework and the tool that generates documentation from the doc comments.
+Run from the repository root. CI runs the same three on every push and pull request.
+
+- Format and lint: `dotnet format` (check only: `dotnet format --verify-no-changes`). The .NET analyzers run on every build at `latest-recommended`, with warnings as errors.
+- Build: `dotnet build -warnaserror`
+- Test: `dotnet test` (xUnit)
+
+The tool that generates documentation from the doc comments has not been chosen yet.
