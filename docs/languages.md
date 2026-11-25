@@ -182,6 +182,14 @@ while (true) {
 }
 ```
 
+### Example scripts
+
+Principle 3 is checked by tests. Every folder in `tests/examples/` holds one example in three files: `script.py`, `script.js` and `expected.json`. The expected file gives the field size, the end status (`Finished` or `Failed`), the tick count, the drone position, the items, the tiles that matter, and for a failing script the error kind and line. One test runs every folder in both languages against that one file, so the two scripts must end the same way.
+
+- An error is compared by kind and line only. The wording differs per language and has its own tests.
+- A new example is a new folder. No test code changes.
+- There is no setup language. Every example starts on a field of grass with ripe clover, and the script itself reaches any early-game state, for example by harvesting clover before it plants a radish.
+
 ## Errors in the player's script
 
 An error in a script stops the drone and shows a message with the line number, in the style of the language the player is writing (`CLAUDE.md`, Error handling). Messages use the real error names, so players learn to read real error messages, followed by one plain sentence:
