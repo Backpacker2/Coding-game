@@ -58,7 +58,7 @@ Share one tokenizer and one parser, and pass a configuration object that switche
 
   They are a `SyntaxError`, not `NotUnlocked`, because real JavaScript accepts them. The game refuses them on purpose.
 - **A missing `;` is a syntax error on the line of the token before it.** When the next token is on a later line, or the input ends, the error is `expected ';'`. Other tokens give V8-style details, for example `Unexpected token ')'`, `Unexpected identifier 'x'`, `Unexpected number` and `Unexpected end of input`.
-- **Braces are required.** A body without `{` gives `expected '{', braces are required around the body`. This keeps the rule from [`languages.md`](../languages.md) for JavaScript.
+- **Braces are required.** A body without `{` gives `expected '{', braces are required around the body`. When the script ends where the body should start, the error is `Unexpected end of input` instead. This keeps the rule from [`languages.md`](../languages.md) for JavaScript.
 - **No new error kind.** The messages use the kinds that already exist in the shared `ScriptErrorKind`. `IndentationError` is Python only, because JavaScript has no indentation rule. A one-statement body needs braces.
 - **Subset.**
   - Keywords accepted: `if else while for function true false`. The word `let` is accepted only in the header of a `for`.

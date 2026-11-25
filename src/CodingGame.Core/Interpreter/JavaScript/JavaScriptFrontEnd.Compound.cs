@@ -50,13 +50,23 @@ public sealed partial class JavaScriptFrontEnd
 
         Advance();
         string variable = ExpectName().Text;
-        ExpectOperator("=");
+        if (!IsOperator("="))
+        {
+            throw Current.Kind == TokenKind.EndOfFile ? UnexpectedToken(Current) : OtherForLoops(Current);
+        }
+
+        Advance();
         if (Current.Kind != TokenKind.Number || Current.Text != "0")
         {
             throw OtherForLoops(Current);
         }
 
         Advance();
+        if (IsOperator(","))
+        {
+            throw OtherForLoops(Current);
+        }
+
         ExpectOperator(";");
         if (Current.Kind != TokenKind.Name || Current.Text != variable)
         {
@@ -108,7 +118,9 @@ public sealed partial class JavaScriptFrontEnd
     {
         if (!IsOperator("{"))
         {
-            throw Failure(ScriptErrorKind.SyntaxError, Current.Line, "expected '{', braces are required around the body");
+            throw Current.Kind == TokenKind.EndOfFile
+                ? UnexpectedToken(Current)
+                : Failure(ScriptErrorKind.SyntaxError, Current.Line, "expected '{', braces are required around the body");
         }
 
         int openLine = Advance().Line;
