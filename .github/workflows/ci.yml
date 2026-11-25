@@ -19,26 +19,37 @@ jobs:
       - name: Test
         run: dotnet test
 
-  # Cloud sessions cannot push tags, so main tags itself (the owner's choice):
-  # every CHANGELOG version without a tag is tagged on the first main commit
-  # that added it.
-  tag:
+  # Cloud sessions cannot push tags, so main releases itself (the owner's
+  # choice): every CHANGELOG version gets a tag on the first main commit that
+  # added it, and a GitHub release named "V<version>" with its CHANGELOG notes.
+  release:
     needs: build
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Tag versions
+      - name: Tag and release versions
         run: |
           for version in $(grep -oP '^## \K\d+\.\d+\.\d+' CHANGELOG.md); do
-            if git rev-parse -q --verify "refs/tags/v$version" >/dev/null; then
+            if gh release view "v$version" >/dev/null 2>&1; then
               continue
             fi
-            commit=$(git log --first-parent --diff-merges=first-parent --reverse -S"## $version " --format=%H -- CHANGELOG.md | head -1)
-            git tag "v$version" "$commit"
-            git push origin "v$version"
+            if ! git rev-parse -q --verify "refs/tags/v$version" >/dev/null; then
+              commit=$(git log --first-parent --diff-merges=first-parent --reverse -S"## $version " --format=%H -- CHANGELOG.md | head -1)
+              git tag "v$version" "$commit"
+              # GitHub refuses a tag from CI on a commit whose workflow files
+              # differ from today's; such a version must be tagged by hand.
+              if ! git push origin "v$version"; then
+                echo "::warning::could not push v$version, tag it by hand"
+                continue
+              fi
+            fi
+            awk -v heading="## $version " 'index($0, heading) == 1 { found = 1; next } /^## / { found = 0 } found' CHANGELOG.md > notes.md
+            gh release create "v$version" --verify-tag --title "V$version" --notes-file notes.md
           done

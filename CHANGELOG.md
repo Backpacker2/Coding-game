@@ -2,6 +2,11 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.0.7 — 2026-11-25
+
+- Add the simulation: a `Field` of tiles that wraps around at the edges, the drone, items, crop growth over ticks, and the drone actions move, harvest, till, plant, ripe and ground. Planting reports a broken game rule as a `PlantResult`, never as an exception.
+- Publish a GitHub release named `V<version>` for every changelog version, with its changelog notes, from CI. Keep going when an old version cannot be tagged.
+
 ## 0.0.6 — 2026-11-25
 
 - Add the game data: `data/crops.json` (clover, radish, potato) and `data/ticks.json`, loaded and checked by `GameRules.Load`, with a clear error naming the file for anything invalid.
