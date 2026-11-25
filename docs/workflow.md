@@ -14,6 +14,8 @@ This is how every Claude session works on the Coding Game. The goal is the quali
 
 Claude Code agents cannot start agents of their own. So the lead does not start the coders: it writes the task list, and the orchestrator hands each task to a coder and each result back to the lead. The chain of responsibility stays the same (Opus → Sonnet → Haiku); only the hand-offs go through the orchestrator.
 
+The agent types `lead` and `coder` are only known to a session that started inside this repository. A session that started elsewhere starts a general agent with the right model instead, and tells it to read and follow its definition file.
+
 ## The loop
 
 1. **Pick.** The orchestrator takes the first open milestone in `docs/TODO.md` and marks it in progress.
