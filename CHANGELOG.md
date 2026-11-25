@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.0.2 — 2026-11-25
+
+- Add decision record 0001: player scripts run in our own small interpreter, with one front end per language subset and a shared evaluator that owns tick costs.
+
 ## 0.0.1 — 2026-11-25
 
 - Add the README, MIT license and documentation folder.

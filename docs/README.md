@@ -1,6 +1,7 @@
 # Documentation
 
 - `coding-standards.md`: the reasoning and sources behind the rules in `../CLAUDE.md`
+- `decisions/`: decision records for important design choices, with the rejected alternatives
 
 Planned design documents:
 
