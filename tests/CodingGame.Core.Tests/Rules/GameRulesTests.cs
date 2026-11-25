@@ -9,12 +9,49 @@ public class GameRulesTests
 
     private const string ValidTicksJson = """{"moveTicks":20,"harvestTicks":20,"plantTicks":20,"ripeTicks":1,"tillTicks":20,"groundTicks":1,"loopIterationTicks":1,"functionCallTicks":1}""";
 
+    private const string ValidFieldJson = """{"width":3,"height":3}""";
+
     [Fact]
     public void LoadsThreeCropsFromDataFolder()
     {
         GameRules rules = GameRules.Load(Path.Combine(AppContext.BaseDirectory, "data"));
 
         Assert.Equal(3, rules.Crops.Count);
+    }
+
+    [Fact]
+    public void StartFieldComesFromDataFolder()
+    {
+        GameRules rules = GameRules.Load(Path.Combine(AppContext.BaseDirectory, "data"));
+
+        Assert.Equal(3, rules.StartField.Width);
+        Assert.Equal(3, rules.StartField.Height);
+    }
+
+    [Fact]
+    public void MissingFieldFileIsReported()
+    {
+        GameRulesException exception = Assert.Throws<GameRulesException>(() => LoadWith(ValidCropsJson, ValidTicksJson, null));
+
+        Assert.Contains("field.json", exception.Message);
+    }
+
+    [Fact]
+    public void NonPositiveFieldSizeIsReported()
+    {
+        GameRulesException exception = Assert.Throws<GameRulesException>(() => LoadWith(ValidCropsJson, ValidTicksJson, """{"width":0,"height":3}"""));
+
+        Assert.Contains("width", exception.Message);
+    }
+
+    [Fact]
+    public void NoWildCropIsReported()
+    {
+        const string everyCropIsSeeded = """[{"name":"CLOVER","ground":"GRASS","growTimeTicks":200,"yieldItems":1,"seed":{"item":"RADISH","count":2},"regrows":true},{"name":"RADISH","ground":"GRASS","growTimeTicks":300,"yieldItems":4,"seed":{"item":"CLOVER","count":2},"regrows":false}]""";
+
+        GameRulesException exception = Assert.Throws<GameRulesException>(() => LoadWith(everyCropIsSeeded, ValidTicksJson));
+
+        Assert.Contains("no wild crop", exception.Message);
     }
 
     [Fact]
@@ -107,7 +144,7 @@ public class GameRulesTests
         Assert.Contains(expectedText, exception.Message);
     }
 
-    private static GameRules LoadWith(string? cropsJson, string? ticksJson)
+    private static GameRules LoadWith(string? cropsJson, string? ticksJson, string? fieldJson = ValidFieldJson)
     {
         string folder = Directory.CreateTempSubdirectory().FullName;
         try
@@ -120,6 +157,11 @@ public class GameRulesTests
             if (ticksJson is not null)
             {
                 File.WriteAllText(Path.Combine(folder, "ticks.json"), ticksJson);
+            }
+
+            if (fieldJson is not null)
+            {
+                File.WriteAllText(Path.Combine(folder, "field.json"), fieldJson);
             }
 
             return GameRules.Load(folder);

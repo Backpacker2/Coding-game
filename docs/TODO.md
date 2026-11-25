@@ -15,7 +15,7 @@ The prototype is done when a player can write a Python or JavaScript script in t
 - [x] **6. Python front end.** (0.2.0) Tokenizer with indentation, parser for subset steps 1 to 5, Python-style error messages. Design: `docs/decisions/0005-python-front-end.md`.
 - [x] **7. JavaScript front end.** (0.3.0) Tokenizer and parser for the same subset, required semicolons, `===` only, JavaScript-style error messages. Design: `docs/decisions/0006-javascript-front-end.md`.
 - [x] **8. Same script, same result.** (0.3.1) Example scripts in both languages with expected end state and tick count, checked by tests.
-- [ ] **9. Godot view.** Godot project that draws the farm and drone from the game state, a script editor, Run, Stop and step, and an error panel with the line highlighted.
+- [x] **9. Godot view.** (0.4.0) Godot project that draws the farm and drone from the game state, a script editor, Run, Stop and step, and an error panel with the line highlighted. Design: `docs/decisions/0007-godot-view.md`, play-test: `docs/playtest.md`.
 - [ ] **10. First unlocks.** Items pay for the unlocks of the first 30 minutes; locked features give "not unlocked yet" errors. First playable release.
 
 ## Waiting on the owner
