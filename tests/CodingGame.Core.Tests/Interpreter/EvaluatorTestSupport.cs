@@ -19,7 +19,7 @@ internal static class EvaluatorTestSupport
         return new Field(3, 1, clover);
     }
 
-    internal static ScriptProgram Python(params Statement[] body)
+    internal static ScriptProgram PythonProgram(params Statement[] body)
     {
         return new ScriptProgram(body, ScriptLanguage.Python);
     }

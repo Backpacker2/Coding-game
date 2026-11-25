@@ -86,6 +86,52 @@ public class ScriptErrorTests
     }
 
     [Fact]
+    public void SyntaxErrorInPythonSaysSyntaxError()
+    {
+        var error = new ScriptError(ScriptErrorKind.SyntaxError, 3, "expected ':'");
+
+        Assert.Equal("SyntaxError on line 3: expected ':'", error.ToMessage(ScriptLanguage.Python));
+    }
+
+    [Fact]
+    public void SyntaxErrorInJavaScriptSaysSyntaxError()
+    {
+        var error = new ScriptError(ScriptErrorKind.SyntaxError, 3, "expected ':'");
+
+        Assert.Equal("SyntaxError on line 3: expected ':'", error.ToMessage(ScriptLanguage.JavaScript));
+    }
+
+    [Fact]
+    public void IndentationErrorInPythonSaysIndentationError()
+    {
+        var error = new ScriptError(ScriptErrorKind.IndentationError, 2, "unexpected indent");
+
+        Assert.Equal("IndentationError on line 2: unexpected indent", error.ToMessage(ScriptLanguage.Python));
+    }
+
+    [Fact]
+    public void ParseResultSuccessHasProgramAndNoError()
+    {
+        var program = new ScriptProgram([], ScriptLanguage.Python);
+
+        ParseResult result = ParseResult.Success(program);
+
+        Assert.Equal(program, result.Program);
+        Assert.Null(result.Error);
+    }
+
+    [Fact]
+    public void ParseResultFailureHasErrorAndNoProgram()
+    {
+        var error = new ScriptError(ScriptErrorKind.SyntaxError, 1, "invalid syntax");
+
+        ParseResult result = ParseResult.Failure(error);
+
+        Assert.Null(result.Program);
+        Assert.Equal(error, result.Error);
+    }
+
+    [Fact]
     public void StepResultRunningHasNoError()
     {
         Assert.Equal(StepStatus.Running, StepResult.Running.Status);

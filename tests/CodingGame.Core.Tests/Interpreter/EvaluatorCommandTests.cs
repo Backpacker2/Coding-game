@@ -251,6 +251,6 @@ public class EvaluatorCommandTests
 
     private static Evaluator NewEvaluator(Field field, params Statement[] body)
     {
-        return new Evaluator(Python(body), new DroneApi(_rules, field));
+        return new Evaluator(PythonProgram(body), new DroneApi(_rules, field));
     }
 }

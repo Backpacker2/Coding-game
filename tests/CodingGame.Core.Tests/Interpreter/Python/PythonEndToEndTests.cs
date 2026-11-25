@@ -1,0 +1,247 @@
+using CodingGame.Core.Interpreter;
+using CodingGame.Core.Interpreter.Python;
+using CodingGame.Core.Rules;
+using CodingGame.Core.Simulation;
+using Xunit;
+using static CodingGame.Core.Tests.Interpreter.EvaluatorTestSupport;
+
+namespace CodingGame.Core.Tests.Interpreter.Python;
+
+public class PythonEndToEndTests
+{
+    private static readonly GameRules _rules = EvaluatorTestSupport.Rules();
+
+    [Fact]
+    public void HarvestMoveHarvestCollectsTwoClover()
+    {
+        Field field = NewField(_rules);
+
+        (StepResult result, Evaluator evaluator) = Run("harvest()\nmove(EAST)\nharvest()", field);
+
+        Assert.Equal(StepStatus.Finished, result.Status);
+        Assert.Equal(60, evaluator.TicksUsed);
+        Assert.Equal(2, field.Items["CLOVER"]);
+        Assert.Equal(new TilePosition(1, 0), field.DronePosition);
+    }
+
+    [Fact]
+    public void ForRangeRepeatsTheMove()
+    {
+        Field field = NewField(_rules);
+
+        (StepResult result, Evaluator evaluator) = Run("for i in range(2):\n    move(EAST)", field);
+
+        Assert.Equal(StepStatus.Finished, result.Status);
+        Assert.Equal(42, evaluator.TicksUsed);
+        Assert.Equal(new TilePosition(2, 0), field.DronePosition);
+    }
+
+    [Fact]
+    public void ForRangeHarvestsAndMovesAroundTheField()
+    {
+        Field field = NewField(_rules);
+
+        (StepResult result, Evaluator evaluator) = Run("for i in range(3):\n    harvest()\n    move(EAST)", field);
+
+        Assert.Equal(StepStatus.Finished, result.Status);
+        Assert.Equal(123, evaluator.TicksUsed);
+        Assert.Equal(3, field.Items["CLOVER"]);
+        Assert.Equal(new TilePosition(0, 0), field.DronePosition);
+    }
+
+    [Fact]
+    public void WhileRipeHarvestsAndMovesUntilNotRipe()
+    {
+        Field field = NewField(_rules);
+
+        (StepResult result, Evaluator evaluator) = Run("while ripe():\n    harvest()\n    move(EAST)", field);
+
+        Assert.Equal(StepStatus.Finished, result.Status);
+        Assert.Equal(127, evaluator.TicksUsed);
+        Assert.Equal(3, field.Items["CLOVER"]);
+        Assert.Equal(new TilePosition(0, 0), field.DronePosition);
+    }
+
+    [Fact]
+    public void IfElseTakesTheElseBranchAfterHarvestEmptiesTheTile()
+    {
+        Field field = NewField(_rules);
+
+        (StepResult result, Evaluator evaluator) = Run(
+            "harvest()\nif ripe():\n    move(EAST)\nelse:\n    move(WEST)",
+            field);
+
+        Assert.Equal(StepStatus.Finished, result.Status);
+        Assert.Equal(41, evaluator.TicksUsed);
+        Assert.Equal(new TilePosition(2, 0), field.DronePosition);
+    }
+
+    [Fact]
+    public void ElifTillsTheGrassWhenTheGroundIsNotSoil()
+    {
+        Field field = NewField(_rules);
+
+        (StepResult result, Evaluator evaluator) = Run(
+            "if ground() == SOIL:\n    harvest()\nelif ground() == GRASS:\n    till()",
+            field);
+
+        Assert.Equal(StepStatus.Finished, result.Status);
+        Assert.Equal(22, evaluator.TicksUsed);
+        Assert.Equal(Ground.Soil, field.GetTile(0, 0).Ground);
+    }
+
+    [Fact]
+    public void FunctionDefinitionRunsWhenCalled()
+    {
+        Field field = NewField(_rules);
+
+        (StepResult result, Evaluator evaluator) = Run("def f():\n    move(EAST)\nf()", field);
+
+        Assert.Equal(StepStatus.Finished, result.Status);
+        Assert.Equal(21, evaluator.TicksUsed);
+        Assert.Equal(new TilePosition(1, 0), field.DronePosition);
+    }
+
+    [Fact]
+    public void FarmExampleFromTheLanguageDocumentPlantsRadishAfterRipeHarvest()
+    {
+        Field field = NewField(_rules);
+        Crop radish = _rules.Crops.Single(crop => crop.Name == "RADISH");
+        for (int harvest = 0; harvest < 4; harvest++)
+        {
+            if (harvest > 0)
+            {
+                field.Advance(200);
+            }
+
+            field.Harvest();
+        }
+
+        field.Move(Direction.East);
+        field.Move(Direction.East);
+        field.Till();
+        field.Till();
+        field.Plant(radish);
+        field.Advance(300);
+        field.Move(Direction.West);
+        field.Move(Direction.West);
+
+        const string source = """
+        def farm_tile():
+            if ripe():
+                harvest()
+                if ground() == SOIL:
+                    plant(POTATO)
+                else:
+                    plant(RADISH)
+
+        move(EAST)
+        move(EAST)
+        farm_tile()
+        """;
+
+        (StepResult result, Evaluator evaluator) = Run(source, field);
+
+        Assert.Equal(StepStatus.Finished, result.Status);
+        Assert.Equal(83, evaluator.TicksUsed);
+        Assert.Equal(new TilePosition(2, 0), field.DronePosition);
+        Assert.Equal(4, field.Items["RADISH"]);
+        Assert.Equal(0, field.Items.GetValueOrDefault("CLOVER"));
+        Assert.Equal("RADISH", field.GetTile(2, 0).Crop!.Name);
+    }
+
+    [Fact]
+    public void FarmExampleFailsWhenPlantingOnATileWithAWildCrop()
+    {
+        Field field = NewField(_rules);
+        const string source = """
+        def farm_tile():
+            if ripe():
+                harvest()
+                if ground() == SOIL:
+                    plant(POTATO)
+                else:
+                    plant(RADISH)
+
+        for y in range(3):
+            for x in range(3):
+                farm_tile()
+                move(EAST)
+            move(NORTH)
+        """;
+
+        (StepResult result, _) = Run(source, field);
+
+        Assert.Equal(StepStatus.Failed, result.Status);
+        var expected = new ScriptError(ScriptErrorKind.CommandFailed, 7, "cannot plant RADISH: the tile already has a crop");
+        Assert.Equal(expected, result.Error);
+        Assert.Equal(
+            "RuntimeError on line 7: cannot plant RADISH: the tile already has a crop",
+            result.Error!.ToMessage(ScriptLanguage.Python));
+    }
+
+    [Fact]
+    public void LoopVariableIsNotDefined()
+    {
+        Field field = NewField(_rules);
+
+        (StepResult result, _) = Run("for i in range(2):\n    move(i)", field);
+
+        Assert.Equal(StepStatus.Failed, result.Status);
+        Assert.Equal(new ScriptError(ScriptErrorKind.UndefinedName, 2, "i"), result.Error);
+        Assert.Equal(
+            "NameError on line 2: name 'i' is not defined",
+            result.Error!.ToMessage(ScriptLanguage.Python));
+    }
+
+    [Fact]
+    public void UndefinedCommandFailsAtRunTime()
+    {
+        Field field = NewField(_rules);
+
+        (StepResult result, _) = Run("mvoe(EAST)", field);
+
+        Assert.Equal(StepStatus.Failed, result.Status);
+        Assert.Equal(
+            "NameError on line 1: name 'mvoe' is not defined",
+            result.Error!.ToMessage(ScriptLanguage.Python));
+    }
+
+    [Fact]
+    public void MissingColonIsASyntaxError()
+    {
+        ParseResult result = PythonFrontEnd.Parse("if ripe()\n    harvest()");
+
+        Assert.Equal(
+            "SyntaxError on line 1: expected ':'",
+            result.Error!.ToMessage(ScriptLanguage.Python));
+    }
+
+    [Fact]
+    public void MissingIndentIsAnIndentationError()
+    {
+        ParseResult result = PythonFrontEnd.Parse("if ripe():\nharvest()");
+
+        Assert.Equal(
+            "IndentationError on line 2: expected an indented block after 'if' statement on line 1",
+            result.Error!.ToMessage(ScriptLanguage.Python));
+    }
+
+    [Fact]
+    public void ImportIsNotUnlockedYet()
+    {
+        ParseResult result = PythonFrontEnd.Parse("import os");
+
+        Assert.Equal(
+            "Error on line 1: 'import' is not unlocked yet",
+            result.Error!.ToMessage(ScriptLanguage.Python));
+    }
+
+    private static (StepResult Result, Evaluator Evaluator) Run(string source, Field field)
+    {
+        ParseResult parsed = PythonFrontEnd.Parse(source);
+        Assert.Null(parsed.Error);
+        var evaluator = new Evaluator(parsed.Program!, new DroneApi(_rules, field));
+        return (RunToEnd(evaluator), evaluator);
+    }
+}
