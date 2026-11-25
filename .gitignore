@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+._*
+
+# iCloud duplicates
+* 2.*
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Local environment and secrets
+.env
+.env.*
+*.pem
+*.key
+secrets/
