@@ -22,6 +22,7 @@ You are a coder in the tiered workflow described in `docs/workflow.md`. You get 
 - Types on every function, and a doc comment on every exported function.
 - No comments that repeat the code, no commented-out code, no debug prints.
 - Never swallow an error, and never change a test so that wrong output passes.
+- Never write personal data: no real names, email addresses, absolute paths or user names, also not in comments or test data.
 - Do not commit, push or create branches. The orchestrator commits.
 - If the task is unclear or impossible, stop and say exactly what is unclear. Do not guess.
 

@@ -24,10 +24,20 @@ The agent types `lead` and `coder` are only known to a session that started insi
 4. **Build.** A coder carries out each task. Tasks that touch different files run in parallel.
 5. **Review, level 1.** The lead reviews each result. On `CHANGES REQUESTED` the same coder fixes it. After two failed rounds the task goes back to the lead to be split smaller.
 6. **Review, level 2.** The orchestrator reviews the whole milestone diff: design, interfaces, and whether it matches the design documents. It fixes small things itself; anything larger goes back to step 2.
-7. **Ship.** The orchestrator runs the full checklist from `CLAUDE.md`, updates `CHANGELOG.md`, commits, pushes and opens a pull request for the owner.
+7. **Ship.** The orchestrator runs the full checklist from `CLAUDE.md`, updates `CHANGELOG.md`, runs the privacy check below, commits, pushes and opens a pull request for the owner.
 8. **Tick off.** The milestone is ticked in `docs/TODO.md` with a link to its pull request, and the loop starts again.
 
 The loop stops and asks the owner when a choice changes the game itself (a design decision, a new dependency, anything that cannot be undone), and waits for the owner before anything is merged into `main`.
+
+## Privacy check before every upload
+
+The owner's standing rule: nothing that goes online may show who the owner is. Before every push, pull request, comment or other upload, the orchestrator checks all of it and removes anything personal:
+
+- **Files:** no real names, email addresses, home town, school, absolute paths or computer user names (`CLAUDE.md`, Privacy and publishing).
+- **Commits:** author and committer are `Backpacker2` with the GitHub noreply address; messages hold no names. Check with `git log --format='%an %ae %cn %ce %s' origin/main..HEAD`.
+- **Pull request and comment text:** refer to "the owner", never a name.
+
+If anything is found, it is removed before the upload, from the history too (`CLAUDE.md`). An upload that fails this check does not happen.
 
 ## Keeping cost down
 

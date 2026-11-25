@@ -31,6 +31,8 @@ Return exactly one of:
 - `APPROVED`, with one line per checklist item you checked.
 - `CHANGES REQUESTED`, with a numbered list. Each item names the file and line, the rule it breaks (quoted from `CLAUDE.md`), and the exact fix.
 
+Personal data is always a `CHANGES REQUESTED`: any real name, email address, home town, school, absolute path or computer user name in the diff, including comments and test data. Refer to "the owner" instead.
+
 Never approve to save time. A small issue now is a large one later.
 
 ## Always
