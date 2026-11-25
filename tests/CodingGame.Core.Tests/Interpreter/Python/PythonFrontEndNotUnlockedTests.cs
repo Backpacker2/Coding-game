@@ -99,6 +99,14 @@ public class PythonFrontEndNotUnlockedTests
     }
 
     [Fact]
+    public void ReportsALongElifChainAsAnErrorInsteadOfCrashing()
+    {
+        string chain = "if a:\n    pass\n" + string.Concat(Enumerable.Repeat("elif a:\n    pass\n", 100_000));
+
+        Assert.Equal(new ScriptError(ScriptErrorKind.SyntaxError, 202, "too many nested levels"), PythonFrontEnd.Parse(chain).Error);
+    }
+
+    [Fact]
     public void AcceptsNestingUpToTheLimit()
     {
         string calls = string.Concat(Enumerable.Repeat("f(", 100)) + new string(')', 100);

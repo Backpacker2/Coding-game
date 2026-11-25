@@ -12,7 +12,9 @@ public sealed partial class PythonFrontEnd
         Token next = Current;
         if (next is { Kind: TokenKind.Keyword, Text: "elif" })
         {
+            EnterNesting(next.Line);
             otherwise = [ParseIf()];
+            _nestingDepth--;
         }
         else if (next is { Kind: TokenKind.Keyword, Text: "else" })
         {

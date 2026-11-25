@@ -60,7 +60,7 @@ Use a grammar tool such as ANTLR, or a parser library, and write the Python gram
 - **Bodies start on a new line.** A one-line body such as `if x: harvest()` gives `SyntaxError: the body must start on a new line`.
 - **Parentheses around an expression are not supported.** `(` at the start of an expression gives `SyntaxError: invalid syntax`. The subset has no use for them yet.
 - **The loop variable is parsed and dropped.** `for i in range(n):` becomes a `Repeat` with the count `n` and no name for `i`. Reading `i` gives a `NameError`, as [`0004`](0004-syntax-tree-and-evaluator.md) describes.
-- **Nesting has a limit.** The parser recurses once per nested call or block. Past 100 levels it gives `SyntaxError: too many nested levels`, so a script nested thousands of levels deep cannot crash the game with a stack overflow. Python itself stops at 200 nested parentheses and 100 nested blocks.
+- **Nesting has a limit.** The parser recurses once per nested call, block or `elif`. Past 100 levels it gives `SyntaxError: too many nested levels`, so a script nested thousands of levels deep cannot crash the game with a stack overflow. Python itself stops at 200 nested parentheses and 100 nested blocks.
 - **`print` is a normal call.** `print(x)` parses as any other call and fails at run time with a `NameError` until `print` is unlocked.
 - **Test helper renamed.** The test helper `EvaluatorTestSupport.Python(...)` is now `PythonProgram(...)`. Inside the test namespace `CodingGame.Core.Tests.Interpreter.Python`, the name `Python` refers to the namespace, which hides the helper.
 
