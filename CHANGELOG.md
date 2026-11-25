@@ -2,6 +2,11 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.3.1 — 2026-11-25
+
+- Add thirteen example scripts in `tests/examples/`, each written in Python and in JavaScript with one expected result: end state, tick count, or error kind and line. One test runs them all in both languages, so the same script must give the same result.
+- Remove the hand-paired end-to-end tests that the examples now cover.
+
 ## 0.3.0 — 2026-11-25
 
 - Add the JavaScript front end: a tokenizer and a parser for commands, `if`/`else if`/`else`, `while`, `for (let i = 0; i < n; i++)`, `function`, `===` and `!==`, with required semicolons and braces. Function declarations are hoisted, as in real JavaScript. Parsed JavaScript runs on the same evaluator with the same tick counts as Python.

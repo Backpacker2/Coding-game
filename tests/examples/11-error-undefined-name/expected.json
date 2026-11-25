@@ -1,0 +1,10 @@
+{
+  "width": 3,
+  "height": 1,
+  "status": "Failed",
+  "ticks": 20,
+  "dronePosition": { "x": 0, "y": 0 },
+  "items": { "CLOVER": 1 },
+  "tiles": [],
+  "error": { "kind": "UndefinedName", "line": 2 }
+}

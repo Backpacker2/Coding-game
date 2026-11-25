@@ -1,0 +1,4 @@
+harvest();
+if (ripe() {
+    harvest();
+}
