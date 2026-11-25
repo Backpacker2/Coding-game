@@ -19,3 +19,8 @@ secrets/
 
 # Private notes and plans (never published)
 private/
+
+# .NET build output
+bin/
+obj/
+*.user

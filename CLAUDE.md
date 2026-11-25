@@ -2,9 +2,13 @@
 
 A programming game in which you control a drone on a farm with code, and in which you learn several programming languages. See `README.md`.
 
-**Status:** phase 1 (planning). There is no code yet, and the language, engine and interpreter approach have not been chosen. Do not write code until the owner asks for it.
+**Status:** building the prototype. The game is written in C# with Godot (`docs/decisions/0003-game-engine.md`).
 
 The reasoning and sources behind every rule are in `docs/coding-standards.md`.
+
+## How Claude works here
+
+Claude works in a loop with three tiers of agents: Opus orchestrates and reviews, Sonnet splits and strictly reviews, Haiku writes the code. The road map is `docs/TODO.md`. Read `docs/workflow.md` before starting, or run the `tiered-loop` skill.
 
 ## Principle
 
@@ -92,7 +96,7 @@ Complexity is the main enemy. Choose the simplest solution that solves today's p
 - Never commit directly to `main`. `main` always works.
 - Every change gets its own branch from an up-to-date `main`: one feature, one bug fix, one clean-up, one documentation change.
 - Branch names use the same types as the commits, followed by a short description in kebab-case: `feat/while-loop`, `fix/tick-count-for-loop`, `docs/drone-api`, `refactor/parser-errors`, `chore/linter-setup`.
-- Merge into `main` only when the change works: all tests pass, the linter shows no warnings, the checklist below is done and the owner agrees.
+- Merge into `main` only when the change works: all tests pass, the linter shows no warnings and the checklist below is done. The merger agent (`docs/workflow.md`) does the merging, with the owner's standing agreement.
 - Merge with `git merge --no-ff`, so the branch stays visible in the history. Delete the branch after the merge.
 - A branch that turns out to be a dead end is deleted, not merged.
 
@@ -116,7 +120,7 @@ Versions follow `MAJOR.MINOR.PATCH`:
 
 - Small commits with one topic. Keep clean-ups and behaviour changes in separate commits.
 - Messages follow Conventional Commits, with an English description in the imperative mood: `feat(interpreter): add while loop`. Types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `perf`.
-- Commits use the GitHub account `Backpacker2` with GitHub's noreply address, never a real name or a private email address. No AI attribution: no `Co-Authored-By`, no "Generated with".
+- Commits use the GitHub account `Backpacker2` with GitHub's noreply address, never a real name or a private email address. Every commit, merge commits included, ends with the trailer `Co-Authored-By: Claude <noreply@anthropic.com>`, because Claude writes the code. No other attribution lines.
 - A new dependency only after agreement with the owner, with the reason in the commit message.
 
 ## Check before every commit
@@ -137,9 +141,12 @@ Go through this before proposing or committing anything:
 - [ ] Working on a separate branch, not on `main`?
 - [ ] `CHANGELOG.md` entry with the new version, before merging?
 
-## Still to fill in
+## Commands
 
-Once the language and engine are chosen:
-- Commands for building, testing and linting.
-- The official formatter and linter of that language. Rules the linter already enforces are not repeated here.
-- The test framework and the tool that generates documentation from the doc comments.
+Run from the repository root. CI runs the same three on every push and pull request.
+
+- Format and lint: `dotnet format` (check only: `dotnet format --verify-no-changes`). The .NET analyzers run on every build at `latest-recommended`, with warnings as errors.
+- Build: `dotnet build -warnaserror`
+- Test: `dotnet test` (xUnit)
+
+The tool that generates documentation from the doc comments has not been chosen yet.
