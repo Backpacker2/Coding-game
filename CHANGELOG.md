@@ -2,6 +2,12 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.0.4 — 2026-11-25
+
+- Add the tiered agent workflow: `.claude/agents/` (lead on Sonnet, coder on Haiku), the `tiered-loop` skill and `docs/workflow.md`.
+- Add `docs/TODO.md`, the road map toward a playable prototype.
+- Decide to build the game in C# with Godot (`docs/decisions/0003-game-engine.md`).
+
 ## 0.0.3 — 2026-11-25
 
 - Add decision record 0001: player scripts run in our own small interpreter, with one front end per language subset and a shared evaluator that owns tick costs.

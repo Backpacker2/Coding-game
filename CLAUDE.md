@@ -2,9 +2,13 @@
 
 A programming game in which you control a drone on a farm with code, and in which you learn several programming languages. See `README.md`.
 
-**Status:** phase 1 (planning). There is no code yet, and the language, engine and interpreter approach have not been chosen. Do not write code until the owner asks for it.
+**Status:** building the prototype. The game is written in C# with Godot (`docs/decisions/0003-game-engine.md`).
 
 The reasoning and sources behind every rule are in `docs/coding-standards.md`.
+
+## How Claude works here
+
+Claude works in a loop with three tiers of agents: Opus orchestrates and reviews, Sonnet splits and strictly reviews, Haiku writes the code. The road map is `docs/TODO.md`. Read `docs/workflow.md` before starting, or run the `tiered-loop` skill.
 
 ## Principle
 
@@ -139,7 +143,7 @@ Go through this before proposing or committing anything:
 
 ## Still to fill in
 
-Once the language and engine are chosen:
+Now that C# and Godot are chosen (milestone 2 in `docs/TODO.md`):
 - Commands for building, testing and linting.
 - The official formatter and linter of that language. Rules the linter already enforces are not repeated here.
 - The test framework and the tool that generates documentation from the doc comments.
