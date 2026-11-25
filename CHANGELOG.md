@@ -2,6 +2,11 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.1.0 — 2026-11-25
+
+- Add the interpreter core: the shared syntax tree, the values a script holds, the drone API bound once for every language, and an evaluator that runs one tick per step. It supports commands, `if`/`else`, `while`, repeat loops, comparisons and the player's own functions, and reports script errors with a line number in Python or JavaScript wording.
+- Record the details settled while building in decision 0004.
+
 ## 0.0.8 — 2026-11-25
 
 - Name GitHub releases "Coding Game v<version>", list them oldest first, and mark the newest as Latest.

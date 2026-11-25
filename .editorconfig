@@ -31,3 +31,8 @@ dotnet_naming_style.underscore_camel.required_prefix = _
 dotnet_naming_style.underscore_camel.capitalization = camel_case
 dotnet_sort_system_directives_first = true
 csharp_new_line_before_open_brace = all
+
+# CA1716 guards against names that clash with keywords in other .NET
+# languages. This library is C# only, and the syntax tree is named after
+# what scripts write (If, While, Call).
+dotnet_diagnostic.CA1716.severity = none
