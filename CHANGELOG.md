@@ -2,6 +2,12 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.0.4 — 2026-11-25
+
+- Add `docs/languages.md`: the drone API, Python and JavaScript as the first two languages, and the first subset of each.
+- Add decision record 0002: drone commands are global functions with one-word names.
+- Rename the sensors in `docs/game-design.md` to the drone API names: `ripe()` and `ground()`.
+
 ## 0.0.3 — 2026-11-25
 
 - Add decision record 0001: player scripts run in our own small interpreter, with one front end per language subset and a shared evaluator that owns tick costs.
