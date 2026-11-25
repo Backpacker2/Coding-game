@@ -1,0 +1,3 @@
+harvest()
+if ripe()
+    harvest()

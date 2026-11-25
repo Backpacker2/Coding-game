@@ -1,0 +1,6 @@
+harvest()
+move(EAST)
+harvest()
+till()
+till()
+plant(RADISH)

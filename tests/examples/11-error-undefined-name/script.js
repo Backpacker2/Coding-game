@@ -1,0 +1,2 @@
+harvest();
+mvoe(EAST);

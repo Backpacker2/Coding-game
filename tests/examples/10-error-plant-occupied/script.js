@@ -1,0 +1,2 @@
+move(EAST);
+plant(RADISH);

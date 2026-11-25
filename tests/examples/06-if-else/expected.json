@@ -1,0 +1,10 @@
+{
+  "width": 3,
+  "height": 1,
+  "status": "Finished",
+  "ticks": 41,
+  "dronePosition": { "x": 2, "y": 0 },
+  "items": { "CLOVER": 1 },
+  "tiles": [],
+  "error": null
+}

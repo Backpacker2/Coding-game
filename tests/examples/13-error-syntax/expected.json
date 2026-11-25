@@ -1,0 +1,10 @@
+{
+  "width": 3,
+  "height": 1,
+  "status": "Failed",
+  "ticks": 0,
+  "dronePosition": { "x": 0, "y": 0 },
+  "items": {},
+  "tiles": [],
+  "error": { "kind": "SyntaxError", "line": 2 }
+}
