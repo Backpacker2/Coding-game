@@ -52,7 +52,7 @@ public sealed partial class JavaScriptFrontEnd
                 parser.ParseStatement(body);
             }
 
-            return ParseResult.Success(new ScriptProgram(body, ScriptLanguage.JavaScript));
+            return ParseResult.Success(new ScriptProgram(HoistFunctions(body), ScriptLanguage.JavaScript));
         }
         catch (ParseFailure failure)
         {
@@ -62,9 +62,26 @@ public sealed partial class JavaScriptFrontEnd
 
     private void ParseStatement(List<Statement> into)
     {
-        Expression expression = ParseExpression();
-        ExpectSemicolon();
-        into.Add(new ExpressionStatement(expression.Line, expression));
+        switch (Current)
+        {
+            case { Kind: TokenKind.Keyword, Text: "if" }:
+                into.Add(ParseIf());
+                break;
+            case { Kind: TokenKind.Keyword, Text: "while" }:
+                into.Add(ParseWhile());
+                break;
+            case { Kind: TokenKind.Keyword, Text: "for" }:
+                into.Add(ParseFor());
+                break;
+            case { Kind: TokenKind.Keyword, Text: "function" }:
+                into.Add(ParseFunctionDefinition());
+                break;
+            default:
+                Expression expression = ParseExpression();
+                ExpectSemicolon();
+                into.Add(new ExpressionStatement(expression.Line, expression));
+                break;
+        }
     }
 
     private Token Advance()
@@ -84,6 +101,16 @@ public sealed partial class JavaScriptFrontEnd
         if (!IsOperator(operatorText))
         {
             throw UnexpectedToken(Current);
+        }
+
+        Advance();
+    }
+
+    private void ExpectOperator(string text)
+    {
+        if (!IsOperator(text))
+        {
+            throw Failure(ScriptErrorKind.SyntaxError, Current.Line, $"expected '{text}'");
         }
 
         Advance();
