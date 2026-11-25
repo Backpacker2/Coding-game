@@ -2,6 +2,13 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.3.0 — 2026-11-25
+
+- Add the JavaScript front end: a tokenizer and a parser for commands, `if`/`else if`/`else`, `while`, `for (let i = 0; i < n; i++)`, `function`, `===` and `!==`, with required semicolons and braces. Function declarations are hoisted, as in real JavaScript. Parsed JavaScript runs on the same evaluator with the same tick counts as Python.
+- Report errors in the player's JavaScript with a line number and JavaScript's wording: `Unexpected token`, `expected ';'`, a hint to use `===` instead of `==`, and "'x' is not unlocked yet" for real JavaScript the game does not teach yet.
+- Count Python `elif` chains toward the nesting limit, so a very long chain gives an error instead of a crash.
+- Record the design in decision 0006 and add the JavaScript error messages to `docs/languages.md`.
+
 ## 0.2.0 — 2026-11-25
 
 - Add the Python front end: a tokenizer that turns indentation into blocks, and a parser for commands, `if`/`elif`/`else`, `while`, `for ... in range(n)`, `def`, `pass`, `==` and `!=`. It builds the shared syntax tree, so parsed Python runs on the evaluator.
