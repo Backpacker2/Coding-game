@@ -40,5 +40,7 @@ jobs:
             fi
             commit=$(git log --first-parent --diff-merges=first-parent --reverse -S"## $version " --format=%H -- CHANGELOG.md | head -1)
             git tag "v$version" "$commit"
-            git push origin "v$version"
+            # GitHub refuses a tag from CI on a commit whose workflow files
+            # differ from today's; such a version is tagged by hand instead.
+            git push origin "v$version" || echo "::warning::could not push v$version, tag it by hand"
           done
