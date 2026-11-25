@@ -31,6 +31,12 @@ public enum ScriptErrorKind
 
     /// <summary>A player function that calls itself too deeply.</summary>
     TooDeep,
+
+    /// <summary>A script that is not valid in the language, for example a missing colon.</summary>
+    SyntaxError,
+
+    /// <summary>Python only: a block that is indented wrongly.</summary>
+    IndentationError,
 }
 
 /// <summary>
@@ -60,6 +66,9 @@ public sealed record ScriptError(ScriptErrorKind Kind, int Line, string Detail)
             (ScriptErrorKind.CommandFailed, ScriptLanguage.JavaScript) => $"Error on line {Line}: {Detail}",
             (ScriptErrorKind.TooDeep, ScriptLanguage.Python) => $"RecursionError on line {Line}: maximum recursion depth exceeded in {Detail}()",
             (ScriptErrorKind.TooDeep, ScriptLanguage.JavaScript) => $"RangeError on line {Line}: Maximum call stack size exceeded in {Detail}",
+            (ScriptErrorKind.SyntaxError, ScriptLanguage.Python) => $"SyntaxError on line {Line}: {Detail}",
+            (ScriptErrorKind.SyntaxError, ScriptLanguage.JavaScript) => $"SyntaxError on line {Line}: {Detail}",
+            (ScriptErrorKind.IndentationError, ScriptLanguage.Python) => $"IndentationError on line {Line}: {Detail}",
             _ => throw new ArgumentOutOfRangeException(nameof(language), language, "unknown script error kind or language"),
         };
     }
