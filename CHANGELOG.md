@@ -2,6 +2,12 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.2.0 — 2026-11-25
+
+- Add the Python front end: a tokenizer that turns indentation into blocks, and a parser for commands, `if`/`elif`/`else`, `while`, `for ... in range(n)`, `def`, `pass`, `==` and `!=`. It builds the shared syntax tree, so parsed Python runs on the evaluator.
+- Report errors in the player's Python with a line number and Python's wording: `SyntaxError`, `IndentationError`, and "'x' is not unlocked yet" for real Python the game does not teach yet. Deep nesting gives an error instead of a crash.
+- Record the design in decision 0005 and add the new error messages to `docs/languages.md`.
+
 ## 0.1.0 — 2026-11-25
 
 - Add the interpreter core: the shared syntax tree, the values a script holds, the drone API bound once for every language, and an evaluator that runs one tick per step. It supports commands, `if`/`else`, `while`, repeat loops, comparisons and the player's own functions, and reports script errors with a line number in Python or JavaScript wording.
