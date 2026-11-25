@@ -5,7 +5,7 @@ Every version of Coding Game, newest first. Version numbers follow the rules in 
 ## 0.0.7 — 2026-11-25
 
 - Add the simulation: a `Field` of tiles that wraps around at the edges, the drone, items, crop growth over ticks, and the drone actions move, harvest, till, plant, ripe and ground. Planting reports a broken game rule as a `PlantResult`, never as an exception.
-- Keep the CI tag job going when an old version cannot be tagged.
+- Publish a GitHub release named `V<version>` for every changelog version, with its changelog notes, from CI. Keep going when an old version cannot be tagged.
 
 ## 0.0.6 — 2026-11-25
 
