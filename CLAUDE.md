@@ -30,7 +30,7 @@ Complexity is the main enemy. Choose the simplest solution that solves today's p
 
 ## Structure
 
-- Fixed folders in the root: `src/` (code), `tests/`, `data/` (game rules and numbers), `docs/`. `private/` holds the owner's private notes and plans; it is in `.gitignore` and must never be committed or published. No loose files in the root except README, LICENSE, CLAUDE.md and tool configuration.
+- Fixed folders in the root: `src/` (code), `tests/`, `data/` (game rules and numbers), `docs/`. `private/` holds the owner's private notes and plans; it is in `.gitignore` and must never be committed or published. No loose files in the root except README, LICENSE, CHANGELOG, CLAUDE.md and tool configuration.
 - Inside `src/`, organise code by part of the game (for example interpreter, simulation, rendering), not by technical kind of file.
 - Order within a file: imports, constants, types, functions.
 - Split a file by purpose as soon as it becomes hard to oversee (guideline: around 400 lines).
@@ -87,7 +87,32 @@ Complexity is the main enemy. Choose the simplest solution that solves today's p
 - Before every push, check both the files and the commit history (author, email, messages) for personal or sensitive information, and report what you found.
 - If something slipped into a commit that has not been pushed yet, rewrite the history so it no longer appears anywhere. If it has already been pushed, report it immediately, and treat a leaked key as known and replace it.
 
-## Git
+## Branches
+
+- Never commit directly to `main`. `main` always works.
+- Every change gets its own branch from an up-to-date `main`: one feature, one bug fix, one clean-up, one documentation change.
+- Branch names use the same types as the commits, followed by a short description in kebab-case: `feat/while-loop`, `fix/tick-count-for-loop`, `docs/drone-api`, `refactor/parser-errors`, `chore/linter-setup`.
+- Merge into `main` only when the change works: all tests pass, the linter shows no warnings, the checklist below is done and the owner agrees.
+- Merge with `git merge --no-ff`, so the branch stays visible in the history. Delete the branch after the merge.
+- A branch that turns out to be a dead end is deleted, not merged.
+
+## Versions
+
+Versions follow `MAJOR.MINOR.PATCH`:
+
+| Change | Example | Version step |
+| --- | --- | --- |
+| Normal change: a bug fix, a small addition, a documentation or tooling change | fix the tick count of a `for` loop | patch: `0.0.1` → `0.0.2` |
+| Bigger change: a new system or a noticeable new part of the game | a new language, saving and loading | minor: `0.1.0` → `0.2.0` (patch back to 0) |
+| Finished product that meets the release requirements | first complete version | `1.0.0` |
+
+- Every merge into `main` gets a new version: decide patch or minor, then tag the merge commit as `vX.Y.Z` (for example `v0.0.2`).
+- `1.0.0` only comes once the release requirements are met. These requirements have not been defined yet; the owner will set them later and they will be listed here.
+- After `1.0.0`: patch for fixes, minor for new content and features, major for changes that break something for the player (for example save files that no longer load).
+- `CHANGELOG.md` records every version: the version, the date and a short list of what changed. Write the entry on the branch, in the same merge.
+- Once the game has code, the version number lives in one place in the project configuration, and the game reads it from there.
+
+## Commits
 
 - Small commits with one topic. Keep clean-ups and behaviour changes in separate commits.
 - Messages follow Conventional Commits, with an English description in the imperative mood: `feat(interpreter): add while loop`. Types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `perf`.
@@ -109,6 +134,8 @@ Go through this before proposing or committing anything:
 - [ ] Dead code, debug prints, half-renamed variables or old attempts?
 - [ ] A test changed to accept wrong output?
 - [ ] Style changes mixed with behaviour changes?
+- [ ] Working on a separate branch, not on `main`?
+- [ ] `CHANGELOG.md` entry with the new version, before merging?
 
 ## Still to fill in
 
