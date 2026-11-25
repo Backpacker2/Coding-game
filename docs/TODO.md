@@ -13,7 +13,7 @@ The prototype is done when a player can write a Python or JavaScript script in t
 - [x] **4. Simulation.** (0.0.7) Farm grid with wrap-around, tile states, the drone, the six commands, growth over ticks, items. Deterministic, fully tested.
 - [x] **5. Syntax tree and evaluator.** (0.1.0) The shared tree, an evaluator that runs one tick at a time, the drone API bound once, tick costs for loop iterations and function calls, script errors with line numbers. Design sketch done: `docs/decisions/0004-syntax-tree-and-evaluator.md`.
 - [x] **6. Python front end.** (0.2.0) Tokenizer with indentation, parser for subset steps 1 to 5, Python-style error messages. Design: `docs/decisions/0005-python-front-end.md`.
-- [ ] **7. JavaScript front end.** Tokenizer and parser for the same subset, required semicolons, `===` only, JavaScript-style error messages.
+- [x] **7. JavaScript front end.** (0.3.0) Tokenizer and parser for the same subset, required semicolons, `===` only, JavaScript-style error messages. Design: `docs/decisions/0006-javascript-front-end.md`.
 - [ ] **8. Same script, same result.** Example scripts in both languages with expected end state and tick count, checked by tests.
 - [ ] **9. Godot view.** Godot project that draws the farm and drone from the game state, a script editor, Run, Stop and step, and an error panel with the line highlighted.
 - [ ] **10. First unlocks.** Items pay for the unlocks of the first 30 minutes; locked features give "not unlocked yet" errors. First playable release.

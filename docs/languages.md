@@ -136,6 +136,7 @@ Lists and arrays, strings, dictionaries and objects, classes, `import`, exceptio
 
 - Semicolons are required. Real JavaScript can leave them out, but its rules for that are complex, and with semicolons required every accepted script is still valid JavaScript.
 - Braces are required after `if`, `else`, `for` and `while`, even around a single line. This is valid JavaScript too, and it avoids the classic bug where a second indented line looks like it belongs to the `if`.
+- Function declarations are hoisted, as in real JavaScript: a function can be called before the line that defines it. Calling costs the same ticks.
 
 ### An example in both languages
 
@@ -204,6 +205,20 @@ In Python, the following give `'...' is not unlocked yet`:
 - Parameters in `def`, `for` without `range`, `range` with more than one argument, and chained comparisons such as `a == b == c`.
 
 Python errors stop at the first problem in the script, in source order, as in real Python.
+
+In JavaScript, the following give `'...' is not unlocked yet`:
+
+- Keywords other than `if`, `else`, `while`, `for`, `function`, `true` and `false`, such as `var`, `return`, `class` and `try`. `let` is allowed only in the header of a `for` loop.
+- Operators other than `( ) { } , ; === !==`, such as `+`, `=`, `<`, `++`, `&&`, `!`, `[` and `.`.
+- Strings, decimal numbers and block comments.
+- Parameters in `function`, a `for` that is not exactly `for (let i = 0; i < n; i++)`, and chained comparisons such as `a === b === c`.
+
+Some mistakes are plain JavaScript errors:
+
+- `==` and `!=` give `SyntaxError on line 1: '==' is not allowed, use '===': '==' converts types before it compares`. Use `===` or `!==` instead.
+- A missing `;` gives `SyntaxError on line 1: expected ';'`.
+- A body without braces gives `SyntaxError on line 2: expected '{', braces are required around the body`.
+- Other mistakes give `Unexpected token`, `Unexpected identifier`, `Unexpected number` or `Unexpected end of input`, with the line number, for example `SyntaxError on line 1: Unexpected token ')'`.
 
 ## How scripts run
 
