@@ -21,7 +21,8 @@ jobs:
 
   # Cloud sessions cannot push tags, so main releases itself (the owner's
   # choice): every CHANGELOG version gets a tag on the first main commit that
-  # added it, and a GitHub release named "V<version>" with its CHANGELOG notes.
+  # added it, and a GitHub release named "Coding Game v<version>" with its CHANGELOG notes,
+  # the newest marked Latest.
   release:
     needs: build
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -36,8 +37,12 @@ jobs:
           fetch-depth: 0
       - name: Tag and release versions
         run: |
-          for version in $(grep -oP '^## \K\d+\.\d+\.\d+' CHANGELOG.md); do
+          newest=$(grep -oP '^## \K\d+\.\d+\.\d+' CHANGELOG.md | head -1)
+          # Oldest first, so the release list reads in order.
+          for version in $(grep -oP '^## \K\d+\.\d+\.\d+' CHANGELOG.md | tac); do
+            title="Coding Game v$version"
             if gh release view "v$version" >/dev/null 2>&1; then
+              gh release edit "v$version" --title "$title"
               continue
             fi
             if ! git rev-parse -q --verify "refs/tags/v$version" >/dev/null; then
@@ -51,5 +56,6 @@ jobs:
               fi
             fi
             awk -v heading="## $version " 'index($0, heading) == 1 { found = 1; next } /^## / { found = 0 } found' CHANGELOG.md > notes.md
-            gh release create "v$version" --verify-tag --title "V$version" --notes-file notes.md
+            gh release create "v$version" --verify-tag --latest=false --title "$title" --notes-file notes.md
           done
+          gh release edit "v$newest" --latest

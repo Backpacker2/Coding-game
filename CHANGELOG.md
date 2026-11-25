@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.0.8 — 2026-11-25
+
+- Name GitHub releases "Coding Game v<version>", list them oldest first, and mark the newest as Latest.
+
 ## 0.0.7 — 2026-11-25
 
 - Add the simulation: a `Field` of tiles that wraps around at the edges, the drone, items, crop growth over ticks, and the drone actions move, harvest, till, plant, ripe and ground. Planting reports a broken game rule as a `PlantResult`, never as an exception.

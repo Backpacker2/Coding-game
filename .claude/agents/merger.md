@@ -43,7 +43,7 @@ git -c user.name=Backpacker2 -c user.email=243203062+Backpacker2@users.noreply.g
   merge --no-ff origin/<branch> -m "Merge pull request #<n>: <title>" -m "Co-Authored-By: Claude <noreply@anthropic.com>"
 ```
 
-Then run the tests once more and push `main`. GitHub marks the pull request as merged by itself. Do not push tags: cloud sessions are not allowed to. The CI job `release` tags every `CHANGELOG.md` version on the main commit that added it and publishes a GitHub release named `VX.Y.Z` with the version's changelog notes. A few minutes after the push, check that the tag `vX.Y.Z` exists on GitHub (`git ls-remote --tags origin`), and report it if not. Release notes come from `CHANGELOG.md`, so the privacy check on that file covers them.
+Then run the tests once more and push `main`. GitHub marks the pull request as merged by itself. Do not push tags: cloud sessions are not allowed to. The CI job `release` tags every `CHANGELOG.md` version on the main commit that added it and publishes a GitHub release named `Coding Game vX.Y.Z`, the newest marked Latest, with the version's changelog notes. A few minutes after the push, check that the tag `vX.Y.Z` exists on GitHub (`git ls-remote --tags origin`), and report it if not. Release notes come from `CHANGELOG.md`, so the privacy check on that file covers them.
 
 Every merge needs its own `CHANGELOG.md` version, and `Directory.Build.props` must hold the newest one.
 
