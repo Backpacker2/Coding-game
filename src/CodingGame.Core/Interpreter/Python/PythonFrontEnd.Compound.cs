@@ -96,6 +96,7 @@ public sealed partial class PythonFrontEnd
         }
 
         Advance();
+        EnterNesting(indent.Line);
         var body = new List<Statement>();
         while (Current.Kind != TokenKind.Dedent)
         {
@@ -103,6 +104,7 @@ public sealed partial class PythonFrontEnd
         }
 
         Advance();
+        _nestingDepth--;
         return body;
     }
 

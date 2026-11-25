@@ -86,4 +86,23 @@ public class PythonFrontEndNotUnlockedTests
 
         Assert.Equal("SyntaxError on line 1: '(' was never closed", result.Error!.ToMessage(ScriptLanguage.Python));
     }
+
+    [Fact]
+    public void ReportsDeepNestingAsAnErrorInsteadOfCrashing()
+    {
+        string calls = string.Concat(Enumerable.Repeat("f(", 100_000)) + new string(')', 100_000);
+        string blocks = string.Concat(Enumerable.Range(0, 101).Select(depth => new string(' ', depth) + "if True:\n"))
+            + new string(' ', 101) + "pass";
+
+        Assert.Equal(new ScriptError(ScriptErrorKind.SyntaxError, 1, "too many nested levels"), PythonFrontEnd.Parse(calls).Error);
+        Assert.Equal(new ScriptError(ScriptErrorKind.SyntaxError, 102, "too many nested levels"), PythonFrontEnd.Parse(blocks).Error);
+    }
+
+    [Fact]
+    public void AcceptsNestingUpToTheLimit()
+    {
+        string calls = string.Concat(Enumerable.Repeat("f(", 100)) + new string(')', 100);
+
+        Assert.Null(PythonFrontEnd.Parse(calls).Error);
+    }
 }

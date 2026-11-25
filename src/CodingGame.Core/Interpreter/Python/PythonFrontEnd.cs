@@ -6,9 +6,15 @@ namespace CodingGame.Core.Interpreter.Python;
 /// </summary>
 public sealed partial class PythonFrontEnd
 {
+    // The parser recurses once per nested call or block. A limit turns a script nested
+    // thousands of levels deep into an error instead of an uncatchable stack overflow.
+    // Python itself stops at 200 nested parentheses and 100 nested blocks.
+    private const int MaxNestingDepth = 100;
+
     private readonly IReadOnlyList<Token> _tokens;
     private readonly ScriptError? _tokenizeError;
     private int _position;
+    private int _nestingDepth;
 
     private PythonFrontEnd(TokenizeResult tokenized)
     {
@@ -105,6 +111,15 @@ public sealed partial class PythonFrontEnd
     private bool IsOperator(string text)
     {
         return Current is { Kind: TokenKind.Operator } token && token.Text == text;
+    }
+
+    private void EnterNesting(int line)
+    {
+        _nestingDepth++;
+        if (_nestingDepth > MaxNestingDepth)
+        {
+            throw Failure(ScriptErrorKind.SyntaxError, line, "too many nested levels");
+        }
     }
 
     private static ParseFailure UnexpectedToken(Token token)

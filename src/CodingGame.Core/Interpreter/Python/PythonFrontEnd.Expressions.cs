@@ -41,7 +41,10 @@ public sealed partial class PythonFrontEnd
                 }
 
                 Token open = Advance();
-                return new Call(token.Line, token.Text, ParseArguments(open.Line));
+                EnterNesting(open.Line);
+                List<Expression> arguments = ParseArguments(open.Line);
+                _nestingDepth--;
+                return new Call(token.Line, token.Text, arguments);
             case TokenKind.Number:
                 Advance();
                 return new Literal(token.Line, Value.FromNumber(int.Parse(token.Text, CultureInfo.InvariantCulture)));
