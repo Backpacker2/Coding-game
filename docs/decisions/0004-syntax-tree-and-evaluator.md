@@ -104,7 +104,7 @@ Build order, each step leaving the tests green:
 - `StepResult` is a `readonly record struct` with a `StepStatus`, so a step allocates nothing.
 - Time: the effect of a command happens at once, then the field advances by exactly one tick per `Step()` that returns `Running`, never on `Finished` or `Failed`. A sensor in a condition is charged together with the branch it chooses.
 - A player function call is a statement on its own. Used inside an expression it is a `WrongArgument` error, because functions return nothing yet and expressions never pause.
-- Functions are registered when their definition runs, as in Python. JavaScript hoists functions; its front end can move definitions to the top.
+- Functions are registered when their definition runs, as in Python. JavaScript hoists functions, so its front end moves definitions to the top of their block (see [`0006`](0006-javascript-front-end.md)).
 - `Evaluator.MaxCallDepth` is 100: a runaway recursion ends as a `TooDeep` script error long before it uses up memory.
 - `NotUnlocked` has its wording and a test, but nothing produces it until unlocks exist (milestone 10).
 - The analyzer rule CA1716 is off, so tree nodes can be named after what scripts write (`If`, `While`, `Call`).
