@@ -6,17 +6,26 @@ public sealed partial class PythonFrontEnd
 {
     private Expression ParseExpression()
     {
-        Expression left = ParsePrimary();
+        Expression expression = ParsePrimary();
         Token token = Current;
-        if (token.Kind != TokenKind.Operator || token.Text is not ("==" or "!="))
+        if (token is { Kind: TokenKind.Operator, Text: "==" or "!=" })
         {
-            return left;
+            Advance();
+            var comparison = token.Text == "==" ? CompareOperator.Equal : CompareOperator.NotEqual;
+            Expression right = ParsePrimary();
+            expression = new Compare(expression.Line, expression, comparison, right);
+            if (Current is { Kind: TokenKind.Operator, Text: "==" or "!=" } chained)
+            {
+                throw Failure(ScriptErrorKind.NotUnlocked, chained.Line, "chained comparisons");
+            }
         }
 
-        Advance();
-        var comparison = token.Text == "==" ? CompareOperator.Equal : CompareOperator.NotEqual;
-        Expression right = ParsePrimary();
-        return new Compare(left.Line, left, comparison, right);
+        if (Current.Kind == TokenKind.Keyword)
+        {
+            throw UnexpectedToken(Current);
+        }
+
+        return expression;
     }
 
     private Expression ParsePrimary()
@@ -31,8 +40,8 @@ public sealed partial class PythonFrontEnd
                     return new Name(token.Line, token.Text);
                 }
 
-                Advance();
-                return new Call(token.Line, token.Text, ParseArguments());
+                Token open = Advance();
+                return new Call(token.Line, token.Text, ParseArguments(open.Line));
             case TokenKind.Number:
                 Advance();
                 return new Literal(token.Line, Value.FromNumber(int.Parse(token.Text, CultureInfo.InvariantCulture)));
@@ -44,7 +53,7 @@ public sealed partial class PythonFrontEnd
         }
     }
 
-    private List<Expression> ParseArguments()
+    private List<Expression> ParseArguments(int openLine)
     {
         var arguments = new List<Expression>();
         if (IsOperator(")"))
@@ -53,14 +62,29 @@ public sealed partial class PythonFrontEnd
             return arguments;
         }
 
-        arguments.Add(ParseExpression());
+        arguments.Add(ParseArgument(openLine));
         while (IsOperator(","))
         {
             Advance();
-            arguments.Add(ParseExpression());
+            arguments.Add(ParseArgument(openLine));
+        }
+
+        if (Current.Kind == TokenKind.Newline)
+        {
+            throw Failure(ScriptErrorKind.SyntaxError, openLine, "'(' was never closed");
         }
 
         Expect(TokenKind.Operator, ")");
         return arguments;
+    }
+
+    private Expression ParseArgument(int openLine)
+    {
+        if (Current.Kind == TokenKind.Newline)
+        {
+            throw Failure(ScriptErrorKind.SyntaxError, openLine, "'(' was never closed");
+        }
+
+        return ParseExpression();
     }
 }
