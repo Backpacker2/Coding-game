@@ -24,3 +24,10 @@ private/
 bin/
 obj/
 *.user
+
+# Godot
+src/CodingGame.Godot/.godot/
+src/CodingGame.Godot/data/
+src/CodingGame.Godot/*.uid
+src/CodingGame.Godot/*.csproj.old
+src/CodingGame.Godot/*.sln

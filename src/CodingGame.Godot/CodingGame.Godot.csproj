@@ -1,0 +1,18 @@
+<Project Sdk="Godot.NET.Sdk/4.7.2">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <RootNamespace>CodingGame.Godot</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CodingGame.Core\CodingGame.Core.csproj" />
+  </ItemGroup>
+
+  <Target Name="CopyGameData" BeforeTargets="BeforeBuild">
+    <ItemGroup>
+      <GameDataFile Include="..\..\data\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(GameDataFile)" DestinationFolder="$(MSBuildProjectDirectory)\data" SkipUnchangedFiles="true" />
+  </Target>
+</Project>
