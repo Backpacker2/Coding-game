@@ -57,6 +57,14 @@ internal static class JavaScriptTokenizer
                 var lineEnd = text.IndexOf('\n', index);
                 index = lineEnd < 0 ? text.Length : lineEnd;
             }
+            else if (character == '/' && index + 1 < text.Length && text[index + 1] == '*')
+            {
+                return new ScriptError(ScriptErrorKind.NotUnlocked, line, "block comments");
+            }
+            else if (character is '\'' or '"' or '`')
+            {
+                return new ScriptError(ScriptErrorKind.NotUnlocked, line, "strings");
+            }
             else if (IsIdentifierStart(character))
             {
                 var end = index + 1;
@@ -78,6 +86,12 @@ internal static class JavaScriptTokenizer
                     end++;
                 }
 
+                var error = CheckNumber(text, index, end, line);
+                if (error is not null)
+                {
+                    return error;
+                }
+
                 into.Add(new Token(TokenKind.Number, text[index..end], line));
                 index = end;
             }
@@ -92,6 +106,33 @@ internal static class JavaScriptTokenizer
                 into.Add(new Token(TokenKind.Operator, operatorText, line));
                 index += operatorText.Length;
             }
+        }
+
+        return null;
+    }
+
+    private static ScriptError? CheckNumber(string text, int start, int end, int line)
+    {
+        var next = end < text.Length ? text[end] : '\0';
+        if (next == '.')
+        {
+            return new ScriptError(ScriptErrorKind.NotUnlocked, line, "decimal numbers");
+        }
+
+        if (IsIdentifierStart(next))
+        {
+            return new ScriptError(ScriptErrorKind.SyntaxError, line, "Invalid or unexpected token");
+        }
+
+        var digits = text[start..end];
+        if (digits.Length > 1 && digits[0] == '0')
+        {
+            return new ScriptError(ScriptErrorKind.SyntaxError, line, "leading zeros are not allowed in numbers");
+        }
+
+        if (!int.TryParse(digits, out _))
+        {
+            return new ScriptError(ScriptErrorKind.SyntaxError, line, "number is too large");
         }
 
         return null;
