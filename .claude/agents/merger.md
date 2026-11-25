@@ -43,7 +43,9 @@ git -c user.name=Backpacker2 -c user.email=243203062+Backpacker2@users.noreply.g
   merge --no-ff origin/<branch> -m "Merge pull request #<n>: <title>" -m "Co-Authored-By: Claude <noreply@anthropic.com>"
 ```
 
-Then run the tests once more, tag the merge commit with the version from its `CHANGELOG.md` entry (`git tag vX.Y.Z`), and push `main` and the tag. GitHub marks the pull request as merged by itself.
+Then run the tests once more and push `main`. GitHub marks the pull request as merged by itself. Do not push tags: cloud sessions are not allowed to. The CI job `tag` tags every `CHANGELOG.md` version on the main commit that added it. A few minutes after the push, check that `vX.Y.Z` exists on GitHub (`git ls-remote --tags origin`), and report it if not.
+
+Every merge needs its own `CHANGELOG.md` version, and `Directory.Build.props` must hold the newest one.
 
 ## Report
 
