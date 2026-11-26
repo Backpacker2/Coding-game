@@ -9,13 +9,34 @@ namespace CodingGame.Godot;
 public static class Palette
 {
     /// <summary>Grass tile.</summary>
-    public static readonly Color Grass = new(0.38f, 0.54f, 0.27f);
+    public static readonly Color Grass = new(0.33f, 0.50f, 0.24f);
 
     /// <summary>Soil tile.</summary>
     public static readonly Color Soil = new(0.45f, 0.33f, 0.24f);
 
-    /// <summary>The block under the field.</summary>
-    public static readonly Color FieldBase = new(0.33f, 0.24f, 0.17f);
+    /// <summary>Grass of the island.</summary>
+    public static readonly Color Ground = new(0.50f, 0.60f, 0.34f);
+
+    /// <summary>Soil and rock under the island.</summary>
+    public static readonly Color IslandEdge = new(0.36f, 0.27f, 0.20f);
+
+    /// <summary>Sides of a tile under its top layer.</summary>
+    public static readonly Color TileBody = new(0.40f, 0.29f, 0.21f);
+
+    /// <summary>Furrows on tilled soil.</summary>
+    public static readonly Color Furrow = new(0.30f, 0.21f, 0.14f);
+
+    /// <summary>Trunks of the trees.</summary>
+    public static readonly Color TreeTrunk = new(0.35f, 0.25f, 0.17f);
+
+    /// <summary>Crowns of the trees.</summary>
+    public static readonly Color TreeCrown = new(0.22f, 0.42f, 0.22f);
+
+    /// <summary>Rocks on the island.</summary>
+    public static readonly Color Rock = new(0.52f, 0.52f, 0.50f);
+
+    /// <summary>Highlight under the drone.</summary>
+    public static readonly Color DroneRing = new(0.30f, 0.75f, 1.00f, 0.35f);
 
     /// <summary>Soil that has just been planted.</summary>
     public static readonly Color PlantingSoil = new(0.40f, 0.29f, 0.20f);
@@ -88,7 +109,7 @@ public static class Palette
 
     // Placeholder art: the colours only tell the crops apart until real art exists.
     // The order follows the crops in data/crops.json: clover, radish, potato.
-    private static readonly Color[] _cropColors = [new(0.18f, 0.55f, 0.25f), new(0.85f, 0.28f, 0.35f), new(0.82f, 0.66f, 0.38f)];
+    private static readonly Color[] _cropColors = [new(0.14f, 0.40f, 0.20f), new(0.85f, 0.28f, 0.35f), new(0.82f, 0.66f, 0.38f)];
 
     /// <summary>
     /// Gets the colour that draws a crop on the field and in the item bar.
@@ -99,5 +120,23 @@ public static class Palette
     public static Color CropColor(Crop crop, IReadOnlyList<Crop> crops)
     {
         return _cropColors[FieldView3D.CropIndex(crop, crops) % _cropColors.Length];
+    }
+
+    /// <summary>
+    /// Gets a colour a little lighter or darker, so neighbouring tiles differ slightly.
+    /// </summary>
+    /// <param name="color">The colour to shade.</param>
+    /// <param name="shade">0 for darker, 1 for the colour itself, 2 for lighter.</param>
+    /// <returns>The shaded colour.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="shade"/> is not 0, 1 or 2.</exception>
+    public static Color Shaded(Color color, int shade)
+    {
+        return shade switch
+        {
+            0 => color.Darkened(0.05f),
+            1 => color,
+            2 => color.Lightened(0.05f),
+            _ => throw new ArgumentOutOfRangeException(nameof(shade), shade, "shade must be 0, 1 or 2"),
+        };
     }
 }
