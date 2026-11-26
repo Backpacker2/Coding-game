@@ -1,0 +1,109 @@
+# Player guide
+
+Coding Game puts you in charge of a drone on a farm. You control it with code. You write a script in Python or JavaScript, press Run, and the drone carries it out on the field, one tick at a time.
+
+The same drone commands work in both languages. Only the way you write them changes. You start with a few commands and buy more with the items you harvest.
+
+## The window
+
+- **Editor** (left, top): your script, with line numbers. You cannot edit it while a script runs.
+- **Language picker**: Python or JavaScript. Each language keeps its own script.
+- **Run**: starts the script, or carries on with a script that Step paused. After a run has ended, Run starts a new one.
+- **Step**: runs the script until the next line starts. The yellow line shows the line that is about to run.
+- **Stop**: ends the run and resets the farm. Your items stay.
+- **Speed**: Slow, Normal or Fast. It only changes how fast the ticks run, not the result. Normal is the default.
+- **Ticks**: how many ticks this run has used. It says `finished` or `stopped by an error` when the run ends.
+- **Error panel**: the message for an error in red. The line with the error turns red.
+- **Farm**: the field. Dark green is grass, brown is soil. A coloured circle is a crop: clover is gold, radish red and potato orange. A circle grows as the crop grows, and a white ring means it is ripe. The blue outline is the drone.
+- **Items**: what you own, for example `Items: CLOVER 3, RADISH 1`, or `Items: none`.
+- **Unlock panel**: each unlock with its price and a Buy button. A bought unlock says `Unlocked`. Buy is greyed out while a script runs or when you cannot pay.
+
+## Commands
+
+| Command | What it does | Ticks |
+| --- | --- | --- |
+| `move(direction)` | Moves the drone one tile: `NORTH`, `EAST`, `SOUTH` or `WEST`. At an edge it comes out at the opposite edge. | 20 |
+| `harvest()` | Takes the crop on this tile. A ripe crop gives its items. | 20 |
+| `plant(crop)` | Plants `RADISH` or `POTATO` on this tile. It pays the seed items. | 20 |
+| `ripe()` | `True` if the crop on this tile is ripe. | 1 |
+| `till()` | Turns grass into soil, or soil into grass. It removes the crop on the tile. | 20 |
+| `ground()` | `GRASS` or `SOIL`, what this tile is made of. | 1 |
+
+Examples, one line each:
+
+- Python: `move(EAST)`, JavaScript: `move(EAST);`
+- Python: `harvest()`, JavaScript: `harvest();`
+- Python: `plant(RADISH)`, JavaScript: `plant(RADISH);`
+- Python: `if ripe():`, JavaScript: `if (ripe()) { ... }`
+- Python: `if ground() == SOIL:`, JavaScript: `if (ground() === SOIL) { ... }`
+
+JavaScript needs semicolons, and braces around the body of `if`, `else`, `for` and `while`.
+
+## Crops
+
+| Crop | Grows on | Grow time | Seed | Harvest gives | After a harvest |
+| --- | --- | --- | --- | --- | --- |
+| `CLOVER` | grass | 200 ticks | free, it cannot be planted | 1 clover | grows again |
+| `RADISH` | grass | 300 ticks | 2 clover | 4 radish | the tile is empty |
+| `POTATO` | soil | 500 ticks | 2 radish | 6 potato | the tile is empty |
+
+A crop grows one tick at a time while a script runs. It is ripe when it has grown for its full grow time. At Normal speed a run goes on at about 20 ticks a second, so clover is ripe after about 10 seconds, radish after about 15 and potato after about 25.
+
+Harvesting a radish or potato before it is ripe destroys it, and you get nothing. Clover that is not ripe stays as it is.
+
+## Unlocks
+
+Each unlock costs items and opens new commands or language features.
+
+| Unlock | Price | Opens |
+| --- | --- | --- |
+| for loop | 10 clover | `for`, to repeat a number of times |
+| Bigger field | 30 clover | the field grows to 5x5 |
+| Radish and plant() | 40 clover | `plant()` and `RADISH` |
+| if / else and ripe() | 20 radish | `if`, `else` and `ripe()`. Python's `elif` and JavaScript's `else if` count as `if`. |
+| while loop | 40 radish | `while` |
+| Potato, till() and ground() | 60 radish | `till()`, `ground()`, `POTATO`, `SOIL`, `GRASS`, and comparisons: `==` and `!=` in Python, `===` and `!==` in JavaScript |
+| Functions | 30 potato | `def` in Python, `function` in JavaScript |
+
+Buying an unlock uses up its items.
+
+At the start, `move()`, `harvest()`, the four directions and `CLOVER` are available. Everything else in the table is locked until you buy it.
+
+## Error messages
+
+Errors name the line they happened on. Python errors look like Python errors, and JavaScript errors look like JavaScript errors:
+
+- `SyntaxError on line 1: expected ':'` (Python, for `if ripe()` with no colon)
+- `IndentationError on line 2: unexpected indent` (Python)
+- `NameError on line 3: name 'mvoe' is not defined` (Python, a misspelt command)
+- `ReferenceError on line 3: mvoe is not defined` (JavaScript)
+- `SyntaxError on line 1: expected ';'` (JavaScript)
+- `SyntaxError on line 1: '==' is not allowed, use '===': '==' converts types before it compares` (JavaScript)
+- `Error on line 1: 'plant' is not unlocked yet` (a feature you have not bought yet, in either language)
+- `RuntimeError on line 2: cannot plant RADISH: not enough seed items` (Python; JavaScript says `Error on line 2:` instead)
+- `TypeError on line 1: move expects direction, got number` (a command with the wrong kind of argument)
+
+An unlocked feature is checked before the run starts, so the drone does not move at all. A misspelt command is found only when its line runs, so the drone may have moved before the error.
+
+## Tips
+
+- **The field wraps around.** Walking east past the last column brings you back to the first column of the same row. Walking north past the top row brings you to the bottom row. A loop over the rows needs no turning logic.
+- **Check before you act.** `ripe()` and `ground()` cost only 1 tick each. A harvest of an unripe radish destroys it, so check first.
+- **A tile you till and turn back to grass is empty.** Tilling removes the crop, and clover cannot be planted, so that tile stays empty.
+- **Harvesting a ripe radish or potato empties the tile.** Plant it again to keep farming it.
+- **Each run starts on a fresh field.** The field is grass with ripe clover on every tile, and the drone starts on the top-left tile. Crops do not carry over from one run to the next. Your items do.
+- **A loop can run forever.** A `while True:` loop, or `while (ripe()) {}` in JavaScript, never ends by itself. Press Stop. Step on a loop that does not start another line stops after 10,000 ticks, and the next Step carries on.
+- **Recursion has a limit.** A function that calls itself more than 100 calls deep stops with a `RecursionError` in Python or a `RangeError` in JavaScript.
+
+## Saving
+
+The game saves your items, your bought unlocks, both of your scripts and the language you selected. It saves:
+
+- after each buy,
+- when a run starts,
+- when a run ends or is stopped, and
+- when you close the window.
+
+The save is the file `save.json`, in Godot's user data folder for the project "Coding Game". In Godot, use Project, Open User Data Folder. Delete the file to start again.
+
+If the game cannot read `save.json`, it keeps the file as `save.json.broken`, shows a red notice and starts a new game.

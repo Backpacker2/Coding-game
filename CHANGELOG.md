@@ -2,6 +2,12 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.6.2 — 2026-11-26
+
+- Add `docs/player-guide.md` for players: the window, the commands, the crops and their growth, the unlocks, the error messages, tips and saving.
+- Add `docs/architecture.md` for developers: the projects and folders, the data flow, where each rule lives, how to add a command or a language, testing and the decision records.
+- Replace the README status, which said there was no code, with the real state of the prototype and links to both guides, and list both documents in `docs/README.md`.
+
 ## 0.6.1 — 2026-11-26
 
 - Add a speed picker to the window (Slow, Normal, Fast) that sets how many ticks run per second, so long scripts finish faster. It only changes the pace of a run, not the result.
