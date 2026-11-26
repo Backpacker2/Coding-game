@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.13.2 — 2026-11-26
+
+- Clean-up: the save file code is split by purpose; nothing changes for the player.
+
 ## 0.13.1 — 2026-11-26
 
 - `spin()` now shows: the drone turns a full circle on its tile for every spin.
