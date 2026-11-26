@@ -6,6 +6,7 @@
 - `player-guide.md`: how to play: the window, the commands, the crops, the unlocks and the errors
 - `playtest.md`: the owner's step-by-step play-test guide
 - `architecture.md`: technical overview for developers: folders, data flow and where each rule lives
+- `visual-direction.md`: the owner's target look for the screen, and the steps toward it
 - `decisions/`: decision records for important design choices, with the rejected alternatives
 - `workflow.md`: how Claude works on the game, with Opus, Sonnet and Haiku agents
 - `TODO.md`: the road map toward a playable prototype

@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.8.0 — 2026-11-26
+
+- The farm fills the screen. The script is a floating window with its own Run, Step and Stop that can be moved, resized and closed (the Code button brings it back). Items show as icons with counts in a bar at the top left. Round buttons at the top right open the Unlocks, Help and Menu (New game) overlays.
+
 ## 0.7.2 — 2026-11-26
 
 - Fix the layout from the owner's first screenshot: the window opens maximised and fills the screen, the farm is centred, the unlocks and the help are tabs next to the farm, the messages box under the editor has a title and a hint, and the drone is drawn as a marker.

@@ -62,3 +62,7 @@ Option A for the help texts. Hidden locked entries. New game resets in place and
 - The help is a view of the game state: it is rebuilt when a language is chosen and when an unlock is bought.
 - New game does not reset the speed picker, which is a view preference and not progress.
 - The save format stays at version 1.
+
+## Update 2026-11-26: Help is an overlay window
+
+Since 0.8.0 the help is no longer a tab next to the farm. The Help button at the top right opens it in its own window, and the button closes it again. The entries, the rules and the decision above stay as they are; only the place changed. The New game button moved into the Menu at the top right.
