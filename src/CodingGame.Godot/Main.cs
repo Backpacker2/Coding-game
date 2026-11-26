@@ -125,17 +125,17 @@ public partial class Main : Control
         _newGameDialog.Confirmed += OnNewGameConfirmed;
         AddChild(_newGameDialog);
 
-        Button codeButton = new() { Text = "Code" };
+        Button codeButton = new() { Text = "Code", Icon = GameIcons.Code };
         ApplyRoundStyle(codeButton);
         codeButton.Pressed += () => ToggleWindow(_codeWindow);
-        _unlocksButton = new() { Text = "Unlocks" };
+        _unlocksButton = new() { Text = "Unlocks", Icon = GameIcons.Unlocks };
         ApplyRoundStyle(_unlocksButton);
         _unlocksButton.Pressed += () => ToggleWindow(unlocksWindow);
-        Button helpButton = new() { Text = "Help" };
+        Button helpButton = new() { Text = "Help", Icon = GameIcons.Help };
         ApplyRoundStyle(helpButton);
         helpButton.Pressed += () => ToggleWindow(helpWindow);
         // A menu button is flat by default, which hides the round background.
-        _menuButton = new MenuButton { Text = "Menu", Flat = false };
+        _menuButton = new MenuButton { Text = "Menu", Icon = GameIcons.Menu, Flat = false };
         ApplyRoundStyle(_menuButton);
         PopupMenu menu = _menuButton.GetPopup();
         menu.AddItem("New game", 0);

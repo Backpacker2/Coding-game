@@ -2,6 +2,11 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.14.6 — 2026-11-26
+
+- The round buttons at the top right get line icons: brackets for Code, a padlock for Unlocks, a question mark for Help and three lines for Menu.
+- Fix: the script window's title bar no longer covers the bottom of the round buttons.
+
 ## 0.14.5 — 2026-11-26
 
 - The item pills at the top left show a small drawing of each crop in the shape it has on the field (three leaves, a bulb under leaves, a tuber) instead of a plain dot.
