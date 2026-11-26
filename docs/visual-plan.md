@@ -85,7 +85,7 @@ Each milestone is one pull request and one version.
 
 ### 25. Game UI theme
 
-- One `GameTheme` builds a Godot `Theme` in code: warm light panels with rounded corners and a soft shadow, a dark high-contrast editor inside, styled buttons with clear states, dropdowns, scroll bars and window title bars.
+- One `GameTheme` builds a Godot `Theme` in code: warm dark panels with rounded corners and a soft shadow (dark, not light, because the syntax colours and the overlays on the field are made for a dark background), a darker high-contrast editor inside, styled buttons with clear states, dropdowns, scroll bars and window title bars.
 - Run is green, Stop is red, Step is neutral, with drawn icons (triangle, square, step arrow).
 - The round top-right buttons get drawn icons with the text as a tooltip.
 - The item bar pills use the theme, show the crop's shape as their icon, and pulse when a count rises.
