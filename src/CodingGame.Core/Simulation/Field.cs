@@ -203,8 +203,8 @@ public sealed class Field
     }
 
     /// <summary>
-    /// Plants a crop on the tile under the drone and pays its seed items. The checks run in order
-    /// and the first failure is returned without changing the field or the items.
+    /// Plants a crop on the tile under the drone and pays its seed items. A wild crop on the tile is replaced.
+    /// The checks run in order and the first failure is returned without changing the field or the items.
     /// </summary>
     /// <param name="crop">The crop to plant.</param>
     /// <returns>The result of the planting, see <see cref="PlantResult"/>.</returns>
@@ -216,7 +216,7 @@ public sealed class Field
         }
 
         Tile tile = DroneTile;
-        if (tile.Crop is not null)
+        if (tile.Crop?.Seed is not null)
         {
             return PlantResult.TileOccupied;
         }

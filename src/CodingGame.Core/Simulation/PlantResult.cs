@@ -12,7 +12,7 @@ public enum PlantResult
     /// <summary>The crop has no seed cost, so it grows wild and cannot be planted.</summary>
     NotPlantable,
 
-    /// <summary>The tile under the drone already has a crop.</summary>
+    /// <summary>The tile under the drone already has a planted crop. A wild crop does not count.</summary>
     TileOccupied,
 
     /// <summary>The tile is not made of the ground the crop grows on.</summary>
