@@ -24,6 +24,7 @@ The field starts 3x3. This is for testing only, so that nested loops can be trie
 
 7. Things to try:
    - Press Run on the starter script. The drone collects two clover.
+   - Right-drag over the field: the view turns. Scroll the mouse wheel: it zooms in and out. Try both while the Script window has focus too. Then choose Menu > Reset view: the start view comes back.
    - Change the script and press Run again.
    - Press Step several times and watch the yellow line move.
    - While a loop runs, change the speed to Slow and then to Fast. The drone moves slower or faster, and the end result stays the same.

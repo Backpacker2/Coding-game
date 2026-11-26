@@ -6,12 +6,12 @@ The same drone commands work in both languages. Only the way you write them chan
 
 ## The screen
 
-- **Farm**: the field fills the screen and is centred, seen from an angle in 3D. Green tiles are grass, brown tiles are soil. A crop is a small shape: clover is gold, radish red and potato orange. A crop grows bigger as it grows, and a ripe crop glows a little. The drone hovers over its tile with spinning rotors. It glides from tile to tile and leans as it flies. Harvesting bursts the crop into particles and shows the items you gained above the drone; planting kicks up a little soil.
+- **Farm**: the field fills the screen and is centred, seen from an angle in 3D. Green tiles are grass, brown tiles are soil. A crop is a small shape: clover is gold, radish red and potato orange. A crop grows bigger as it grows, and a ripe crop glows a little. The drone hovers over its tile with spinning rotors. It glides from tile to tile and leans as it flies. Harvesting bursts the crop into particles and shows the items you gained above the drone; planting kicks up a little soil. Right-drag over the field to turn the view and use the mouse wheel to zoom; this works even while the Script window has focus.
 - **Items** (top left): one pill for each item you own, with a coloured circle and the count, for example clover 3 and radish 1. Hover over a pill to see the item's name. With no items it says `No items yet`.
 - **Code** (top right): shows or hides the Script window. See below.
 - **Unlocks** (top right): opens the unlock list in its own window. Each unlock has its price and a Buy button. A bought unlock says `Unlocked`. Buy is greyed out while a script runs or when you cannot pay. The list scrolls when it is long.
 - **Help** (top right): opens the help in its own window: what you can use now, for the language you selected. Each entry has a short description and an example. The help lists only what you have unlocked, so new entries appear when you buy an unlock. Switch the language and the examples change to that language's style.
-- **Menu** (top right): **New game**. It is greyed out while a script runs.
+- **Menu** (top right): **Reset view** brings the camera back to the start view. **New game** starts over; it is greyed out while a script runs.
 
 The Unlocks, Help and Menu buttons work the same way: press once to open, and press again to close the window.
 

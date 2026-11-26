@@ -4,11 +4,11 @@
     "title": "Your first script",
     "feature": null,
     "python": {
-      "text": "A script is a list of commands. The drone runs them one by one, from the top line to the bottom. Put one command on each line, with its name and round brackets, like move(EAST). Press Run to run the whole script, or Step to run one line at a time.",
+      "text": "A script is a list of commands. The drone runs them one by one, from the top line to the bottom. Put one command on each line, with its name and round brackets, like move(EAST). Press Run to run the whole script, or Step to run one line at a time. Right-drag over the field to turn the view and use the mouse wheel to zoom; Menu > Reset view brings back the start view.",
       "example": "harvest()\nmove(EAST)\nharvest()"
     },
     "javascript": {
-      "text": "A script is a list of commands. The drone runs them one by one, from the top line to the bottom. Put one command on each line, and end each command with a semicolon. Press Run to run the whole script, or Step to run one line at a time.",
+      "text": "A script is a list of commands. The drone runs them one by one, from the top line to the bottom. Put one command on each line, and end each command with a semicolon. Press Run to run the whole script, or Step to run one line at a time. Right-drag over the field to turn the view and use the mouse wheel to zoom; Menu > Reset view brings back the start view.",
       "example": "harvest();\nmove(EAST);\nharvest();"
     }
   },
