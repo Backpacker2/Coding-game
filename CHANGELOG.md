@@ -2,9 +2,13 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
-## 0.12.4 — 2026-11-26
+## 0.12.5 — 2026-11-26
 
 - spin(): a playful command in Python and JavaScript that turns the drone once and costs 10 ticks.
+
+## 0.12.4 — 2026-11-26
+
+- A hint after a repeated error now sits under the Messages box in a calm blue, folded behind a Show hint button, instead of as a red notice. New game clears it.
 
 ## 0.12.3 — 2026-11-26
 

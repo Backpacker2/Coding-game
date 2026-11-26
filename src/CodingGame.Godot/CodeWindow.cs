@@ -22,6 +22,8 @@ public partial class CodeWindow : Window
     private Label _tickLabel = null!;
     private Label _errorLabel = null!;
     private Label _noticeLabel = null!;
+    private Button _hintButton = null!;
+    private Label _hintLabel = null!;
     private TabBar _scriptTabs = null!;
     private Button _addScriptButton = null!;
     private ConfirmationDialog _renameDialog = null!;
@@ -104,6 +106,18 @@ public partial class CodeWindow : Window
     public void ShowNotice(string text)
     {
         _noticeLabel.Text = text;
+    }
+
+    /// <summary>
+    /// Shows a hint under the Messages box, folded behind a Show hint button so a player who wants to solve it alone
+    /// is not told the answer. Null removes the hint and its button.
+    /// </summary>
+    /// <param name="hint">The hint text, or null for none.</param>
+    public void ShowHint(string? hint)
+    {
+        _hintLabel.Text = hint is null ? "" : $"Hint: {hint}";
+        _hintButton.Visible = hint is not null;
+        _hintButton.ButtonPressed = false;
     }
 
     /// <summary>
@@ -224,6 +238,10 @@ public partial class CodeWindow : Window
         _errorLabel = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart };
         PanelContainer errorPanel = new() { CustomMinimumSize = new Vector2(0, 80) };
         errorPanel.AddChild(_errorLabel);
+        _hintLabel = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, Visible = false };
+        _hintLabel.AddThemeColorOverride("font_color", Palette.HintText);
+        _hintButton = new Button { Text = "Show hint", ToggleMode = true, Visible = false, SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin };
+        _hintButton.Toggled += pressed => _hintLabel.Visible = pressed;
 
         VBoxContainer column = new();
         column.SetAnchorsPreset(Control.LayoutPreset.FullRect);
@@ -233,6 +251,8 @@ public partial class CodeWindow : Window
         column.AddChild(_noticeLabel);
         column.AddChild(new Label { Text = "Messages" });
         column.AddChild(errorPanel);
+        column.AddChild(_hintButton);
+        column.AddChild(_hintLabel);
         AddChild(column);
     }
 }
