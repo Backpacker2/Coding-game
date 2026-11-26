@@ -31,10 +31,6 @@ public partial class FieldView3D
         // Narrower than the ground, so the island tapers.
         _tiles.AddChild(Part(new BoxMesh { Size = new Vector3(width + 2 * IslandMarginTiles - 0.6f, 0.6f, height + 2 * IslandMarginTiles - 0.6f) }, Palette.IslandEdge, false, new Vector3(cx, GroundTopY - 0.6f, cz)));
 
-        CylinderMesh trunkMesh = new() { TopRadius = 0.06f, BottomRadius = 0.08f, Height = 0.4f, RadialSegments = 5, Rings = 1 };
-        CylinderMesh lowerCrownMesh = new() { TopRadius = 0, BottomRadius = 0.35f, Height = 0.6f, RadialSegments = 6, Rings = 1 };
-        CylinderMesh upperCrownMesh = new() { TopRadius = 0, BottomRadius = 0.25f, Height = 0.5f, RadialSegments = 6, Rings = 1 };
-        SphereMesh rockMesh = new() { Radius = 0.3f, Height = 0.36f, RadialSegments = 6, Rings = 3 };
         for (int x = -IslandMarginTiles; x < width + IslandMarginTiles; x++)
         {
             for (int z = -IslandMarginTiles; z < height + IslandMarginTiles; z++)
@@ -61,16 +57,7 @@ public partial class FieldView3D
                     Scale = Vector3.One * size,
                     RotationDegrees = new Vector3(0, hash % 360, 0),
                 };
-                if (rock)
-                {
-                    item.AddChild(Part(rockMesh, Palette.Rock, false, new Vector3(0, 0.08f, 0)));
-                }
-                else
-                {
-                    item.AddChild(Part(trunkMesh, Palette.TreeTrunk, false, new Vector3(0, 0.2f, 0)));
-                    item.AddChild(Part(lowerCrownMesh, Palette.TreeCrown, false, new Vector3(0, 0.7f, 0)));
-                    item.AddChild(Part(upperCrownMesh, Palette.TreeCrown, false, new Vector3(0, 1.05f, 0)));
-                }
+                item.AddChild(rock ? RockModel(hash >> 2) : TreeModel(hash >> 2));
 
                 _tiles.AddChild(item);
             }
