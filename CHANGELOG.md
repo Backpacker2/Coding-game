@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.14.2 — 2026-11-26
+
+- Docs: the player guide, the play-test guide and the first Help lesson explain the camera (right-drag turns, the wheel zooms, Menu > Reset view).
+
 ## 0.14.1 — 2026-11-26
 
 - Camera: right-drag over the field turns the view and the mouse wheel zooms, both smoothly and within limits so the field stays readable. Menu > Reset view brings back the default angle. This also works while the script window has focus.
