@@ -10,8 +10,9 @@ namespace CodingGame.Godot;
 /// <summary>The game window: the script editor, the controls and the farm view.</summary>
 public partial class Main : Control
 {
-    // A move costs 20 ticks, so the drone moves about once a second. A speed slider comes later.
-    private const double TicksPerSecond = 20;
+    // Ticks per second for Slow, Normal and Fast. A move costs 20 ticks, so Normal moves the drone about
+    // once a second. Slow lets the player follow each step; Fast finishes long loops in seconds.
+    private static readonly double[] _ticksPerSecondBySpeed = [5, 20, 200];
 
     // The controls and the rules are created in _Ready, after Godot has built the object.
     private GameRules _rules = null!;
@@ -20,6 +21,7 @@ public partial class Main : Control
     private FarmView _farm = null!;
     private ScriptEditor _editor = null!;
     private OptionButton _languagePicker = null!;
+    private OptionButton _speedPicker = null!;
     private Button _stopButton = null!;
     private Label _tickLabel = null!;
     private Label _itemsLabel = null!;
@@ -59,6 +61,11 @@ public partial class Main : Control
         stepButton.Pressed += OnStep;
         _stopButton = new Button { Text = "Stop" };
         _stopButton.Pressed += OnStop;
+        _speedPicker = new OptionButton();
+        _speedPicker.AddItem("Slow");
+        _speedPicker.AddItem("Normal");
+        _speedPicker.AddItem("Fast");
+        _speedPicker.Select(1);
         _tickLabel = new Label();
 
         HBoxContainer toolbar = new();
@@ -66,6 +73,7 @@ public partial class Main : Control
         toolbar.AddChild(runButton);
         toolbar.AddChild(stepButton);
         toolbar.AddChild(_stopButton);
+        toolbar.AddChild(_speedPicker);
         toolbar.AddChild(_tickLabel);
 
         _editor = new ScriptEditor { Text = _scriptTexts[_language] };
@@ -104,7 +112,7 @@ public partial class Main : Control
     {
         if (_playing && _session?.Status == StepStatus.Running)
         {
-            _tickBudget += delta * TicksPerSecond;
+            _tickBudget += delta * _ticksPerSecondBySpeed[_speedPicker.Selected];
         }
 
         while (_tickBudget >= 1 && _session is { Status: StepStatus.Running })
