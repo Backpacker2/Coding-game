@@ -214,11 +214,13 @@ public partial class CodeWindow : Window
         _languagePicker.AddItem("JavaScript");
         _languagePicker.ItemSelected += index => LanguageSelected?.Invoke((ScriptLanguage)index);
 
-        Button runButton = new() { Text = "Run" };
+        Button runButton = new() { Text = "▶ Run" };
+        GameTheme.ColorButton(runButton, Palette.UiAccent);
         runButton.Pressed += () => RunPressed?.Invoke();
         Button stepButton = new() { Text = "Step" };
         stepButton.Pressed += () => StepPressed?.Invoke();
-        _stopButton = new Button { Text = "Stop" };
+        _stopButton = new Button { Text = "■ Stop" };
+        GameTheme.ColorButton(_stopButton, Palette.UiDanger);
         _stopButton.Pressed += () => StopPressed?.Invoke();
         _speedPicker = new OptionButton();
         _speedPicker.AddItem("Slow");
@@ -237,6 +239,7 @@ public partial class CodeWindow : Window
 
         _errorLabel = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart };
         PanelContainer errorPanel = new() { CustomMinimumSize = new Vector2(0, 80) };
+        errorPanel.AddThemeStyleboxOverride("panel", GameTheme.Box(Palette.UiEditor, 6));
         errorPanel.AddChild(_errorLabel);
         _hintLabel = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, Visible = false };
         _hintLabel.AddThemeColorOverride("font_color", Palette.HintText);

@@ -134,6 +134,33 @@ public static class Palette
     /// <summary>Background of the first-steps card under the goal bar.</summary>
     public static readonly Color GoalCardBackground = new(0f, 0f, 0f, 0.35f);
 
+    /// <summary>Background of windows, dialogs, menus and panels.</summary>
+    public static readonly Color UiPanel = new(0.17f, 0.16f, 0.14f, 0.94f);
+
+    /// <summary>Thin border and title bar line around windows.</summary>
+    public static readonly Color UiPanelBorder = new(0.36f, 0.31f, 0.24f);
+
+    /// <summary>Normal text on the UI panels.</summary>
+    public static readonly Color UiText = new(0.94f, 0.91f, 0.84f);
+
+    /// <summary>A button at rest, and an unselected tab.</summary>
+    public static readonly Color UiButton = new(0.29f, 0.27f, 0.23f);
+
+    /// <summary>A button under the mouse, and the selected tab.</summary>
+    public static readonly Color UiButtonHover = new(0.37f, 0.34f, 0.29f);
+
+    /// <summary>A button while it is pressed.</summary>
+    public static readonly Color UiButtonPressed = new(0.22f, 0.20f, 0.17f);
+
+    /// <summary>Main action colour: Run and the round buttons at the top right.</summary>
+    public static readonly Color UiAccent = new(0.33f, 0.58f, 0.28f);
+
+    /// <summary>Stop, the button that ends a run.</summary>
+    public static readonly Color UiDanger = new(0.68f, 0.27f, 0.23f);
+
+    /// <summary>Background of the code editor, the Messages box and text fields.</summary>
+    public static readonly Color UiEditor = new(0.11f, 0.11f, 0.12f);
+
     // Placeholder art: the colours only tell the crops apart until real art exists.
     // The order follows the crops in data/crops.json: clover, radish, potato.
     private static readonly Color[] _cropColors = [new(0.14f, 0.40f, 0.20f), new(0.85f, 0.28f, 0.35f), new(0.82f, 0.66f, 0.38f)];
