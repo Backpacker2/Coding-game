@@ -2,6 +2,13 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.10.3 — 2026-11-26
+
+- The field sits on a small grass island with low-poly trees and rocks around it, placed from their position so the view is the same every time.
+- Tiles have a soil body and a thin top layer with a slight shade per tile; tilled soil shows furrows.
+- A soft blue ring on the ground shows the tile the drone is over.
+- Tuned greens so the field stands out from the island, darker clover, and a little more fog.
+
 ## 0.10.2 — 2026-11-26
 
 - Fix: radish could never be planted, because every grass tile holds wild clover and `till()` comes later. Planting now replaces wild clover.
