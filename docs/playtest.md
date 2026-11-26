@@ -34,7 +34,7 @@ The field starts 3x3. This is for testing only, so that nested loops can be trie
    - Buy `for loop` for 10 clover, then write a `for` loop and run it.
    - Buy `Bigger field` for 30 clover. The field becomes 5x5 at once.
    - Before you buy `Radish and plant()`, write `plant(RADISH)`. The error `'plant' is not unlocked yet` shows with the line number, and the line turns red. The drone does not move.
-   - Buy `Radish and plant()` for 40 clover, and plant a radish.
+   - Buy `Radish and plant()` for 40 clover. Then harvest a clover and plant a radish on that same tile, so you need at least 2 clover in the bank. The radish replaces the clover on the tile.
    - After buying `for loop`, write a loop that moves the drone 10 times and run it.
    - Later, once you have radish to buy `if / else and ripe()` and `while loop`, write a JavaScript loop that never ends: `while (ripe()) {}`. Press Run, watch the tick counter, then press Stop. Press Step on it too: it stops after a fixed number of ticks.
    - Buy something, edit the script in both languages, close the window, and start the game again. Your items, your unlocks, both scripts and the language should all be back.
@@ -58,8 +58,8 @@ The field starts 3x3. This is for testing only, so that nested loops can be trie
    - Start a run with a long loop. Check that the New game item in the Menu is greyed out while it runs, and that it is active again after Stop.
 
 10. Crops stay on the field:
-   - Once you have bought `Radish and plant()` and `Potato, till() and ground()`: a radish can only go on an empty tile, and every starting tile has clover, so this step needs `till()`. The radish costs 2 clover to plant.
-   - Write a script that tills the drone's tile twice (grass, soil, grass, so the clover is removed), plants `RADISH` and then moves the drone one tile east. Press Run and let it finish.
+   - Once you have bought `Radish and plant()`: a radish replaces the clover on its tile, so every starting tile can take one. The radish costs 2 clover to plant.
+   - Write a script that harvests the drone's tile, plants `RADISH` on it and then moves the drone one tile east. Press Run and let it finish.
    - Press Run again with a script that moves the drone one tile west. The drone starts one tile east, where the last run stopped, so after the move it stands on the radish. The radish is still there and has kept growing. Do not harvest it yet: an unripe radish is destroyed.
    - Close the window and start the game again. The radish and the drone are still there.
 
@@ -84,7 +84,7 @@ The field starts 3x3. This is for testing only, so that nested loops can be trie
 Do this before every test round, so you test what is on `main`.
 
 1. Close Godot.
-2. Get the newest code: in the code folder run `git checkout main` and `git pull`, or in GitHub Desktop pick the branch `main` and press Fetch, then Pull origin. If you use the zip, download the newest release again.
+2. Get the newest code: in the code folder run `git checkout main` and `git pull`. If `git pull` stops with "Your local changes to the following files would be overwritten by merge", run `git stash` and then `git pull` again. That sets the local changes aside; they are usually changes Godot made by itself (it rewrites `project.godot` when its version differs from 4.7.2, and its script editor can rewrite indentation when a `.cs` file is saved in it). Do not edit the code in Godot's script editor. Check with `git log -1 --oneline` that the newest merge is on top. Or, in GitHub Desktop, pick the branch `main` and press Fetch, then Pull origin. If you use the zip, download the newest release again.
 3. Open the project in Godot and press the hammer icon (Build) at the top right, or run `dotnet build` in the code folder.
 4. Still the old look? Close Godot, delete the folder `src/CodingGame.Godot/.godot` and open the project again. Godot rebuilds that folder. Your save is not in it and is kept.
 5. The version is in `Directory.Build.props` and at the top of `CHANGELOG.md`; check that it matches the newest release.

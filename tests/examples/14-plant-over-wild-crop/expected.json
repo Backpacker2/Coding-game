@@ -1,0 +1,13 @@
+{
+  "width": 2,
+  "height": 1,
+  "status": "Finished",
+  "ticks": 100,
+  "dronePosition": { "x": 0, "y": 0 },
+  "items": {},
+  "tiles": [
+    { "x": 0, "y": 0, "ground": "Grass", "crop": "RADISH" },
+    { "x": 1, "y": 0, "ground": "Grass", "crop": "CLOVER" }
+  ],
+  "error": null
+}

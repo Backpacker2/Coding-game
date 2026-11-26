@@ -44,7 +44,7 @@ All numbers go into `data/` once the game has code; they are listed here only to
 
 | Crop | Ground | Planted by | Grow time | Yield | Notes |
 | --- | --- | --- | --- | --- | --- |
-| Clover | grass | grows by itself | 200 ticks | 1 clover | Regrows after harvest. Free, slow and always there. |
+| Clover | grass | grows by itself | 200 ticks | 1 clover | Regrows after harvest. Free, slow and always there. Planting another crop replaces it. |
 | Radish | grass | `plant(RADISH)`, seed costs 2 clover | 300 ticks | 4 radish | Harvesting before it is ripe destroys it and gives nothing. |
 | Potato | soil | `plant(POTATO)`, seed costs 2 radish | 500 ticks | 6 potato | Only grows on soil; `till()` turns grass into soil and back. |
 
@@ -62,7 +62,7 @@ Each crop adds exactly one new rule, and each rule is what makes the next concep
 | --- | --- | --- |
 | `move(direction)` | 20 | `NORTH`, `EAST`, `SOUTH`, `WEST`. |
 | `harvest()` | 20 | On an unripe crop: destroys it (radish, potato) or does nothing (clover, still costs ticks). |
-| `plant(seed)` | 20 | Fails with a gameplay error if the tile already has a crop or the wrong ground. |
+| `plant(seed)` | 20 | Fails with a gameplay error if the tile already has a planted crop or the wrong ground. |
 | `till()` | 20 | Switches the tile between grass and soil. Removes the crop on it. |
 | `ripe()` | 1 | Sensor: is the crop on this tile ripe? |
 | `ground()` | 1 | Sensor: `GRASS` or `SOIL`. |

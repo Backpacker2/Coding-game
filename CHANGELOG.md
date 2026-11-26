@@ -2,6 +2,11 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.10.2 — 2026-11-26
+
+- Fix: radish could never be planted, because every grass tile holds wild clover and `till()` comes later. Planting now replaces wild clover.
+- The window title and the Menu show the version, so a tester can see which build runs.
+
 ## 0.10.1 — 2026-11-26
 
 - Give the view one palette (`Palette`) for every colour of the field, the drone, the sky and the script window.

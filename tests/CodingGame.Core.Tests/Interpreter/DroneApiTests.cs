@@ -165,9 +165,16 @@ public class DroneApiTests
     }
 
     [Fact]
-    public void PlantOnTileWithCropFails()
+    public void PlantOnTileWithPlantedCropFails()
     {
-        var api = new DroneApi(_rules, NewField());
+        Field field = NewField();
+        field.Harvest();
+        field.Move(Direction.East);
+        field.Harvest();
+        field.Till();
+        field.Till();
+        field.Plant(CropNamed("RADISH"));
+        var api = new DroneApi(_rules, field);
 
         CommandOutcome outcome = api.Commands["plant"].Run([Value.FromCrop(CropNamed("RADISH"))]);
 

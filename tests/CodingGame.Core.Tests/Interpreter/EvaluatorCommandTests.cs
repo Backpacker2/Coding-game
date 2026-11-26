@@ -119,7 +119,15 @@ public class EvaluatorCommandTests
     [Fact]
     public void PlantOnOccupiedTileFailsOnTheFirstStep()
     {
-        Evaluator evaluator = NewEvaluator(NewField(), CallStatement(1, "plant", Constant(1, "RADISH")));
+        Field field = NewField();
+        field.Harvest();
+        field.Move(Direction.East);
+        field.Harvest();
+        field.Move(Direction.West);
+        field.Till();
+        field.Till();
+        field.Plant(CropNamed("RADISH"));
+        Evaluator evaluator = NewEvaluator(field, CallStatement(1, "plant", Constant(1, "RADISH")));
 
         StepResult step = evaluator.Step();
 

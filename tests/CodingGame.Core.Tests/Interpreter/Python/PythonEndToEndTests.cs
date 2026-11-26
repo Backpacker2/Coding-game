@@ -60,7 +60,7 @@ public class PythonEndToEndTests
     }
 
     [Fact]
-    public void FarmExampleFailsWhenPlantingOnATileWithAWildCrop()
+    public void FarmExampleFailsWhenTooFewSeedsAreLeftForAWildTile()
     {
         Field field = NewField(_rules);
         const string source = """
@@ -82,10 +82,10 @@ public class PythonEndToEndTests
         (StepResult result, _) = Run(source, field);
 
         Assert.Equal(StepStatus.Failed, result.Status);
-        var expected = new ScriptError(ScriptErrorKind.CommandFailed, 7, "cannot plant RADISH: the tile already has a crop");
+        var expected = new ScriptError(ScriptErrorKind.CommandFailed, 7, "cannot plant RADISH: not enough seed items");
         Assert.Equal(expected, result.Error);
         Assert.Equal(
-            "RuntimeError on line 7: cannot plant RADISH: the tile already has a crop",
+            "RuntimeError on line 7: cannot plant RADISH: not enough seed items",
             result.Error!.ToMessage(ScriptLanguage.Python));
     }
 

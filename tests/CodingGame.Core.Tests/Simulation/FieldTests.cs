@@ -200,11 +200,39 @@ public class FieldTests
     }
 
     [Fact]
-    public void PlantOnTileWithCropIsTileOccupied()
+    public void PlantOnTileWithPlantedCropIsTileOccupied()
     {
-        var field = new Field(3, 1, _clover);
+        var items = new Dictionary<string, int> { ["CLOVER"] = 4 };
+        var field = new Field(3, 1, _clover, items);
+        field.Till();
+        field.Till();
+        field.Plant(_radish);
 
         Assert.Equal(PlantResult.TileOccupied, field.Plant(_radish));
+        Assert.Equal(2, items["CLOVER"]);
+    }
+
+    [Fact]
+    public void PlantRadishOnRipeWildCloverReplacesIt()
+    {
+        var items = new Dictionary<string, int> { ["CLOVER"] = 2 };
+        var field = new Field(3, 1, _clover, items);
+
+        Assert.Equal(PlantResult.Planted, field.Plant(_radish));
+        Assert.Equal(new Tile(Ground.Grass, _radish, 0), field.GetTile(0, 0));
+        Assert.Empty(items);
+    }
+
+    [Fact]
+    public void PlantRadishOnUnripeWildCloverReplacesIt()
+    {
+        var items = new Dictionary<string, int> { ["CLOVER"] = 1 };
+        var field = new Field(3, 1, _clover, items);
+        field.Harvest();
+
+        Assert.Equal(PlantResult.Planted, field.Plant(_radish));
+        Assert.Equal(new Tile(Ground.Grass, _radish, 0), field.GetTile(0, 0));
+        Assert.Empty(items);
     }
 
     [Fact]

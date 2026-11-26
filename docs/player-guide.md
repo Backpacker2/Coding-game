@@ -35,7 +35,7 @@ The Script window floats over the farm. You can move it by its title bar, resize
 | --- | --- | --- |
 | `move(direction)` | Moves the drone one tile: `NORTH`, `EAST`, `SOUTH` or `WEST`. At an edge it comes out at the opposite edge. | 20 |
 | `harvest()` | Takes the crop on this tile. A ripe crop gives its items. | 20 |
-| `plant(crop)` | Plants `RADISH` or `POTATO` on this tile. It pays the seed items. | 20 |
+| `plant(crop)` | Plants `RADISH` or `POTATO` on this tile. It pays the seed items and replaces wild clover on the tile. | 20 |
 | `ripe()` | `True` if the crop on this tile is ripe. | 1 |
 | `till()` | Turns grass into soil, or soil into grass. It removes the crop on the tile. | 20 |
 | `ground()` | `GRASS` or `SOIL`, what this tile is made of. | 1 |

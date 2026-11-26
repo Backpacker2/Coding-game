@@ -13,7 +13,7 @@
   },
   {
     "name": "plant",
-    "summary": "Plants a crop on the tile under the drone and pays its seed items.",
+    "summary": "Plants a crop on the tile under the drone and pays its seed items. It replaces wild clover on the tile.",
     "python": "plant(RADISH)",
     "javascript": "plant(RADISH);"
   },
