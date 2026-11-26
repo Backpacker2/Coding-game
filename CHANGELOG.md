@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.13.3 — 2026-11-26
+
+- Docs: the play-test guide covers script tabs, goals, the unlock banner, hints and spin().
+
 ## 0.13.2 — 2026-11-26
 
 - Clean-up: the save file code is split by purpose; nothing changes for the player.

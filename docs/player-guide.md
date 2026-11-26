@@ -95,7 +95,7 @@ Errors name the line they happened on. Python errors look like Python errors, an
 - `RuntimeError on line 2: cannot plant RADISH: not enough seed items` (Python; JavaScript says `Error on line 2:` instead)
 - `TypeError on line 1: move expects direction, got number` (a command with the wrong kind of argument)
 
-When the same error happens in three runs in a row, a line starting with `Hint:` appears above the Messages box and says what to check.
+When the same error happens in three runs in a row, a Show hint button appears under the Messages box; it opens a short hint on what to check.
 
 An unlocked feature is checked before the run starts, so the drone does not move at all. A misspelt command is found only when its line runs, so the drone may have moved before the error.
 
