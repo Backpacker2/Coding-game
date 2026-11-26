@@ -2,6 +2,13 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.9.3 — 2026-11-26
+
+- Give the view one palette (`Palette`) for every colour of the field, the drone, the sky and the script window.
+- Calmer, earthy colours; clover is drawn as a green three-leaf clover instead of yellow discs.
+- A sky with a soft gradient replaces the flat background, with light fog, filmic tone mapping, glow for ripe crops and the drone's light, and a warmer, lower sun with softer shadows. The field fills the screen and is framed left of the script window.
+- Fix a NaN drone tilt on a zero-length frame.
+
 ## 0.9.2 — 2026-11-26
 
 - Add the visual plan (`docs/visual-plan.md`): research on how a farm-automation coding game should look and feel, and milestones 22 to 28 for palette and light, the field's surroundings, crop growth stages, a game UI theme, linking the running code to the drone, the camera and a polish pass.
