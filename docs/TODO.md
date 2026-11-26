@@ -24,6 +24,7 @@ The prototype is done when a player can write a Python or JavaScript script in t
 - [x] **15. In-game help and New game.** (0.7.0) A panel listing the commands, constants and language features the player has unlocked, and a New game button that resets the progress and scripts after a confirmation. Design: [`docs/decisions/0010-in-game-help.md`](decisions/0010-in-game-help.md).
 - [ ] **16. Crops stay on the field.** Today every Run starts on a fresh field, so a planted radish is gone when the run ends. Keep the field between runs so planting pays off. Needs a design decision (and the save format) and the owner's view after the play-test.
 - [x] **17. Syntax highlighting.** (0.7.1) The script editor colours keywords, drone commands, constants, numbers, strings and comments for the selected language.
+- [x] **18. Layout from the first screenshot.** (0.7.2) The window opens maximised, the farm is centred, unlocks and help are tabs, the messages box has a title and a hint, and the drone is a marker.
 
 ## Waiting on the owner
 

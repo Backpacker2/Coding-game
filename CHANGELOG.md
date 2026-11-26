@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.7.2 — 2026-11-26
+
+- Fix the layout from the owner's first screenshot: the window opens maximised and fills the screen, the farm is centred, the unlocks and the help are tabs next to the farm, the messages box under the editor has a title and a hint, and the drone is drawn as a marker.
+
 ## 0.7.1 — 2026-11-26
 
 - Colour the script: keywords, drone commands, constants, numbers, strings and comments, for the selected language.

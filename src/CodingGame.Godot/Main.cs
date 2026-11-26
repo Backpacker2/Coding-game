@@ -74,8 +74,6 @@ public partial class Main : Control
         _speedPicker.AddItem("Fast");
         _speedPicker.Select(1);
         _tickLabel = new Label();
-        Button helpButton = new() { Text = "Help", ToggleMode = true, ButtonPressed = true };
-        helpButton.Toggled += pressed => _helpPanel.Visible = pressed;
         _newGameButton = new Button { Text = "New game" };
         _newGameButton.Pressed += () => _newGameDialog.PopupCentered();
         _newGameDialog = new ConfirmationDialog
@@ -94,41 +92,65 @@ public partial class Main : Control
         toolbar.AddChild(_stopButton);
         toolbar.AddChild(_speedPicker);
         toolbar.AddChild(_tickLabel);
-        toolbar.AddChild(helpButton);
         toolbar.AddChild(_newGameButton);
 
         _editor = new ScriptEditor { Text = _scriptTexts[_language] };
         _editor.UseLanguage(_language, _api);
 
         _errorLabel = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart };
-        _errorLabel.AddThemeColorOverride("font_color", Colors.Red);
         PanelContainer errorPanel = new() { CustomMinimumSize = new Vector2(0, 80) };
         errorPanel.AddChild(_errorLabel);
 
-        VBoxContainer left = new() { SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        VBoxContainer left = new() { SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsStretchRatio = 1 };
         left.AddChild(toolbar);
         left.AddChild(_editor);
         left.AddChild(_noticeLabel);
+        left.AddChild(new Label { Text = "Messages" });
         left.AddChild(errorPanel);
 
-        _farm = new FarmView { SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill };
+        _farm = new FarmView
+        {
+            SizeFlagsHorizontal = SizeFlags.ExpandFill,
+            SizeFlagsVertical = SizeFlags.ExpandFill,
+            SizeFlagsStretchRatio = 1,
+        };
         _itemsLabel = new Label();
-        _unlockPanel = new UnlockPanel();
+        _unlockPanel = new UnlockPanel { SizeFlagsHorizontal = SizeFlags.ExpandFill };
         _unlockPanel.Show(_progress);
         _unlockPanel.Bought += OnBought;
-        _helpPanel = new HelpPanel();
+        ScrollContainer unlockScroll = new()
+        {
+            Name = "Unlocks",
+            HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
+        };
+        unlockScroll.AddChild(_unlockPanel);
+        _helpPanel = new HelpPanel { Name = "Help" };
+        TabContainer tabs = new()
+        {
+            SizeFlagsVertical = SizeFlags.ExpandFill,
+            SizeFlagsStretchRatio = 1,
+        };
+        tabs.AddChild(unlockScroll);
+        tabs.AddChild(_helpPanel);
 
-        VBoxContainer right = new() { SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        VBoxContainer right = new() { SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsStretchRatio = 1 };
         right.AddChild(_farm);
         right.AddChild(_itemsLabel);
-        right.AddChild(_unlockPanel);
-        right.AddChild(_helpPanel);
+        right.AddChild(tabs);
 
         HSplitContainer split = new();
-        split.SetAnchorsPreset(LayoutPreset.FullRect);
         split.AddChild(left);
         split.AddChild(right);
-        AddChild(split);
+
+        MarginContainer margin = new();
+        margin.SetAnchorsPreset(LayoutPreset.FullRect);
+        const int marginPixels = 8;
+        margin.AddThemeConstantOverride("margin_left", marginPixels);
+        margin.AddThemeConstantOverride("margin_top", marginPixels);
+        margin.AddThemeConstantOverride("margin_right", marginPixels);
+        margin.AddThemeConstantOverride("margin_bottom", marginPixels);
+        margin.AddChild(split);
+        AddChild(margin);
         RefreshHelp();
     }
 
@@ -298,7 +320,9 @@ public partial class Main : Control
         string items = string.Join(", ", field.Items.Select(item => $"{item.Key} {item.Value}"));
         _itemsLabel.Text = items.Length == 0 ? "Items: none" : $"Items: {items}";
 
-        _errorLabel.Text = session?.ErrorMessage ?? "";
+        string? error = session?.ErrorMessage;
+        _errorLabel.Text = error ?? "Errors in your script appear here, with the line number.";
+        _errorLabel.AddThemeColorOverride("font_color", error is null ? new Color(0.6f, 0.6f, 0.6f) : Colors.Red);
         bool running = session?.Status == StepStatus.Running;
         _editor.Editable = !running;
         _stopButton.Disabled = session is null;

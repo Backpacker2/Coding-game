@@ -22,7 +22,6 @@ public partial class HelpPanel : ScrollContainer
     /// <inheritdoc/>
     public override void _Ready()
     {
-        CustomMinimumSize = new Vector2(0, 200);
         AddChild(_text);
     }
 

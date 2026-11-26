@@ -35,12 +35,13 @@ public partial class FarmView : Control
 
         Field field = _field;
         float tile = Mathf.Min(Size.X / field.Width, Size.Y / field.Height);
+        Vector2 offset = (Size - new Vector2(tile * field.Width, tile * field.Height)) / 2;
         for (int x = 0; x < field.Width; x++)
         {
             for (int y = 0; y < field.Height; y++)
             {
                 Tile fieldTile = field.GetTile(x, y);
-                Rect2 rect = new(x * tile, y * tile, tile - 2, tile - 2);
+                Rect2 rect = new(offset.X + x * tile, offset.Y + y * tile, tile - 2, tile - 2);
                 DrawRect(rect, fieldTile.Ground == Ground.Grass ? Colors.DarkGreen : Colors.SaddleBrown);
                 if (fieldTile.Crop is not null)
                 {
@@ -49,8 +50,11 @@ public partial class FarmView : Control
             }
         }
 
-        Vector2 dronePosition = new(field.DronePosition.X * tile, field.DronePosition.Y * tile);
+        Vector2 dronePosition = offset + new Vector2(field.DronePosition.X * tile, field.DronePosition.Y * tile);
         DrawRect(new Rect2(dronePosition + new Vector2(4, 4), tile - 8, tile - 8), Colors.CornflowerBlue, filled: false, width: 3);
+        Vector2 droneCenter = dronePosition + new Vector2(tile * 0.25f, tile * 0.25f);
+        DrawCircle(droneCenter, tile * 0.18f, Colors.CornflowerBlue);
+        DrawArc(droneCenter, tile * 0.18f, 0, Mathf.Tau, 32, Colors.White, 2);
     }
 
     private void DrawCrop(Rect2 rect, Tile fieldTile, float tile)

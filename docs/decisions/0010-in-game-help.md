@@ -18,7 +18,7 @@ The player needs to know which commands, constants and language features they ca
 - `data/help.json` holds one entry per name: a summary, a Python example and a JavaScript example. The names are the drone commands, the constants and the five keywords (`for`, `while`, `if`, `def`, `==`).
 - `HelpBook.Load` reads the file and checks it at the edge. Every entry must name a known command, constant or keyword, no name may repeat, the texts may not be empty, and every command, constant and keyword must have an entry. Any problem is a `GameRulesException`, so the game does not start with missing help.
 - `HelpBook.EntriesFor` returns the entries whose name is not in `GameProgress.LockedFeatures`, with the example for the chosen language. A bought unlock therefore adds its entries at once.
-- The window shows the entries in a scrollable panel. The Help button shows or hides it. It is visible at the start.
+- The window shows the entries in a Help tab next to the Unlocks tab. (2026-11-26: the Help button that showed or hid the panel was replaced by this tab after the owner's first screenshot, in 0.7.2.)
 - New game calls `GameProgress.Reset`, which empties the items and the bought unlocks in place, so the field and the unlock panel keep the same object. The scripts go back to the starter files and the language to Python. The game then writes a fresh save at once. The save file is not deleted, and `save.json.broken` is left alone.
 
 **For:** the names have one owner (the drone API and the unlock data); the texts are game content that can change without code; a missing entry fails at load and in a test; Godot holds no list.
