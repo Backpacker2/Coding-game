@@ -6,6 +6,15 @@ namespace CodingGame.Core.Tests.Interpreter.Python;
 
 public class PythonFrontEndStatementTests
 {
+    [Fact]
+    public void KeywordsContainReservedWordsOnly()
+    {
+        Assert.Contains("while", PythonFrontEnd.Keywords);
+        Assert.Contains("def", PythonFrontEnd.Keywords);
+        Assert.Contains("True", PythonFrontEnd.Keywords);
+        Assert.DoesNotContain("function", PythonFrontEnd.Keywords);
+    }
+
     [Theory]
     [InlineData("harvest()", "1: harvest()")]
     [InlineData("move(EAST)", "1: move(EAST)")]

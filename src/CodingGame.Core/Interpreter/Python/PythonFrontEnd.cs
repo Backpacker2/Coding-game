@@ -36,6 +36,9 @@ public sealed partial class PythonFrontEnd
         }
     }
 
+    /// <summary>The words the language reserves, which a script cannot use as names.</summary>
+    public static IReadOnlySet<string> Keywords => PythonTokenizer.Keywords;
+
     /// <summary>
     /// Parses Python source text into a program, or returns the first error in the script in source order.
     /// </summary>

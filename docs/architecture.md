@@ -57,7 +57,7 @@ The Godot project never changes the field or the rules itself. It changes the ga
 
 - `Main` reads the session status, the tick count, the error and the current line, and calls `SaveFile.Save` at the save points.
 - `FarmView` reads the `Field` and draws it.
-- `ScriptEditor` only shows and highlights the text.
+- `ScriptEditor` only shows and highlights the text, and colours its syntax for the selected language.
 - `UnlockPanel` reads `GameProgress` to show each unlock and its price.
 - `HelpPanel` shows the entries that `Main` gives it from `HelpBook`.
 

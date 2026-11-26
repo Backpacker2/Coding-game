@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.7.1 — 2026-11-26
+
+- Colour the script: keywords, drone commands, constants, numbers, strings and comments, for the selected language.
+
 ## 0.7.0 — 2026-11-26
 
 - Add a Help button that shows the drone commands, constants and language features the player can use now, each with a short example in the selected language. New entries appear when an unlock is bought. The texts are in `data/help.json` and are checked against the drone API when the game loads.

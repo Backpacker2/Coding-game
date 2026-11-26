@@ -6,7 +6,7 @@ The same drone commands work in both languages. Only the way you write them chan
 
 ## The window
 
-- **Editor** (left, top): your script, with line numbers. You cannot edit it while a script runs.
+- **Editor** (left, top): your script, with line numbers and colours: keywords purple, drone commands blue, constants amber, numbers green, strings orange and comments grey. You cannot edit it while a script runs.
 - **Language picker**: Python or JavaScript. Each language keeps its own script.
 - **Run**: starts the script, or carries on with a script that Step paused. After a run has ended, Run starts a new one.
 - **Step**: runs the script until the next line starts. The yellow line shows the line that is about to run.

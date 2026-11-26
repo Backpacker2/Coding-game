@@ -18,6 +18,7 @@ public partial class Main : Control
     private GameRules _rules = null!;
     private GameProgress _progress = null!;
     private Field _idleField = null!;
+    private DroneApi _api = null!;
     private FarmView _farm = null!;
     private ScriptEditor _editor = null!;
     private OptionButton _languagePicker = null!;
@@ -52,7 +53,8 @@ public partial class Main : Control
         _scriptTexts[ScriptLanguage.Python] = saved.Scripts.Python ?? StarterText(ScriptLanguage.Python);
         _scriptTexts[ScriptLanguage.JavaScript] = saved.Scripts.JavaScript ?? StarterText(ScriptLanguage.JavaScript);
         _idleField = _progress.NewField();
-        _help = HelpBook.Load(DataFolder, new DroneApi(_rules, _idleField));
+        _api = new DroneApi(_rules, _idleField);
+        _help = HelpBook.Load(DataFolder, _api);
 
         _languagePicker = new OptionButton();
         _languagePicker.AddItem("Python");
@@ -96,6 +98,7 @@ public partial class Main : Control
         toolbar.AddChild(_newGameButton);
 
         _editor = new ScriptEditor { Text = _scriptTexts[_language] };
+        _editor.UseLanguage(_language, _api);
 
         _errorLabel = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart };
         _errorLabel.AddThemeColorOverride("font_color", Colors.Red);
@@ -251,6 +254,7 @@ public partial class Main : Control
         _scriptTexts[_language] = _editor.Text;
         _language = next;
         _editor.Text = _scriptTexts[next];
+        _editor.UseLanguage(_language, _api);
         RefreshHelp();
     }
 
@@ -262,6 +266,7 @@ public partial class Main : Control
         _language = ScriptLanguage.Python;
         _languagePicker.Select((int)_language);
         _editor.Text = _scriptTexts[_language];
+        _editor.UseLanguage(_language, _api);
         _session = null;
         _playing = false;
         _tickBudget = 0;
