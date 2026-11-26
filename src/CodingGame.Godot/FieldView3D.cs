@@ -17,6 +17,9 @@ public partial class FieldView3D : SubViewportContainer
     private const float LeanRadiansPerTilePerSecond = 0.15f;
     private const float MaxLeanRadians = 0.35f;
 
+    // One turn in 0.6 seconds: quick enough to finish before a following move at Normal speed.
+    private const float SpinRadiansPerSecond = Mathf.Tau / 0.6f;
+
     // The script window starts at 55% of the screen width (Main), so the field is centred in the left 55%.
     internal const float FieldCentreScreenFraction = 0.275f;
 
@@ -56,6 +59,8 @@ public partial class FieldView3D : SubViewportContainer
     private Vector2 _droneTarget;
     private Vector2 _droneShown;
     private float _framingDistance;
+    private int _shownSpinCount;
+    private float _spinLeftRadians;
 
     /// <summary>
     /// Creates the view. Its 3D scene is built when Godot readies the view.
@@ -102,6 +107,13 @@ public partial class FieldView3D : SubViewportContainer
             _droneShown = _droneTarget;
         }
 
+        // A new field starts its spin count at 0, so only spins on the same field turn the drone.
+        if (!newField)
+        {
+            _spinLeftRadians += Mathf.Tau * (field.SpinCount - _shownSpinCount);
+        }
+
+        _shownSpinCount = field.SpinCount;
         _shownItems = new Dictionary<string, int>(field.Items);
     }
 
@@ -189,7 +201,8 @@ public partial class FieldView3D : SubViewportContainer
         float hover = 0.9f + 0.05f * Mathf.Sin(_elapsedSeconds * 2);
         _drone.Position = new Vector3(_droneShown.X, hover, _droneShown.Y);
         _droneRing.Position = new Vector3(_droneShown.X, 0.02f, _droneShown.Y);
-        _drone.Rotation = new Vector3(lean.Y, 0, -lean.X);
+        _spinLeftRadians = Mathf.MoveToward(_spinLeftRadians, 0, SpinRadiansPerSecond * deltaSeconds);
+        _drone.Rotation = new Vector3(lean.Y, _spinLeftRadians, -lean.X);
     }
 
     /// <summary>Gets the position of a crop in the game rules, which picks its colour and its shape.</summary>
