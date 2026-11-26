@@ -39,6 +39,7 @@ Milestones 22 to 28 follow [`visual-plan.md`](visual-plan.md), with the research
 - [ ] **26. Code and world linked.** A strong running-line highlight with a gutter arrow, the running command over the drone, a red flash on errors, a run status chip.
 - [ ] **27. Camera.** Orbit, zoom and reset, with limits; the fixed angle stays the default.
 - [ ] **28. Polish and check.** Motion pass, colour-blindness and font-size check, before and after screenshots.
+- [ ] **34. Several scripts.** Named script tabs, one runs. Core done in 0.11.0 (decision 0013); tabs UI: visuals thread.
 
 ## Waiting on the owner
 

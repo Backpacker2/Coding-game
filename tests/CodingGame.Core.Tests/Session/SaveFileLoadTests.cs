@@ -27,6 +27,34 @@ public class SaveFileLoadTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    public static TheoryData<string, string> BadVersionThreeScriptCases => new()
+    {
+        {
+            VersionThreeSave("[]", "main"),
+            "save.json: at least one script is needed"
+        },
+        {
+            VersionThreeSave("""[{"name":"","python":"a","javaScript":"b"}]""", ""),
+            "save.json: a name needs 1 to 20 characters"
+        },
+        {
+            VersionThreeSave("""[{"name":"main","python":"a","javaScript":"b"},{"name":"Main","python":"c","javaScript":"d"}]""", "main"),
+            "save.json: a script with this name already exists"
+        },
+        {
+            VersionThreeSave("""[{"name":"main","python":"a","javaScript":"b"}]""", "nope"),
+            "save.json: no script named nope"
+        },
+        {
+            VersionThreeSave("""[{"name":"main","python":null,"javaScript":"b"}]""", "main"),
+            "save.json: script main: python is null"
+        },
+        {
+            VersionThreeSave("""[{"name":"main","python":"a","javaScript":null}]""", "main"),
+            "save.json: script main: javaScript is null"
+        },
+    };
+
     [Fact]
     public void MissingFileIsANewPlayer()
     {
@@ -37,8 +65,8 @@ public class SaveFileLoadTests : IDisposable
         Assert.Empty(saved.Progress.Items);
         Assert.All(_rules.Unlocks, unlock => Assert.False(saved.Progress.IsBought(unlock)));
         Assert.Equal(ScriptLanguage.Python, saved.Language);
-        Assert.Null(saved.Scripts.Python);
-        Assert.Null(saved.Scripts.JavaScript);
+        Assert.Equal(ScriptBook.FirstScriptName, Assert.Single(saved.Scripts.Names));
+        Assert.Equal(_rules.StarterText(ScriptLanguage.Python), saved.Scripts.Text(ScriptBook.FirstScriptName, ScriptLanguage.Python));
     }
 
     [Fact]
@@ -62,8 +90,32 @@ public class SaveFileLoadTests : IDisposable
         Assert.True(saved.Progress.IsBought(UnlockNamed("BIGGER_FIELD")));
         Assert.Equal(new FieldSize(5, 5), saved.Progress.FieldSize);
         Assert.Equal(ScriptLanguage.JavaScript, saved.Language);
-        Assert.Equal("move(EAST)\n", saved.Scripts.Python);
-        Assert.Equal("move(WEST)\n", saved.Scripts.JavaScript);
+        Assert.Equal("move(EAST)\n", saved.Scripts.Text("main", ScriptLanguage.Python));
+        Assert.Equal("move(WEST)\n", saved.Scripts.Text("main", ScriptLanguage.JavaScript));
+    }
+
+    [Fact]
+    public void VersionOneTextThatIsNullBecomesTheStarterText()
+    {
+        SavedGame saved = SaveFile.Load(WriteSave(MinimalSave), _rules);
+
+        Assert.Equal(_rules.StarterText(ScriptLanguage.Python), saved.Scripts.Text("main", ScriptLanguage.Python));
+        Assert.Equal(_rules.StarterText(ScriptLanguage.JavaScript), saved.Scripts.Text("main", ScriptLanguage.JavaScript));
+    }
+
+    [Fact]
+    public void VersionThreeKeepsTheOrderAndTheSelectedScript()
+    {
+        string path = WriteSave(VersionThreeSave(
+            """[{"name":"main","python":"a","javaScript":"b"},{"name":"loop","python":"c","javaScript":"d"}]""",
+            "loop"));
+
+        SavedGame saved = SaveFile.Load(path, _rules);
+
+        Assert.Equal(["main", "loop"], saved.Scripts.Names);
+        Assert.Equal("loop", saved.Scripts.Selected);
+        Assert.Equal("c", saved.Scripts.Text("loop", ScriptLanguage.Python));
+        Assert.Equal("d", saved.Scripts.Text("loop", ScriptLanguage.JavaScript));
     }
 
     [Fact]
@@ -76,7 +128,8 @@ public class SaveFileLoadTests : IDisposable
         progress.AddItems("RADISH", 3);
         progress.Buy(UnlockNamed("FOR_LOOP"));
         progress.Buy(UnlockNamed("BIGGER_FIELD"));
-        var scripts = new SavedScripts("move(EAST)\n", null);
+        var scripts = new ScriptBook(_rules);
+        scripts.SetText("main", ScriptLanguage.Python, "move(EAST)\n");
         SaveFile.Save(first, new SavedGame(progress, ScriptLanguage.JavaScript, scripts));
 
         SavedGame loaded = SaveFile.Load(first, _rules);
@@ -88,8 +141,27 @@ public class SaveFileLoadTests : IDisposable
         Assert.Equal(BoughtIds(progress), BoughtIds(loaded.Progress));
     }
 
+    [Fact]
+    public void SavedScriptsRoundTripInOrderAndSelection()
+    {
+        string path = Path.Combine(_folder, "save.json");
+        var scripts = new ScriptBook(_rules);
+        scripts.Add();
+        scripts.Rename("script 2", "planting");
+        scripts.SetText("planting", ScriptLanguage.JavaScript, "harvest();\n");
+        scripts.Add();
+        scripts.Select("planting");
+        SaveFile.Save(path, new SavedGame(new GameProgress(_rules), ScriptLanguage.Python, scripts));
+
+        SavedGame loaded = SaveFile.Load(path, _rules);
+
+        Assert.Equal(["main", "planting", "script 2"], loaded.Scripts.Names);
+        Assert.Equal("planting", loaded.Scripts.Selected);
+        Assert.Equal("harvest();\n", loaded.Scripts.Text("planting", ScriptLanguage.JavaScript));
+    }
+
     [Theory]
-    [InlineData("""{"version":3,"items":{},"boughtUnlocks":[],"language":"python","scripts":{"python":null,"javaScript":null}}""", "save.json: version 3 is not supported, this game reads versions 1 and 2")]
+    [InlineData("""{"version":4,"items":{},"boughtUnlocks":[],"language":"python","scripts":{"python":null,"javaScript":null}}""", "save.json: version 4 is not supported, this game reads versions 1 to 3")]
     [InlineData("""{"items":{}}""", "save.json: version is missing")]
     [InlineData("", "save.json: file is not a JSON object")]
     [InlineData("[]", "save.json: file is not a JSON object")]
@@ -120,11 +192,23 @@ public class SaveFileLoadTests : IDisposable
     [InlineData("""{"version":1,"items":{},"boughtUnlocks":[],"language":"python","scripts":{"python":null,"javaScript":null},"extra":1}""")]
     [InlineData("""{"version":1,"items":{},"boughtUnlocks":[],"language":"python"}""")]
     [InlineData("""{"version":1,"items":{},"boughtUnlocks":[],"language":"cobol","scripts":{"python":null,"javaScript":null}}""")]
+    [InlineData("""{"version":3,"items":{},"boughtUnlocks":[],"language":"python","scripts":{"python":null,"javaScript":null},"selectedScript":"main"}""")]
     public void WrongShapeThrowsSaveException(string text)
     {
         string path = WriteSave(text);
 
         Assert.Throws<SaveException>(() => SaveFile.Load(path, _rules));
+    }
+
+    [Theory]
+    [MemberData(nameof(BadVersionThreeScriptCases))]
+    public void BadVersionThreeScriptsThrowWithTheExactMessage(string text, string expectedMessage)
+    {
+        string path = WriteSave(text);
+
+        SaveException exception = Assert.Throws<SaveException>(() => SaveFile.Load(path, _rules));
+
+        Assert.Equal(expectedMessage, exception.Message);
     }
 
     [Fact]
@@ -157,7 +241,7 @@ public class SaveFileLoadTests : IDisposable
         progress.Field.Plant(RadishCrop());
         progress.Field.Advance(50);
         progress.Field.Move(Direction.East);
-        SaveFile.Save(path, new SavedGame(progress, ScriptLanguage.Python, new SavedScripts(null, null)));
+        SaveFile.Save(path, new SavedGame(progress, ScriptLanguage.Python, new ScriptBook(_rules)));
 
         SavedGame loaded = SaveFile.Load(path, _rules);
 
@@ -225,6 +309,11 @@ public class SaveFileLoadTests : IDisposable
     private static string VersionTwoSave(string fieldJson)
     {
         return $$"""{"version":2,"items":{},"boughtUnlocks":[],"language":"python","scripts":{"python":null,"javaScript":null},"field":{{fieldJson}}}""";
+    }
+
+    private static string VersionThreeSave(string scriptsJson, string selectedScript)
+    {
+        return $$"""{"version":3,"items":{},"boughtUnlocks":[],"language":"python","scripts":{{scriptsJson}},"selectedScript":"{{selectedScript}}","field":{{FieldJson(DroneAtOrigin, Tiles(9, GrassTile))}}}""";
     }
 
     private static string FieldJson(string drone, string tiles)

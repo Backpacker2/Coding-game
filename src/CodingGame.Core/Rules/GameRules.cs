@@ -1,21 +1,30 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using CodingGame.Core.Interpreter;
 
 namespace CodingGame.Core.Rules;
 
 /// <summary>
-/// The game rules read from the data folder: the crops, the tick costs, the starting field and the unlocks.
+/// The game rules read from the data folder: the crops, the tick costs, the starting field, the unlocks and the starter scripts.
 /// </summary>
 /// <param name="Crops">The crops, in the order they appear in crops.json.</param>
 /// <param name="TickCosts">How many ticks each drone action and script step takes.</param>
 /// <param name="StartField">The size of the field the game starts with.</param>
 /// <param name="Unlocks">The unlocks, in the order they appear in unlocks.json.</param>
-public sealed record GameRules(IReadOnlyList<Crop> Crops, TickCosts TickCosts, FieldSize StartField, IReadOnlyList<Unlock> Unlocks)
+/// <param name="StarterTexts">The starter script of each language, from starter.py and starter.js.</param>
+public sealed record GameRules(
+    IReadOnlyList<Crop> Crops,
+    TickCosts TickCosts,
+    FieldSize StartField,
+    IReadOnlyList<Unlock> Unlocks,
+    IReadOnlyDictionary<ScriptLanguage, string> StarterTexts)
 {
     private const string CropsFileName = "crops.json";
     private const string TicksFileName = "ticks.json";
     private const string FieldFileName = "field.json";
     private const string UnlocksFileName = "unlocks.json";
+    private const string PythonStarterFileName = "starter.py";
+    private const string JavaScriptStarterFileName = "starter.js";
 
     private static readonly JsonSerializerOptions _jsonOptions = new()
     {
@@ -27,9 +36,25 @@ public sealed record GameRules(IReadOnlyList<Crop> Crops, TickCosts TickCosts, F
     };
 
     /// <summary>
-    /// Reads and checks crops.json, ticks.json, field.json and unlocks.json from a data folder.
+    /// Gets the starter script for a language: the text a new player sees in the editor.
     /// </summary>
-    /// <param name="dataFolderPath">The folder that contains crops.json, ticks.json, field.json and unlocks.json.</param>
+    /// <param name="language">The script language.</param>
+    /// <returns>The text of the starter file for the language.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The language has no starter text.</exception>
+    public string StarterText(ScriptLanguage language)
+    {
+        if (!StarterTexts.TryGetValue(language, out string? text))
+        {
+            throw new ArgumentOutOfRangeException(nameof(language), language, "unknown script language");
+        }
+
+        return text;
+    }
+
+    /// <summary>
+    /// Reads and checks crops.json, ticks.json, field.json, unlocks.json, starter.py and starter.js from a data folder.
+    /// </summary>
+    /// <param name="dataFolderPath">The folder that contains the data files.</param>
     /// <returns>The validated game rules.</returns>
     /// <exception cref="GameRulesException">A file is missing, is not valid JSON for the rules, or breaks a rule such as a non-positive number, a duplicate crop, an unknown seed item or a missing wild crop.</exception>
     public static GameRules Load(string dataFolderPath)
@@ -42,10 +67,15 @@ public sealed record GameRules(IReadOnlyList<Crop> Crops, TickCosts TickCosts, F
         ValidateTickCosts(tickCosts);
         ValidateStartField(startField);
         ValidateUnlocks(unlocks, crops, startField);
-        return new GameRules(crops, tickCosts, startField, unlocks);
+        var starterTexts = new Dictionary<ScriptLanguage, string>
+        {
+            [ScriptLanguage.Python] = ReadText(dataFolderPath, PythonStarterFileName),
+            [ScriptLanguage.JavaScript] = ReadText(dataFolderPath, JavaScriptStarterFileName),
+        };
+        return new GameRules(crops, tickCosts, startField, unlocks, starterTexts);
     }
 
-    private static T ReadFile<T>(string dataFolderPath, string fileName) where T : class
+    private static string ReadText(string dataFolderPath, string fileName)
     {
         string path = Path.Combine(dataFolderPath, fileName);
         if (!File.Exists(path))
@@ -53,7 +83,12 @@ public sealed record GameRules(IReadOnlyList<Crop> Crops, TickCosts TickCosts, F
             throw new GameRulesException(fileName, "file not found");
         }
 
-        string json = File.ReadAllText(path);
+        return File.ReadAllText(path);
+    }
+
+    private static T ReadFile<T>(string dataFolderPath, string fileName) where T : class
+    {
+        string json = ReadText(dataFolderPath, fileName);
         T? value;
         try
         {

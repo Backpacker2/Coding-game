@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.11.0 — 2026-11-26
+
+- Several scripts (Core): the game keeps a list of named scripts, each with a Python and a JavaScript text, and saves them (save format version 3; older saves load as one script named main). The tabs to switch between them come next. Design: decision 0013.
+
 ## 0.10.3 — 2026-11-26
 
 - Fix: the build failed with NU1900 ("Error occurred while getting package vulnerability data") when the NuGet feed could not be reached. That warning no longer stops the build.

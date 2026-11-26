@@ -13,9 +13,11 @@ namespace CodingGame.Core.Session;
 public static class SaveFile
 {
     /// <summary>
-    /// The save format version that <see cref="Save"/> writes. Version 1 files, which have no field, still load.
+    /// The save format version that <see cref="Save"/> writes. Versions 1 and 2 still load.
     /// </summary>
-    public const int CurrentVersion = 2;
+    public const int CurrentVersion = 3;
+
+    private const int FirstVersionWithField = 2;
 
     private static readonly JsonSerializerOptions _jsonOptions = new()
     {
@@ -37,8 +39,21 @@ public static class SaveFile
         IReadOnlyDictionary<string, int> Items,
         IReadOnlyList<string> BoughtUnlocks,
         ScriptLanguage Language,
-        SavedScripts Scripts,
+        IReadOnlyList<ScriptDto> Scripts,
+        string SelectedScript,
         FieldDto? Field = null);
+
+    private sealed record ScriptDto(string Name, string? Python, string? JavaScript);
+
+    private sealed record LegacySaveDto(
+        int Version,
+        IReadOnlyDictionary<string, int> Items,
+        IReadOnlyList<string> BoughtUnlocks,
+        ScriptLanguage Language,
+        LegacyScriptsDto Scripts,
+        FieldDto? Field = null);
+
+    private sealed record LegacyScriptsDto(string? Python, string? JavaScript);
 
     private sealed record FieldDto(DroneDto Drone, IReadOnlyList<TileDto> Tiles);
 
@@ -66,7 +81,10 @@ public static class SaveFile
             .Where(game.Progress.IsBought)
             .Select(unlock => unlock.Id)
             .ToList();
-        var dto = new SaveDto(CurrentVersion, items, boughtUnlocks, game.Language, game.Scripts, ToFieldDto(game.Progress.Field));
+        List<ScriptDto> scripts = game.Scripts.Names
+            .Select(name => new ScriptDto(name, game.Scripts.Text(name, ScriptLanguage.Python), game.Scripts.Text(name, ScriptLanguage.JavaScript)))
+            .ToList();
+        var dto = new SaveDto(CurrentVersion, items, boughtUnlocks, game.Language, scripts, game.Scripts.Selected, ToFieldDto(game.Progress.Field));
         string text = JsonSerializer.Serialize(dto, _jsonOptions) + "\n";
 
         string temporaryPath = path + ".tmp";
@@ -76,40 +94,33 @@ public static class SaveFile
 
     /// <summary>
     /// Reads a save file and checks it against the game rules. A missing file is a new player and gives a new game.
-    /// A version 1 file has no field and gives a fresh start field.
+    /// A version 1 file has no field and gives a fresh start field. A version 1 or 2 file has one script text per
+    /// language, and becomes one script named main; a text that is null becomes the starter text.
     /// </summary>
     /// <param name="path">The path of the save file.</param>
-    /// <param name="rules">The game rules that the item names, the unlock ids, the crops and the language must match.</param>
+    /// <param name="rules">The game rules that the item names, the unlock ids, the crops, the language and the starter texts must match.</param>
     /// <returns>The saved game, or a new game when there is no file.</returns>
-    /// <exception cref="SaveException">The file is broken, is from another save version, or breaks a rule such as an unknown unlock id, item or crop, a tile that does not fit the field, or a drone outside the field.</exception>
+    /// <exception cref="SaveException">The file is broken, is from another save version, or breaks a rule such as an unknown unlock id, item or crop, a tile that does not fit the field, a drone outside the field, or a script that has no name, a duplicate name, no texts or a selected script that does not exist.</exception>
     public static SavedGame Load(string path, GameRules rules)
     {
         string fileName = Path.GetFileName(path);
         if (!File.Exists(path))
         {
-            return new SavedGame(new GameProgress(rules), ScriptLanguage.Python, new SavedScripts(null, null));
+            return new SavedGame(new GameProgress(rules), ScriptLanguage.Python, new ScriptBook(rules));
         }
 
         string text = File.ReadAllText(path);
-        CheckVersion(fileName, text);
-        SaveDto dto = ReadDto(fileName, text);
-        CheckItems(fileName, dto.Items, rules);
-        IReadOnlySet<string> boughtIds = CheckBoughtUnlocks(fileName, dto.BoughtUnlocks, rules);
-
-        // Only the field size is needed to check the tiles. The progress built here is replaced by the one below.
-        FieldSize size = new GameProgress(rules, dto.Items, boughtIds, null, default).FieldSize;
-        Tile[,]? tiles = null;
-        TilePosition dronePosition = default;
-        if (dto.Field is { } field)
+        int version = CheckVersion(fileName, text);
+        if (version == CurrentVersion)
         {
-            (tiles, dronePosition) = ReadField(fileName, field, rules, size);
-        }
-        else if (dto.Version == CurrentVersion)
-        {
-            throw new SaveException(fileName, "field is missing");
+            SaveDto dto = ReadDto<SaveDto>(fileName, text);
+            GameProgress progress = ReadProgress(fileName, rules, version, dto.Items, dto.BoughtUnlocks, dto.Field);
+            return new SavedGame(progress, dto.Language, ReadScripts(fileName, rules, dto.Scripts, dto.SelectedScript));
         }
 
-        return new SavedGame(new GameProgress(rules, dto.Items, boughtIds, tiles, dronePosition), dto.Language, dto.Scripts);
+        LegacySaveDto legacy = ReadDto<LegacySaveDto>(fileName, text);
+        GameProgress legacyProgress = ReadProgress(fileName, rules, version, legacy.Items, legacy.BoughtUnlocks, legacy.Field);
+        return new SavedGame(legacyProgress, legacy.Language, ReadLegacyScripts(rules, legacy.Scripts));
     }
 
     /// <summary>
@@ -140,7 +151,71 @@ public static class SaveFile
         return new FieldDto(new DroneDto(field.DronePosition.X, field.DronePosition.Y), tiles);
     }
 
-    private static void CheckVersion(string fileName, string text)
+    private static GameProgress ReadProgress(
+        string fileName,
+        GameRules rules,
+        int version,
+        IReadOnlyDictionary<string, int> items,
+        IReadOnlyList<string> boughtUnlocks,
+        FieldDto? field)
+    {
+        CheckItems(fileName, items, rules);
+        IReadOnlySet<string> boughtIds = CheckBoughtUnlocks(fileName, boughtUnlocks, rules);
+
+        // Only the field size is needed to check the tiles. The progress built here is replaced by the one below.
+        FieldSize size = new GameProgress(rules, items, boughtIds, null, default).FieldSize;
+        Tile[,]? tiles = null;
+        TilePosition dronePosition = default;
+        if (field is { } fieldDto)
+        {
+            (tiles, dronePosition) = ReadField(fileName, fieldDto, rules, size);
+        }
+        else if (version >= FirstVersionWithField)
+        {
+            throw new SaveException(fileName, "field is missing");
+        }
+
+        return new GameProgress(rules, items, boughtIds, tiles, dronePosition);
+    }
+
+    private static ScriptBook ReadScripts(string fileName, GameRules rules, IReadOnlyList<ScriptDto> scripts, string selectedScript)
+    {
+        var savedScripts = new List<SavedScript>();
+        foreach (ScriptDto script in scripts)
+        {
+            if (script.Python is null)
+            {
+                throw new SaveException(fileName, $"script {script.Name}: python is null");
+            }
+
+            if (script.JavaScript is null)
+            {
+                throw new SaveException(fileName, $"script {script.Name}: javaScript is null");
+            }
+
+            savedScripts.Add(new SavedScript(script.Name, script.Python, script.JavaScript));
+        }
+
+        try
+        {
+            return new ScriptBook(rules, savedScripts, selectedScript);
+        }
+        catch (ArgumentException exception)
+        {
+            throw new SaveException(fileName, exception.Message);
+        }
+    }
+
+    private static ScriptBook ReadLegacyScripts(GameRules rules, LegacyScriptsDto scripts)
+    {
+        var script = new SavedScript(
+            ScriptBook.FirstScriptName,
+            scripts.Python ?? rules.StarterText(ScriptLanguage.Python),
+            scripts.JavaScript ?? rules.StarterText(ScriptLanguage.JavaScript));
+        return new ScriptBook(rules, [script], ScriptBook.FirstScriptName);
+    }
+
+    private static int CheckVersion(string fileName, string text)
     {
         if (string.IsNullOrWhiteSpace(text))
         {
@@ -159,10 +234,12 @@ public static class SaveFile
             throw new SaveException(fileName, "version is missing");
         }
 
-        if (version is not (1 or CurrentVersion))
+        if (version is < 1 or > CurrentVersion)
         {
-            throw new SaveException(fileName, $"version {version} is not supported, this game reads versions 1 and {CurrentVersion}");
+            throw new SaveException(fileName, $"version {version} is not supported, this game reads versions 1 to {CurrentVersion}");
         }
+
+        return version;
     }
 
     private static JsonDocument ParseText(string fileName, string text)
@@ -177,12 +254,12 @@ public static class SaveFile
         }
     }
 
-    private static SaveDto ReadDto(string fileName, string text)
+    private static T ReadDto<T>(string fileName, string text) where T : class
     {
         try
         {
             // The version check has already shown the root is an object, so the result is never null.
-            return JsonSerializer.Deserialize<SaveDto>(text, _jsonOptions)!;
+            return JsonSerializer.Deserialize<T>(text, _jsonOptions)!;
         }
         catch (JsonException exception)
         {

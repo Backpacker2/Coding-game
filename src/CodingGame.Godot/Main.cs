@@ -16,6 +16,7 @@ public partial class Main : Control
     // The controls and the rules are created in _Ready, after Godot has built the object.
     private GameRules _rules = null!;
     private GameProgress _progress = null!;
+    private ScriptBook _scripts = null!;
     private DroneApi _api = null!;
     private FieldView3D _fieldView = null!;
     private ResourceBar _resourceBar = null!;
@@ -31,7 +32,6 @@ public partial class Main : Control
     private bool _wasRunning;
     private double _tickBudget;
     private ScriptLanguage _language = ScriptLanguage.Python;
-    private readonly Dictionary<ScriptLanguage, string> _scriptTexts = [];
 
     /// <inheritdoc/>
     public override void _Ready()
@@ -46,12 +46,11 @@ public partial class Main : Control
         SavedGame saved = LoadSavedGame();
         _progress = saved.Progress;
         _language = saved.Language;
-        _scriptTexts[ScriptLanguage.Python] = saved.Scripts.Python ?? StarterText(ScriptLanguage.Python);
-        _scriptTexts[ScriptLanguage.JavaScript] = saved.Scripts.JavaScript ?? StarterText(ScriptLanguage.JavaScript);
+        _scripts = saved.Scripts;
         _api = new DroneApi(_rules, _progress.Field);
         _help = HelpBook.Load(DataFolder, _api);
 
-        _codeWindow.Editor.Text = _scriptTexts[_language];
+        _codeWindow.Editor.Text = _scripts.Text(_scripts.Selected, _language);
         _codeWindow.Editor.UseLanguage(_language, _api);
         _codeWindow.SelectLanguage(_language);
         _codeWindow.RunPressed += OnRun;
@@ -161,17 +160,6 @@ public partial class Main : Control
 
     private static string SavePath => ProjectSettings.GlobalizePath("user://save.json");
 
-    private static string StarterText(ScriptLanguage language)
-    {
-        string fileName = language switch
-        {
-            ScriptLanguage.Python => "starter.py",
-            ScriptLanguage.JavaScript => "starter.js",
-            _ => throw new ArgumentOutOfRangeException(nameof(language), language, "unknown script language"),
-        };
-        return File.ReadAllText(Path.Combine(DataFolder, fileName));
-    }
-
     private static void ApplyRoundStyle(Button button)
     {
         button.CustomMinimumSize = new Vector2(48, 48);
@@ -226,17 +214,14 @@ public partial class Main : Control
         {
             string keptPath = SaveFile.SetAside(SavePath);
             _codeWindow.ShowNotice($"Could not read the save file ({exception.Message}). It was kept as {keptPath}. Starting a new game.");
-            return new SavedGame(new GameProgress(_rules), ScriptLanguage.Python, new SavedScripts(null, null));
+            return new SavedGame(new GameProgress(_rules), ScriptLanguage.Python, new ScriptBook(_rules));
         }
     }
 
     private void Save()
     {
-        _scriptTexts[_language] = _codeWindow.Editor.Text;
-        SaveFile.Save(SavePath, new SavedGame(
-            _progress,
-            _language,
-            new SavedScripts(_scriptTexts[ScriptLanguage.Python], _scriptTexts[ScriptLanguage.JavaScript])));
+        _scripts.SetText(_scripts.Selected, _language, _codeWindow.Editor.Text);
+        SaveFile.Save(SavePath, new SavedGame(_progress, _language, _scripts));
     }
 
     private RunSession SessionForRun()
@@ -284,9 +269,9 @@ public partial class Main : Control
 
     private void OnLanguageSelected(ScriptLanguage next)
     {
-        _scriptTexts[_language] = _codeWindow.Editor.Text;
+        _scripts.SetText(_scripts.Selected, _language, _codeWindow.Editor.Text);
         _language = next;
-        _codeWindow.Editor.Text = _scriptTexts[next];
+        _codeWindow.Editor.Text = _scripts.Text(_scripts.Selected, next);
         _codeWindow.Editor.UseLanguage(_language, _api);
         RefreshHelp();
     }
@@ -294,11 +279,10 @@ public partial class Main : Control
     private void OnNewGameConfirmed()
     {
         _progress.Reset();
-        _scriptTexts[ScriptLanguage.Python] = StarterText(ScriptLanguage.Python);
-        _scriptTexts[ScriptLanguage.JavaScript] = StarterText(ScriptLanguage.JavaScript);
+        _scripts = new ScriptBook(_rules);
         _language = ScriptLanguage.Python;
         _codeWindow.SelectLanguage(_language);
-        _codeWindow.Editor.Text = _scriptTexts[_language];
+        _codeWindow.Editor.Text = _scripts.Text(_scripts.Selected, _language);
         _codeWindow.Editor.UseLanguage(_language, _api);
         _session = null;
         _playing = false;

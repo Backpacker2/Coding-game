@@ -26,7 +26,7 @@ public class SaveFileWriteTests : IDisposable
     }
 
     [Fact]
-    public void SavesProgressScriptsAndFieldAsVersionTwoJson()
+    public void SavesProgressScriptsAndFieldAsVersionThreeJson()
     {
         string path = Path.Combine(_folder, "save.json");
         SavedGame game = GameWithForLoopAndBiggerField();
@@ -35,13 +35,16 @@ public class SaveFileWriteTests : IDisposable
 
         using JsonDocument document = JsonDocument.Parse(File.ReadAllText(path));
         JsonElement root = document.RootElement;
-        Assert.Equal(2, root.GetProperty("version").GetInt32());
+        Assert.Equal(3, root.GetProperty("version").GetInt32());
         Assert.Equal(12, root.GetProperty("items").GetProperty("CLOVER").GetInt32());
         string[] bought = root.GetProperty("boughtUnlocks").EnumerateArray()
             .Select(element => element.GetString() ?? string.Empty)
             .ToArray();
         Assert.Equal(["FOR_LOOP", "BIGGER_FIELD"], bought);
-        Assert.Equal("move(EAST)\n", root.GetProperty("scripts").GetProperty("python").GetString());
+        JsonElement script = Assert.Single(root.GetProperty("scripts").EnumerateArray());
+        Assert.Equal("main", script.GetProperty("name").GetString());
+        Assert.Equal("move(EAST)\n", script.GetProperty("python").GetString());
+        Assert.Equal("main", root.GetProperty("selectedScript").GetString());
         JsonElement field = root.GetProperty("field");
         Assert.Equal(0, field.GetProperty("drone").GetProperty("x").GetInt32());
         Assert.Equal(25, field.GetProperty("tiles").GetArrayLength());
@@ -49,6 +52,25 @@ public class SaveFileWriteTests : IDisposable
         Assert.Equal("GRASS", firstTile.GetProperty("ground").GetString());
         Assert.Equal("CLOVER", firstTile.GetProperty("crop").GetString());
         Assert.Equal(200, firstTile.GetProperty("ageTicks").GetInt32());
+    }
+
+    [Fact]
+    public void ScriptsAreWrittenInTabOrder()
+    {
+        string path = Path.Combine(_folder, "save.json");
+        var scripts = new ScriptBook(_rules);
+        scripts.Add();
+        scripts.Rename("script 2", "planting");
+        scripts.Add();
+
+        SaveFile.Save(path, new SavedGame(new GameProgress(_rules), ScriptLanguage.Python, scripts));
+
+        using JsonDocument document = JsonDocument.Parse(File.ReadAllText(path));
+        string[] names = document.RootElement.GetProperty("scripts").EnumerateArray()
+            .Select(element => element.GetProperty("name").GetString() ?? string.Empty)
+            .ToArray();
+        Assert.Equal(["main", "planting", "script 2"], names);
+        Assert.Equal("script 2", document.RootElement.GetProperty("selectedScript").GetString());
     }
 
     [Fact]
@@ -64,7 +86,7 @@ public class SaveFileWriteTests : IDisposable
         progress.Field.Till();
         progress.Field.Plant(_rules.Crops.Single(crop => crop.Name == "RADISH"));
 
-        SaveFile.Save(path, new SavedGame(progress, ScriptLanguage.Python, new SavedScripts(null, null)));
+        SaveFile.Save(path, new SavedGame(progress, ScriptLanguage.Python, new ScriptBook(_rules)));
 
         using JsonDocument document = JsonDocument.Parse(File.ReadAllText(path));
         JsonElement tiles = document.RootElement.GetProperty("field").GetProperty("tiles");
@@ -82,7 +104,7 @@ public class SaveFileWriteTests : IDisposable
         progress.Buy(UnlockNamed("FUNCTIONS"));
         progress.Buy(UnlockNamed("FOR_LOOP"));
 
-        SaveFile.Save(path, new SavedGame(progress, ScriptLanguage.Python, new SavedScripts(null, null)));
+        SaveFile.Save(path, new SavedGame(progress, ScriptLanguage.Python, new ScriptBook(_rules)));
 
         using JsonDocument document = JsonDocument.Parse(File.ReadAllText(path));
         string[] bought = document.RootElement.GetProperty("boughtUnlocks").EnumerateArray()
@@ -112,7 +134,7 @@ public class SaveFileWriteTests : IDisposable
 
         SaveFile.Save(path, GameWithForLoopAndBiggerField());
 
-        Assert.Contains("\"version\": 2", File.ReadAllText(path));
+        Assert.Contains("\"version\": 3", File.ReadAllText(path));
         Assert.Empty(Directory.GetFiles(_folder, "*.tmp"));
     }
 
@@ -121,13 +143,14 @@ public class SaveFileWriteTests : IDisposable
     {
         string path = Path.Combine(_folder, "save.json");
         const string script = "say(\"hi\")\nprint('é')\n";
-        var scripts = new SavedScripts(script, null);
+        var scripts = new ScriptBook(_rules);
+        scripts.SetText("main", ScriptLanguage.Python, script);
 
         SaveFile.Save(path, new SavedGame(new GameProgress(_rules), ScriptLanguage.Python, scripts));
 
         using JsonDocument document = JsonDocument.Parse(File.ReadAllText(path));
-        string? saved = document.RootElement.GetProperty("scripts").GetProperty("python").GetString();
-        Assert.Equal(script, saved);
+        JsonElement savedScript = document.RootElement.GetProperty("scripts")[0];
+        Assert.Equal(script, savedScript.GetProperty("python").GetString());
     }
 
     [Fact]
@@ -155,7 +178,9 @@ public class SaveFileWriteTests : IDisposable
         progress.AddItems("RADISH", 3);
         progress.Buy(UnlockNamed("FOR_LOOP"));
         progress.Buy(UnlockNamed("BIGGER_FIELD"));
-        return new SavedGame(progress, ScriptLanguage.Python, new SavedScripts("move(EAST)\n", null));
+        var scripts = new ScriptBook(_rules);
+        scripts.SetText("main", ScriptLanguage.Python, "move(EAST)\n");
+        return new SavedGame(progress, ScriptLanguage.Python, scripts);
     }
 
     private static Unlock UnlockNamed(string id)
