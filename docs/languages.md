@@ -124,8 +124,8 @@ These come next, in the order `game-design.md` settles on. They are listed here 
 
 | Idea | Python | JavaScript | Watch out |
 | --- | --- | --- | --- |
-| Create a variable | `count = 0` | `let count = 0;` | JavaScript needs `let` the first time only. `var` stays out. |
-| Arithmetic | `+` `-` `*` | `+` `-` `*` | `%` differs: `-7 % 3` is `2` in Python and `-1` in JavaScript. `/` brings in decimal numbers. Both wait. |
+| Create a variable (built in 0.15.0, see [`decisions/0014-variables.md`](decisions/0014-variables.md)) | `count = 0` | `let count = 0;` | JavaScript needs `let` the first time only, at the top level. `var` stays out. |
+| Arithmetic (built in 0.15.0) | `+` `-` `*` | `+` `-` `*` | `%` differs: `-7 % 3` is `2` in Python and `-1` in JavaScript. `/` brings in decimal numbers. Both wait. |
 | Combine conditions | `and`, `or`, `not` | `&&`, `\|\|`, `!` | |
 | Parameters and return | `def f(x):` `return x` | `function f(x) { return x; }` | |
 | Print for debugging | `print(x)` | `console.log(x);` | |
@@ -208,7 +208,7 @@ A script that is not valid code gives a syntax error. Python reports its own err
 In Python, the following give `'...' is not part of this game yet`:
 
 - Keywords such as `import`, `from`, `return`, `and`, `or`, `not`, `None`, `class` and `try`.
-- Operators other than `( ) , : == !=`, such as `+`, `=`, `<`, `[`, `.` and `;`.
+- Operators other than `( ) , : == != + - * < > <= >= =`, such as `+=`, `[`, `.` and `;`.
 - Strings and decimal numbers.
 - Parameters in `def`, `for` without `range`, `range` with more than one argument, and chained comparisons such as `a == b == c`.
 
@@ -216,8 +216,8 @@ Python errors stop at the first problem in the script, in source order, as in re
 
 In JavaScript, the following give `'...' is not part of this game yet`:
 
-- Keywords other than `if`, `else`, `while`, `for`, `function`, `true` and `false`, such as `var`, `return`, `class` and `try`. `let` is allowed only in the header of a `for` loop.
-- Operators other than `( ) { } , ; === !==`, such as `+`, `=`, `<`, `++`, `&&`, `!`, `[` and `.`.
+- Keywords other than `if`, `else`, `while`, `for`, `function`, `let`, `true` and `false`, such as `var`, `return`, `class` and `try`. `let` is allowed in the header of a `for` loop and at the top level of the script, once for each name.
+- Operators other than `( ) { } , ; === !== + - * < > <= >= =`, such as `+=`, `++` outside a `for` header, `&&`, `!`, `[` and `.`.
 - Strings, decimal numbers and block comments.
 - Parameters in `function`, a `for` that is not exactly `for (let i = 0; i < n; i++)`, and chained comparisons such as `a === b === c`.
 
@@ -227,6 +227,21 @@ Some mistakes are plain JavaScript errors:
 - A missing `;` gives `SyntaxError on line 1: expected ';'`.
 - A body without braces gives `SyntaxError on line 2: expected '{', braces are required around the body`.
 - Other mistakes give `Unexpected token`, `Unexpected identifier`, `Unexpected number` or `Unexpected end of input`, with the line number, for example `SyntaxError on line 1: Unexpected token ')'`.
+
+### Names of variables and counters
+
+The variables and the loop counter follow the same rules in both languages, so a script means the same in either. `ScopeCheck` finds these errors before the run starts, so the drone does not move. The line number is given as usual:
+
+- Reading a loop counter after its loop, or outside it: `NameError on line 4: 'i' can only be used inside its for loop` (Python), `ReferenceError on line 4: 'i' can only be used inside its for loop` (JavaScript).
+- Changing a loop counter: `SyntaxError on line 2: 'i' is a loop counter and cannot be changed`, in both languages.
+- A variable or counter with a name the game uses, such as `move` or `range`: `SyntaxError on line 1: 'move' is a name the game uses; pick another name`, in both languages.
+- A name that is already a loop counter or a function, or the counter of an outer loop: `SyntaxError on line 3: 'i' is already the counter of an outer loop; pick another name`, in both languages.
+- Changing a variable inside a function: `Error on line 3: 'changing a variable inside a function' is not part of this game yet`, in both languages. A function can still read it.
+- `count += 1`: `Error on line 2: '+=' is not part of this game yet`, in both languages.
+- JavaScript only: a `let` inside a block: `Error on line 3: 'let inside a block' is not part of this game yet`; the same name declared twice: `SyntaxError on line 3: Identifier 'count' has already been declared`; an assignment before the `let`: `ReferenceError on line 2: 'count' is not declared; write let count = ... first`.
+- A condition with `=` in it: `SyntaxError on line 2: use == to compare; = gives a variable a value` (Python) and `SyntaxError on line 2: use === to compare; = gives a variable a value` (JavaScript).
+
+The limits and their reasons are in [`decisions/0014-variables.md`](decisions/0014-variables.md).
 
 ### Features that are not bought yet
 
@@ -243,6 +258,7 @@ The unlocks are listed in `data/unlocks.json`. They open these features:
 | while loop | 40 radish | `while` |
 | Potato, till() and ground() | 60 radish | `till`, `ground`, `POTATO`, `SOIL`, `GRASS`, `==`, `!=` |
 | Functions | 30 potato | `def` |
+| Variables and counting | 40 potato | `variables` (the loop counter and your own names), `+`, `-`, `*`, `<`, `>`, `<=`, `>=` |
 
 The name in the message is the one the player wrote. Two exceptions: in JavaScript the function feature is named `function`, and the comparison is named `===` or `!==`. A JavaScript `==` is still a syntax error, as described above. For example, a Python and a JavaScript script that call `plant(RADISH)` both give `'plant' is not unlocked yet. Buy "Radish and plant()" in Unlocks for 40 CLOVER.`.
 

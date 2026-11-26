@@ -124,5 +124,23 @@
     "summary": "Compares two values. Python writes == and !=, JavaScript writes === and !==.",
     "python": "if ground() == SOIL:\n    harvest()",
     "javascript": "if (ground() === SOIL) {\n    harvest();\n}"
+  },
+  {
+    "name": "variables",
+    "summary": "Gives a name to a number so you can use it later. Change it with name = name + 1.",
+    "python": "count = 0\ncount = count + 1",
+    "javascript": "let count = 0;\ncount = count + 1;"
+  },
+  {
+    "name": "+",
+    "summary": "Adds, subtracts and multiplies whole numbers: + - *. A * is worked out before a + or -.",
+    "python": "count = 2 + 3 * 4\ncount = count - 1",
+    "javascript": "let count = 2 + 3 * 4;\ncount = count - 1;"
+  },
+  {
+    "name": "<",
+    "summary": "Compares two whole numbers: < less than, > greater than, <= less than or equal, >= greater than or equal.",
+    "python": "for i in range(3):\n    if i < 2:\n        move(EAST)",
+    "javascript": "for (let i = 0; i < 3; i++) {\n    if (i < 2) {\n        move(EAST);\n    }\n}"
   }
 ]

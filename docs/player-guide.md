@@ -76,6 +76,7 @@ Each unlock costs items and opens new commands or language features.
 | while loop | 40 radish | `while` |
 | Potato, till() and ground() | 60 radish | `till()`, `ground()`, `POTATO`, `SOIL`, `GRASS`, and comparisons: `==` and `!=` in Python, `===` and `!==` in JavaScript |
 | Functions | 30 potato | `def` in Python, `function` in JavaScript |
+| Variables and counting | 40 potato | `for` loop counter (you can read it inside its loop), your own variables, `+`, `-`, `*`, and comparisons `<`, `>`, `<=`, `>=` |
 
 Buying an unlock uses up its items.
 
@@ -95,6 +96,8 @@ Errors name the line they happened on. Python errors look like Python errors, an
 - `Error on line 3: 'break' is not part of this game yet` (syntax the game does not have, in either language)
 - `RuntimeError on line 2: cannot plant RADISH: not enough seed items` (Python; JavaScript says `Error on line 2:` instead)
 - `TypeError on line 1: move expects direction, got number` (a command with the wrong kind of argument)
+- `NameError on line 4: 'i' can only be used inside its for loop` (Python, a loop counter read outside its loop; JavaScript says `ReferenceError on line 4:`)
+- `Error on line 2: '+=' is not part of this game yet` (`+=` is not in this game yet; use `count = count + 1`)
 
 When the same error happens in three runs in a row, a Show hint button appears under the Messages box; it opens a short hint on what to check.
 

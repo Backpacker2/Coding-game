@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.15.0 — 2026-11-26
+
+- Variables and counting: a new unlock (40 potato) lets a script read its for-loop counter, make its own variables, calculate with + - * and compare with < > <= >=, in Python and JavaScript with the same results. Help and two new lessons teach it; = in a condition now explains to use == (Python) or === (JavaScript).
+
 ## 0.14.2 — 2026-11-26
 
 - Docs: the player guide, the play-test guide and the first Help lesson explain the camera (right-drag turns, the wheel zooms, Menu > Reset view).
