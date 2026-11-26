@@ -13,10 +13,13 @@ The same drone commands work in both languages. Only the way you write them chan
 - **Stop**: ends the run and resets the farm. Your items stay.
 - **Speed**: Slow, Normal or Fast. It only changes how fast the ticks run, not the result. Normal is the default.
 - **Ticks**: how many ticks this run has used. It says `finished` or `stopped by an error` when the run ends.
+- **Help**: shows or hides the Help panel. The panel is shown at the start.
+- **New game**: starts over. After a confirmation it erases your items, your unlocks and both scripts, and it goes back to Python. There is no undo. It is greyed out while a script runs.
 - **Error panel**: the message for an error in red. The line with the error turns red.
 - **Farm**: the field. Dark green is grass, brown is soil. A coloured circle is a crop: clover is gold, radish red and potato orange. A circle grows as the crop grows, and a white ring means it is ripe. The blue outline is the drone.
 - **Items**: what you own, for example `Items: CLOVER 3, RADISH 1`, or `Items: none`.
 - **Unlock panel**: each unlock with its price and a Buy button. A bought unlock says `Unlocked`. Buy is greyed out while a script runs or when you cannot pay.
+- **Help panel** (under the unlock panel): what you can use now, for the language you selected. Each entry has a short description and an example. The panel lists only what you have unlocked, so new entries appear when you buy an unlock. Switch the language and the examples change to that language's style.
 
 ## Commands
 
@@ -95,11 +98,17 @@ An unlocked feature is checked before the run starts, so the drone does not move
 - **A loop can run forever.** A `while True:` loop, or `while (ripe()) {}` in JavaScript, never ends by itself. Press Stop. Step on a loop that does not start another line stops after 10,000 ticks, and the next Step carries on.
 - **Recursion has a limit.** A function that calls itself more than 100 calls deep stops with a `RecursionError` in Python or a `RangeError` in JavaScript.
 
+## Help and New game
+
+The Help panel shows the commands, constants and language words you can use now. Locked ones are left out until you buy the unlock that opens them. Each entry has an example in the language you selected.
+
+New game erases everything: your items, your unlocks, both scripts and the language, which goes back to Python. It asks first, and there is no undo. Choose Keep playing in the question to cancel.
+
 ## Saving
 
 The game saves your items, your bought unlocks, both of your scripts and the language you selected. It saves:
 
-- after each buy,
+- after each buy and after New game,
 - when a run starts,
 - when a run ends or is stopped, and
 - when you close the window.
