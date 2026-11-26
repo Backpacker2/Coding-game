@@ -15,19 +15,27 @@ public partial class HelpPanel : ScrollContainer
         (HelpKind.Keyword, "LANGUAGE"),
     ];
 
-    private readonly Label _text = new()
+    private readonly RichTextLabel _text = new()
     {
-        AutowrapMode = TextServer.AutowrapMode.WordSmart,
+        BbcodeEnabled = true,
+        FitContent = true,
+        ScrollActive = false,
         SizeFlagsHorizontal = SizeFlags.ExpandFill,
     };
 
     /// <inheritdoc/>
     public override void _Ready()
     {
+        StyleBoxEmpty padding = new();
+        padding.SetContentMarginAll(14);
+        _text.AddThemeStyleboxOverride("normal", padding);
         AddChild(_text);
     }
 
-    /// <summary>Replaces the text with the given entries, grouped as Commands, Constants and Language.</summary>
+    /// <summary>
+    /// Replaces the text with the given entries, grouped under coloured headings: Lessons, Next, Commands,
+    /// Constants and Language. Examples are shown in the colour of code; the next lesson is greyed out, because it is not unlocked yet.
+    /// </summary>
     /// <param name="entries">The entries to show, in order.</param>
     public void ShowEntries(IReadOnlyList<HelpEntry> entries)
     {
@@ -37,16 +45,23 @@ public partial class HelpPanel : ScrollContainer
             List<string> lines = entries.Where(entry => entry.Kind == kind).Select(FormatEntry).ToList();
             if (lines.Count > 0)
             {
-                groups.Add(heading + "\n" + string.Join("\n", lines));
+                string headingColor = Palette.UiAccent.Lightened(0.35f).ToHtml();
+                groups.Add($"[font_size=18][b][color=#{headingColor}]{heading}[/color][/b][/font_size]\n" + string.Join("\n\n", lines));
             }
         }
 
-        _text.Text = string.Join("\n\n", groups);
+        _text.Text = string.Join("\n\n\n", groups);
     }
 
     private static string FormatEntry(HelpEntry entry)
     {
-        string example = string.Join("\n", entry.Example.Split('\n').Select(line => "    " + line));
-        return $"{entry.Name}: {entry.Summary}\n{example}";
+        // Examples take the command colour of the editor, so they read as code the player can type.
+        string example = string.Join("\n", entry.Example.Split('\n').Select(Escape));
+        string text = $"[font_size=17][b]{Escape(entry.Name)}[/b][/font_size]\n{Escape(entry.Summary)}\n"
+            + $"[indent][color=#{Palette.SyntaxCommand.ToHtml()}]{example}[/color][/indent]";
+        return entry.Kind == HelpKind.NextLesson ? $"[color=#{Palette.MutedText.ToHtml()}]{text}[/color]" : text;
     }
+
+    // Help texts and examples contain brackets, such as lists in Python, which BBCode would read as tags.
+    private static string Escape(string text) => text.Replace("[", "[lb]");
 }

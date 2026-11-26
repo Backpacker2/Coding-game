@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.14.4 — 2026-11-26
+
+- Help looks like the rest of the game: green group headings, each entry's name in bold on its own line, examples in the editor's code colour, the next lesson greyed out, and padding around the text.
+
 ## 0.14.3 — 2026-11-26
 
 - Fix: the Tab key in the script editor types four spaces instead of a tab character, so indents match the examples and lessons.
