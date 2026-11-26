@@ -72,7 +72,8 @@ public partial class Main : Control
         _codeWindow.ScriptRemovePressed += OnScriptRemovePressed;
         _codeWindow.ScriptRenameRequested += OnScriptRenameRequested;
         Vector2 viewport = GetViewportRect().Size;
-        _codeWindow.Position = new Vector2I((int)(viewport.X * 0.55f), 80);
+        // Low enough that its title bar stays clear of the round buttons above it.
+        _codeWindow.Position = new Vector2I((int)(viewport.X * 0.55f), 104);
         _codeWindow.Size = new Vector2I((int)(viewport.X * 0.42f), (int)(viewport.Y * 0.8f));
 
         _fieldView = new FieldView3D();
@@ -124,17 +125,17 @@ public partial class Main : Control
         _newGameDialog.Confirmed += OnNewGameConfirmed;
         AddChild(_newGameDialog);
 
-        Button codeButton = new() { Text = "Code" };
+        Button codeButton = new() { Text = "Code", Icon = GameIcons.Code };
         ApplyRoundStyle(codeButton);
         codeButton.Pressed += () => ToggleWindow(_codeWindow);
-        _unlocksButton = new() { Text = "Unlocks" };
+        _unlocksButton = new() { Text = "Unlocks", Icon = GameIcons.Unlocks };
         ApplyRoundStyle(_unlocksButton);
         _unlocksButton.Pressed += () => ToggleWindow(unlocksWindow);
-        Button helpButton = new() { Text = "Help" };
+        Button helpButton = new() { Text = "Help", Icon = GameIcons.Help };
         ApplyRoundStyle(helpButton);
         helpButton.Pressed += () => ToggleWindow(helpWindow);
         // A menu button is flat by default, which hides the round background.
-        _menuButton = new MenuButton { Text = "Menu", Flat = false };
+        _menuButton = new MenuButton { Text = "Menu", Icon = GameIcons.Menu, Flat = false };
         ApplyRoundStyle(_menuButton);
         PopupMenu menu = _menuButton.GetPopup();
         menu.AddItem("New game", 0);
