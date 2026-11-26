@@ -6,6 +6,28 @@ Every version of Coding Game, newest first. Version numbers follow the rules in 
 
 - Variables and counting: a new unlock (40 potato) lets a script read its for-loop counter, make its own variables, calculate with + - * and compare with < > <= >=, in Python and JavaScript with the same results. Help and two new lessons teach it; = in a condition now explains to use == (Python) or === (JavaScript).
 
+## 0.14.7 — 2026-11-26
+
+- Polish and check (visual milestone 28): the "+N" number rises fast and slows down before it fades, the unlock banner fades out smoothly, and button icons take their colour from the palette. Results of the motion, colour-blindness and 1280 × 720 checks are in `docs/visual-plan.md`, with a before and after picture.
+- Fix: in a narrow window the script toolbar wraps onto a second row instead of cutting off the status chip.
+
+## 0.14.6 — 2026-11-26
+
+- The round buttons at the top right get line icons: brackets for Code, a padlock for Unlocks, a question mark for Help and three lines for Menu.
+- Fix: the script window's title bar no longer covers the bottom of the round buttons.
+
+## 0.14.5 — 2026-11-26
+
+- The item pills at the top left show a small drawing of each crop in the shape it has on the field (three leaves, a bulb under leaves, a tuber) instead of a plain dot.
+
+## 0.14.4 — 2026-11-26
+
+- Help looks like the rest of the game: green group headings, each entry's name in bold on its own line, examples in the editor's code colour, the next lesson greyed out, and padding around the text.
+
+## 0.14.3 — 2026-11-26
+
+- Fix: the Tab key in the script editor types four spaces instead of a tab character, so indents match the examples and lessons.
+
 ## 0.14.2 — 2026-11-26
 
 - Docs: the player guide, the play-test guide and the first Help lesson explain the camera (right-drag turns, the wheel zooms, Menu > Reset view).

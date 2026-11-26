@@ -108,6 +108,13 @@ Each milestone is one pull request and one version.
 - Readability check with a colour-blindness simulation of a screenshot, and font sizes at 1280 × 720.
 - Before and after screenshots of 0.9.1 and the result in `docs/`, and `visual-direction.md` updated.
 
+Result (0.14.7):
+
+- Motion: the drone eases between tiles, crops pop in with a 0.25 s overshoot, ripe crops sway gently, an error shakes the drone for 0.4 s, and the camera eases. Two motions were linear and now ease: the "+N" number rises fast and slows down before it fades, and the unlock banner fades out with ease-in. Nothing else was added, to stay at about 60% of the juice.
+- Colour blindness: a deuteranopia and a protanopia simulation of a screenshot show that the three crops stay apart by shape (leaves, bulb, tubers), also on the item pills. Run and Stop also differ by their symbol and text, and the status chip by its word.
+- 1280 × 720: the script window's toolbar cut off the status chip. The toolbar now wraps onto a second row. The 16 px UI font stays readable.
+- Before and after: `docs/images/visual-before-after.jpg` (0.9.3 and 0.14.6), linked from `visual-direction.md`.
+
 ## Research: real 3D models
 
 The owner asked to look into ready-made 3D models, for example animated drones on Sketchfab. Findings (checked 2026-11-26):

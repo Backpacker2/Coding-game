@@ -13,7 +13,7 @@ The owner's target look for the screen. Each step below is one milestone in [`TO
 
 ## Rules
 
-- Original art only: everything is drawn from Godot primitives and the default theme.
+- Original art only: everything is drawn from Godot primitives, the game's own theme (`GameTheme`) and its own line icons (`GameIcons`).
 - No copied assets, icons, layouts or names from other games.
 
 ## Steps
@@ -22,4 +22,6 @@ The owner's target look for the screen. Each step below is one milestone in [`TO
 - 19. The farm is the scene: floating Script window, item bar, round buttons with overlays (0.8.0, done).
 - 20. 3D field: a low-poly field from an angle, growing crops, a hovering drone (0.9.0, done; decision 0011).
 - 21. Feedback: smooth drone movement, harvest particles, "+N" popups, light (0.9.1, done).
-- 22 to 28: see [`visual-plan.md`](visual-plan.md), with the research behind them.
+- 22 to 28: see [`visual-plan.md`](visual-plan.md), with the research behind them (all done by 0.14.7).
+
+![Before (0.9.3, top) and after (0.14.6, bottom)](images/visual-before-after.jpg)

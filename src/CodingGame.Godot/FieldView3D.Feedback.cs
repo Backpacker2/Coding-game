@@ -86,8 +86,9 @@ public partial class FieldView3D
         };
         _effects.AddChild(label);
         Tween tween = label.CreateTween();
-        tween.TweenProperty(label, "position:y", start.Y + 0.6f, 1f);
-        tween.Parallel().TweenProperty(label, "modulate:a", 0f, 1f);
+        // The number jumps up fast and slows down, and only fades once it has been read.
+        tween.TweenProperty(label, "position:y", start.Y + 0.6f, 1f).SetTrans(Tween.TransitionType.Cubic).SetEase(Tween.EaseType.Out);
+        tween.Parallel().TweenProperty(label, "modulate:a", 0f, 1f).SetTrans(Tween.TransitionType.Cubic).SetEase(Tween.EaseType.In);
         tween.TweenCallback(Callable.From(label.QueueFree));
     }
 }
