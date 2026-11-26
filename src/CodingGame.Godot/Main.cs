@@ -42,6 +42,8 @@ public partial class Main : Control
     /// <inheritdoc/>
     public override void _Ready()
     {
+        // The root window passes the theme on to every control and every window, dialogs included.
+        GetTree().Root.Theme = GameTheme.Build();
         // The version lives only in Directory.Build.props; the title shows it so a tester can see which build runs.
         Version version = typeof(Main).Assembly.GetName().Version ?? throw new InvalidOperationException("the game assembly has no version");
         string versionText = $"Coding Game {version.ToString(3)}";
@@ -192,9 +194,9 @@ public partial class Main : Control
     private static void ApplyRoundStyle(Button button)
     {
         button.CustomMinimumSize = new Vector2(48, 48);
-        button.AddThemeStyleboxOverride("normal", RoundStyle(new Color(0.25f, 0.45f, 0.2f)));
-        button.AddThemeStyleboxOverride("hover", RoundStyle(new Color(0.31f, 0.55f, 0.25f)));
-        button.AddThemeStyleboxOverride("pressed", RoundStyle(new Color(0.18f, 0.34f, 0.15f)));
+        button.AddThemeStyleboxOverride("normal", RoundStyle(Palette.UiAccent));
+        button.AddThemeStyleboxOverride("hover", RoundStyle(Palette.UiAccent.Lightened(0.12f)));
+        button.AddThemeStyleboxOverride("pressed", RoundStyle(Palette.UiAccent.Darkened(0.15f)));
     }
 
     private static StyleBoxFlat RoundStyle(Color background)
