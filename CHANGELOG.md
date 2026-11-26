@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.14.5 — 2026-11-26
+
+- The item pills at the top left show a small drawing of each crop in the shape it has on the field (three leaves, a bulb under leaves, a tuber) instead of a plain dot.
+
 ## 0.14.4 — 2026-11-26
 
 - Help looks like the rest of the game: green group headings, each entry's name in bold on its own line, examples in the editor's code colour, the next lesson greyed out, and padding around the text.
