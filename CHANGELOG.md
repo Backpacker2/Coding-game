@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.13.6 — 2026-11-26
+
+- Fix: when several first-steps goals get done in the same run, the goal card now ticks all of them, not only one.
+
 ## 0.13.5 — 2026-11-26
 
 - Code and world linked: while a script runs, the running line floats over the drone (for example `move(EAST)`). When a run stops with an error, the drone shakes once and gives off a red burst. A status chip next to the tick count says Ready, Running, Finished or Error in its own colour.

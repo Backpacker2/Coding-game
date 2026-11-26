@@ -5,7 +5,7 @@ using Godot;
 namespace CodingGame.Godot;
 
 /// <summary>
-/// A small card under the goal bar with the current first-steps goal in one sentence and a ? button that shows its hint. When the shown goal gets done, it shows a tick for a moment before the next goal. With every goal done it hides. It only reads the progress.
+/// A small card under the goal bar with the current first-steps goal in one sentence and a ? button that shows its hint. When goals get done, it shows a tick for each of them for a moment before the next goal. With every goal done it hides. It only reads the progress.
 /// </summary>
 public partial class GoalCard : PanelContainer
 {
@@ -15,7 +15,7 @@ public partial class GoalCard : PanelContainer
     private readonly Label _goalLabel = new();
     private readonly Label _hintLabel = new();
     private readonly Button _hintButton = new() { Text = "?", TooltipText = "Show a hint", ToggleMode = true };
-    private Goal? _shownGoal;
+    private HashSet<string>? _doneGoalIds;
     private ulong _doneUntilMsec;
 
     /// <summary>
@@ -57,14 +57,19 @@ public partial class GoalCard : PanelContainer
     /// <param name="progress">The progress to read the current goal from. It is not changed.</param>
     public void ShowGoal(GameProgress progress)
     {
-        Goal? current = progress.CurrentGoal;
-        // Comparing with the goal shown last frame finds every way a goal gets done (a run, a purchase) in one place.
-        if (_shownGoal is not null && _shownGoal != current && progress.IsDone(_shownGoal))
+        // Comparing with the goals done last frame finds every way goals get done (a run, a purchase, several at
+        // once) in one place. The first frame has nothing to compare with, so it only records them.
+        HashSet<string> doneIds = progress.Rules.Goals.Where(progress.IsDone).Select(goal => goal.Id).ToHashSet();
+        List<Goal> newlyDone = _doneGoalIds is null
+            ? []
+            : progress.Rules.Goals.Where(goal => doneIds.Contains(goal.Id) && !_doneGoalIds.Contains(goal.Id)).ToList();
+        _doneGoalIds = doneIds;
+        if (newlyDone.Count > 0)
         {
-            ShowDone(_shownGoal);
+            ShowDone(newlyDone);
         }
 
-        _shownGoal = current;
+        Goal? current = progress.CurrentGoal;
         if (Time.GetTicksMsec() < _doneUntilMsec)
         {
             return;
@@ -83,10 +88,10 @@ public partial class GoalCard : PanelContainer
         Visible = true;
     }
 
-    private void ShowDone(Goal goal)
+    private void ShowDone(List<Goal> goals)
     {
         _doneUntilMsec = Time.GetTicksMsec() + DoneMilliseconds;
-        _goalLabel.Text = $"✓ {goal.Text}";
+        _goalLabel.Text = string.Join("\n", goals.Select(goal => $"✓ {goal.Text}"));
         _goalLabel.AddThemeColorOverride("font_color", Palette.GoalDone);
         _hintButton.Visible = false;
         _hintButton.ButtonPressed = false;
