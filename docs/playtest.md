@@ -2,7 +2,7 @@
 
 This guide is for the owner. It takes about 30 minutes. Please report what you find (step 8).
 
-The starting field is 3x3. This is for testing only, so that nested loops can be tried. The size is set in `data/field.json`.
+The field starts 3x3. This is for testing only, so that nested loops can be tried. The size is set in `data/field.json`. The Bigger field unlock grows it to 5x5.
 
 ## Steps
 
@@ -26,11 +26,16 @@ The starting field is 3x3. This is for testing only, so that nested loops can be
    - Press Run on the starter script. The drone collects two clover.
    - Change the script and press Run again.
    - Press Step several times and watch the yellow line move.
-   - Press Stop. The field is reset.
+   - Press Stop. The field is reset, but your items stay.
    - Switch the language between Python and JavaScript. The starter script changes too, if you have not edited it.
    - Cause an error. For example type `harvest(` (a syntax error), or `plant(RADISH)` on a tile with a wild crop (a runtime error). The line turns red and the message shows the line number.
    - Write a loop that moves the drone 10 times and run it.
    - Write a JavaScript loop that never ends: `while (ripe()) {}`. Press Run, watch the tick counter, then press Stop. Press Step on it too: it stops after a fixed number of ticks.
+   - Harvest clover with the starter script and press Run several times. Watch the Items label grow. Items stay between runs and after Stop.
+   - Buy `for loop` for 10 clover, then write a `for` loop and run it.
+   - Buy `Bigger field` for 30 clover. The field becomes 5x5 at once.
+   - Before you buy `Radish and plant()`, write `plant(RADISH)`. The error `'plant' is not unlocked yet` shows with the line number, and the line turns red. The drone does not move.
+   - Buy `Radish and plant()` for 40 clover, and plant a radish.
 
 8. What to report:
    - Is the speed too fast or too slow? A move should take about one second.
@@ -38,10 +43,13 @@ The starting field is 3x3. This is for testing only, so that nested loops can be
    - Is anything confusing?
    - Did anything crash, or did Godot print an error?
    - Does the 3x3 starting field look right?
+   - Are the prices fair? How many minutes did it take to reach the radish unlock?
+   - Is the unlock list clear? Did you know what to do next?
 
 ## Known limits
 
-- There are no unlocks yet (milestone 10).
+- Progress is lost when the game closes.
+- JavaScript is not an unlock yet: both languages are open from the start.
 - There is no speed slider.
 - The art is placeholder: coloured circles for crops and a blue square for the drone.
 
