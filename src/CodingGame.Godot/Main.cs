@@ -411,6 +411,8 @@ public partial class Main : Control
         RunSession? session = _session;
         Field field = _progress.Field;
         _fieldView.ShowField(field, _rules.Crops);
+        int runningLine = session is { Status: StepStatus.Running } ? session.CurrentLine : 0;
+        _fieldView.ShowRun(runningLine > 0 ? _codeWindow.Editor.GetLine(runningLine - 1).Trim() : null, session?.Status == StepStatus.Failed);
         _resourceBar.ShowItems(field.Items, _rules.Crops);
         _goalBar.ShowNextGoal(_progress);
         _goalCard.ShowGoal(_progress);

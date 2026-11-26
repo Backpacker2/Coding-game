@@ -126,6 +126,8 @@ public partial class FieldView3D : SubViewportContainer
         _tiles = new Node3D();
         _effects = new Node3D();
         _drone = BuildDrone();
+        _commandLabel = BuildCommandLabel();
+        _drone.AddChild(_commandLabel);
         _droneRing = BuildDroneRing();
         _camera = new Camera3D { Fov = 40 };
         DirectionalLight3D light = new()
@@ -199,7 +201,7 @@ public partial class FieldView3D : SubViewportContainer
         Vector2 velocity = deltaSeconds > 0 ? (_droneShown - previous) / deltaSeconds : Vector2.Zero;
         Vector2 lean = velocity.Normalized() * Mathf.Min(velocity.Length() * LeanRadiansPerTilePerSecond, MaxLeanRadians);
         float hover = 0.9f + 0.05f * Mathf.Sin(_elapsedSeconds * 2);
-        _drone.Position = new Vector3(_droneShown.X, hover, _droneShown.Y);
+        _drone.Position = new Vector3(_droneShown.X + ShakeOffset(deltaSeconds), hover, _droneShown.Y);
         _droneRing.Position = new Vector3(_droneShown.X, 0.02f, _droneShown.Y);
         _spinLeftRadians = Mathf.MoveToward(_spinLeftRadians, 0, SpinRadiansPerSecond * deltaSeconds);
         _drone.Rotation = new Vector3(lean.Y, _spinLeftRadians, -lean.X);
