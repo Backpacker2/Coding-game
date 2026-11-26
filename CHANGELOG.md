@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.12.7 — 2026-11-26
+
+- `spin()` now shows: the drone turns a full circle on its tile for every spin.
+
 ## 0.12.6 — 2026-11-26
 
 - One UI theme for the whole game: warm dark panels and windows with rounded corners, a soft shadow and cream text, matching buttons, tabs, menus, text fields, scroll bars and tooltips. Run is green, Stop is red, and the Messages box looks like the editor.
