@@ -13,8 +13,6 @@ namespace CodingGame.Godot;
 /// </summary>
 public partial class Main : Control
 {
-    private static readonly Color _skyColor = new(0.36f, 0.45f, 0.55f);
-
     // The controls and the rules are created in _Ready, after Godot has built the object.
     private GameRules _rules = null!;
     private GameProgress _progress = null!;
@@ -62,19 +60,8 @@ public partial class Main : Control
         _codeWindow.Position = new Vector2I((int)(viewport.X * 0.55f), 80);
         _codeWindow.Size = new Vector2I((int)(viewport.X * 0.42f), (int)(viewport.Y * 0.8f));
 
-        ColorRect background = new() { Color = _skyColor };
-        background.SetAnchorsPreset(LayoutPreset.FullRect);
-        AddChild(background);
-
         _fieldView = new FieldView3D();
         _fieldView.SetAnchorsPreset(LayoutPreset.FullRect);
-
-        // The script window starts on the right part of the screen, so the farm is centred in the rest.
-        _fieldView.AnchorRight = 0.55f;
-        _fieldView.OffsetTop = 64;
-        _fieldView.OffsetLeft = 24;
-        _fieldView.OffsetRight = -24;
-        _fieldView.OffsetBottom = -24;
         AddChild(_fieldView);
 
         _resourceBar = new ResourceBar { Position = new Vector2(16, 12) };

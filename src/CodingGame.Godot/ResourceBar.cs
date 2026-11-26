@@ -42,7 +42,7 @@ public partial class ResourceBar : HBoxContainer
         foreach ((string name, int count) in items)
         {
             Crop? crop = crops.FirstOrDefault(entry => entry.Name == name);
-            Color color = crop is null ? Colors.White : FieldView3D.CropColor(crop, crops);
+            Color color = crop is null ? Colors.White : Palette.CropColor(crop, crops);
             Control icon = new() { CustomMinimumSize = new Vector2(20, 20) };
             icon.Draw += () => icon.DrawCircle(new Vector2(10, 10), 10, color);
 
