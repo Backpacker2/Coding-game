@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.6.1 — 2026-11-26
+
+- Add a speed picker to the window (Slow, Normal, Fast) that sets how many ticks run per second, so long scripts finish faster. It only changes the pace of a run, not the result.
+
 ## 0.6.0 — 2026-11-26
 
 - Add the save file `save.json` with version 1: the items, the bought unlocks, the script text of each language and the selected language. It is written to Godot's user data folder.
