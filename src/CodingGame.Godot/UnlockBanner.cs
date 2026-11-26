@@ -70,7 +70,7 @@ public partial class UnlockBanner : PanelContainer
         Visible = true;
         _fade = CreateTween();
         _fade.TweenInterval(ShownSeconds);
-        _fade.TweenProperty(this, "modulate:a", 0f, FadeSeconds);
+        _fade.TweenProperty(this, "modulate:a", 0f, FadeSeconds).SetTrans(Tween.TransitionType.Quad).SetEase(Tween.EaseType.In);
         _fade.TweenCallback(Callable.From(Hide));
     }
 }
