@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.9.1 — 2026-11-26
+
+- The drone glides between tiles and leans as it flies. Harvesting bursts the crop into particles and shows the items gained above the drone; planting kicks up a little soil.
+
 ## 0.9.0 — 2026-11-26
 
 - The field is 3D: low-poly tiles of grass and soil seen from an angle, crops that grow and glow when ripe, and a drone that hovers over its tile with spinning rotors. Everything is built from simple shapes in code. Design: decision 0011.

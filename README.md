@@ -8,7 +8,7 @@ The drone has one fixed set of commands (the drone API). Each programming langua
 
 ## Status
 
-**A playable prototype (v0.6.2).** You write a Python or JavaScript script, press Run, and watch a drone farm clover, radish and potato. Errors show the line number. Harvested items buy unlocks, and your progress and both scripts are saved between sessions. The changes per version are in [`CHANGELOG.md`](CHANGELOG.md).
+**A playable prototype (v0.9.1).** You write a Python or JavaScript script in a floating code window, press Run, and watch a drone fly over a 3D low-poly field and farm clover, radish and potato. Errors show the line number. Harvested items buy unlocks, and your progress and both scripts are saved between sessions. The changes per version are in [`CHANGELOG.md`](CHANGELOG.md).
 
 Install the .NET SDK 10 and Godot 4.7.2 (mono build), then open `src/CodingGame.Godot/project.godot` in Godot and press Play.
 The full steps are in [`docs/playtest.md`](docs/playtest.md).

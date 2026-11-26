@@ -50,3 +50,8 @@ Option A. `FieldView3D` replaces `FarmView`. The crop colours move to `FieldView
 - The placeholder art is primitive shapes: a tile is a box, a crop is a few spheres, a sphere with leaves or a bush, and the drone is a disc with four rotors. A ripe crop glows a little.
 - The field is seen from a fixed angle. The camera is aimed at the centre of the field each time its size changes.
 - The view has no automated tests, as before (decision 0007). The build checks the code; the look is for the owner's play-test ([`playtest.md`](../playtest.md)).
+
+### Update 2026-11-26 (0.9.1): feedback
+
+- The view finds harvests and plantings by comparing the `Field` with the frame before: a tile that showed a ripe crop and now has none, or a crop of age 0, was harvested; a tile that had no crop and now has one was planted. The items gained are the difference to the last frame's item counts. A new `Field` instance (a new run or New game) is shown without feedback.
+- The drone glides towards its tile in real time, and the glide never feeds back into the game. This stays view-only: the view still only reads the `Field`.
