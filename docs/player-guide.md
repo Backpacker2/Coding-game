@@ -22,7 +22,7 @@ The Script window floats over the farm. You can move it by its title bar, resize
 - **Toolbar**: the language picker (Python or JavaScript; each language keeps its own script), **Run**, **Step**, **Stop**, the speed picker and the tick count.
   - **Run** starts the script, or carries on with a script that Step paused. After a run has ended, Run starts a new one.
   - **Step** runs the script until the next line starts. The yellow line shows the line that is about to run.
-  - **Stop** ends the run and resets the farm. Your items stay.
+  - **Stop** ends the run. The farm stays as the run left it, and your items stay.
   - **Speed**: Slow, Normal or Fast. It only changes how fast the ticks run, not the result. Normal is the default.
   - **Ticks**: how many ticks this run has used. It says `finished` or `stopped by an error` when the run ends.
 - **Editor**: your script, with line numbers and colours: keywords purple, drone commands blue, constants amber, numbers green, strings orange and comments grey. You cannot edit it while a script runs.
@@ -69,7 +69,7 @@ Each unlock costs items and opens new commands or language features.
 | Unlock | Price | Opens |
 | --- | --- | --- |
 | for loop | 10 clover | `for`, to repeat a number of times |
-| Bigger field | 30 clover | the field grows to 5x5 |
+| Bigger field | 30 clover | the field grows to 5x5; your crops stay where they are |
 | Radish and plant() | 40 clover | `plant()` and `RADISH` |
 | if / else and ripe() | 20 radish | `if`, `else` and `ripe()`. Python's `elif` and JavaScript's `else if` count as `if`. |
 | while loop | 40 radish | `while` |
@@ -102,7 +102,7 @@ An unlocked feature is checked before the run starts, so the drone does not move
 - **Check before you act.** `ripe()` and `ground()` cost only 1 tick each. A harvest of an unripe radish destroys it, so check first.
 - **A tile you till and turn back to grass is empty.** Tilling removes the crop, and clover cannot be planted, so that tile stays empty.
 - **Harvesting a ripe radish or potato empties the tile.** Plant it again to keep farming it.
-- **Each run starts on a fresh field.** The field is grass with ripe clover on every tile, and the drone starts on the top-left tile. Crops do not carry over from one run to the next. Your items do.
+- **The farm stays between runs.** A crop you plant is still there in the next run, and the drone starts where the last run left it. Time passes only while a script runs, so a crop does not grow between runs. Your items stay too.
 - **A loop can run forever.** A `while True:` loop, or `while (ripe()) {}` in JavaScript, never ends by itself. Press Stop. Step on a loop that does not start another line stops after 10,000 ticks, and the next Step carries on.
 - **Recursion has a limit.** A function that calls itself more than 100 calls deep stops with a `RecursionError` in Python or a `RangeError` in JavaScript.
 
@@ -110,11 +110,11 @@ An unlocked feature is checked before the run starts, so the drone does not move
 
 The Help window shows the commands, constants and language words you can use now. Locked ones are left out until you buy the unlock that opens them. Each entry has an example in the language you selected.
 
-New game is in the Menu. It erases everything: your items, your unlocks, both scripts and the language, which goes back to Python. It asks first, and there is no undo. Choose Keep playing in the question to cancel.
+New game is in the Menu. It erases everything: your items, your unlocks, the farm (the field goes back to its starting size, with ripe clover on every tile, and the drone to the top-left tile), both scripts and the language, which goes back to Python. It asks first, and there is no undo. Choose Keep playing in the question to cancel.
 
 ## Saving
 
-The game saves your items, your bought unlocks, both of your scripts and the language you selected. It saves:
+The game saves your items, your bought unlocks, the farm (every tile with its crop and how far it has grown, and the drone's tile), both of your scripts and the language you selected. It saves:
 
 - after each buy and after New game,
 - when a run starts,

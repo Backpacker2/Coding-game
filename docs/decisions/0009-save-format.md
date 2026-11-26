@@ -54,3 +54,7 @@ Option A, format version 1.
 - Changing what a version means (a removed or renamed unlock, a new language, a new field) must raise `CurrentVersion` and bring a migration for the old versions, with a new decision record.
 - Items from a run are saved when the run ends. A crash in the middle of a run loses that run's harvest.
 - Each language now keeps its own script text while the game runs. Switching language no longer carries edited text over to the other language's starter.
+
+## Update 2026-11-26: version 2 adds the field
+
+Since 0.10.0 the save format is version 2. It adds a `field`: the drone's tile and every tile with its crop and age, row by row. Version 1 files still load, and get a fresh start field. The field is part of the progress, see [`0012`](0012-persistent-field.md). The rules above stay as they are.
