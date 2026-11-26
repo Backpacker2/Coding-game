@@ -22,7 +22,7 @@ The prototype is done when a player can write a Python or JavaScript script in t
 - [ ] **13. Play-test round 1.** Fix what the owner finds in the play-test of 0.4.0 and 0.5.0.
 - [x] **14. Documentation of what was built.** (0.6.2) README status, player guide, architecture overview.
 - [x] **15. In-game help and New game.** (0.7.0) A panel listing the commands, constants and language features the player has unlocked, and a New game button that resets the progress and scripts after a confirmation. Design: [`docs/decisions/0010-in-game-help.md`](decisions/0010-in-game-help.md).
-- [ ] **16. Crops stay on the field.** Today every Run starts on a fresh field, so a planted radish is gone when the run ends. Keep the field between runs so planting pays off. Needs a design decision (and the save format) and the owner's view after the play-test.
+- [x] **16. Crops stay on the field.** (0.10.0) The field belongs to the player's progress: crops keep growing in later runs, the drone stays where it stopped, and the field is saved (save format version 2). The owner chose this on 2026-11-26. Design: [`docs/decisions/0012-persistent-field.md`](decisions/0012-persistent-field.md).
 - [x] **17. Syntax highlighting.** (0.7.1) The script editor colours keywords, drone commands, constants, numbers, strings and comments for the selected language.
 - [x] **18. Layout from the first screenshot.** (0.7.2) The window opens maximised, the farm is centred, unlocks and help are tabs, the messages box has a title and a hint, and the drone is a marker.
 - [x] **19. The farm is the scene.** (0.8.0) Floating code window, resource bar, round buttons with overlays. Owner's look: [docs/visual-direction.md](visual-direction.md).

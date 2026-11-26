@@ -69,7 +69,7 @@ public class RunSessionTests
         RunToEnd(second);
 
         Assert.Equal(StepStatus.Finished, second.Status);
-        Assert.Equal(4, progress.Items["CLOVER"]);
+        Assert.Equal(3, progress.Items["CLOVER"]);
     }
 
     [Fact]
@@ -202,6 +202,59 @@ public class RunSessionTests
 
         Assert.Equal(StepStatus.Running, session.Status);
         Assert.Equal(1 + RunSession.MaxTicksPerLineStep, session.TicksUsed);
+    }
+
+    [Fact]
+    public void PlantedCropAndDroneStayOnTheFieldForTheNextRun()
+    {
+        GameProgress progress = EvaluatorTestSupport.AllUnlocked(_rules);
+        progress.AddItems("CLOVER", 2);
+        RunSession first = RunSession.Start("till()\ntill()\nplant(RADISH)\nmove(EAST)", ScriptLanguage.Python, progress);
+        RunToEnd(first);
+        Tile afterFirstRun = progress.Field.GetTile(0, 0);
+
+        RunSession second = RunSession.Start("harvest()", ScriptLanguage.Python, progress);
+
+        Assert.Equal(StepStatus.Running, second.Status);
+        Assert.Equal("RADISH", afterFirstRun.Crop?.Name);
+        Assert.True(afterFirstRun.CropAgeTicks > 0);
+        Assert.Equal(afterFirstRun, second.Field.GetTile(0, 0));
+        Assert.Equal(new TilePosition(1, 0), second.Field.DronePosition);
+    }
+
+    [Fact]
+    public void TwoRunsFromTheSameStateGiveTheSameEndState()
+    {
+        const string firstScript = "till()\ntill()\nplant(RADISH)\nmove(EAST)";
+        const string secondScript = "harvest()\nmove(EAST)";
+        GameProgress first = ProgressWithTwoClover();
+        GameProgress second = ProgressWithTwoClover();
+
+        RunToEnd(RunSession.Start(firstScript, ScriptLanguage.Python, first));
+        RunSession firstSecond = RunSession.Start(secondScript, ScriptLanguage.Python, first);
+        RunToEnd(firstSecond);
+        RunToEnd(RunSession.Start(firstScript, ScriptLanguage.Python, second));
+        RunSession secondSecond = RunSession.Start(secondScript, ScriptLanguage.Python, second);
+        RunToEnd(secondSecond);
+
+        Assert.Equal(StepStatus.Finished, secondSecond.Status);
+        Assert.Equal(firstSecond.TicksUsed, secondSecond.TicksUsed);
+        Assert.Equal(first.Field.DronePosition, second.Field.DronePosition);
+        Assert.Equal(first.Items.OrderBy(item => item.Key), second.Items.OrderBy(item => item.Key));
+        for (int x = 0; x < first.Field.Width; x++)
+        {
+            for (int y = 0; y < first.Field.Height; y++)
+            {
+                Assert.Equal(first.Field.GetTile(x, y), second.Field.GetTile(x, y));
+            }
+        }
+    }
+
+    private static GameProgress ProgressWithTwoClover()
+    {
+        GameProgress progress = EvaluatorTestSupport.AllUnlocked(_rules);
+        progress.AddItems("CLOVER", 2);
+        return progress;
     }
 
     private static void RunToEnd(RunSession session)

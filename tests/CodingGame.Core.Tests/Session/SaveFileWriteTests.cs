@@ -2,6 +2,7 @@ using System.Text.Json;
 using CodingGame.Core.Interpreter;
 using CodingGame.Core.Rules;
 using CodingGame.Core.Session;
+using CodingGame.Core.Simulation;
 using CodingGame.Core.Tests.Interpreter;
 using Xunit;
 
@@ -25,33 +26,50 @@ public class SaveFileWriteTests : IDisposable
     }
 
     [Fact]
-    public void SavesProgressAndScriptsAsVersionOneJson()
+    public void SavesProgressScriptsAndFieldAsVersionTwoJson()
     {
         string path = Path.Combine(_folder, "save.json");
         SavedGame game = GameWithForLoopAndBiggerField();
 
         SaveFile.Save(path, game);
 
-        string expected = """
-            {
-              "version": 1,
-              "items": {
-                "CLOVER": 12,
-                "RADISH": 3
-              },
-              "boughtUnlocks": [
-                "FOR_LOOP",
-                "BIGGER_FIELD"
-              ],
-              "language": "python",
-              "scripts": {
-                "python": "move(EAST)\n",
-                "javaScript": null
-              }
-            }
+        using JsonDocument document = JsonDocument.Parse(File.ReadAllText(path));
+        JsonElement root = document.RootElement;
+        Assert.Equal(2, root.GetProperty("version").GetInt32());
+        Assert.Equal(12, root.GetProperty("items").GetProperty("CLOVER").GetInt32());
+        string[] bought = root.GetProperty("boughtUnlocks").EnumerateArray()
+            .Select(element => element.GetString() ?? string.Empty)
+            .ToArray();
+        Assert.Equal(["FOR_LOOP", "BIGGER_FIELD"], bought);
+        Assert.Equal("move(EAST)\n", root.GetProperty("scripts").GetProperty("python").GetString());
+        JsonElement field = root.GetProperty("field");
+        Assert.Equal(0, field.GetProperty("drone").GetProperty("x").GetInt32());
+        Assert.Equal(25, field.GetProperty("tiles").GetArrayLength());
+        JsonElement firstTile = field.GetProperty("tiles")[0];
+        Assert.Equal("GRASS", firstTile.GetProperty("ground").GetString());
+        Assert.Equal("CLOVER", firstTile.GetProperty("crop").GetString());
+        Assert.Equal(200, firstTile.GetProperty("ageTicks").GetInt32());
+    }
 
-            """;
-        Assert.Equal(expected.ReplaceLineEndings("\n"), File.ReadAllText(path));
+    [Fact]
+    public void FieldIsWrittenRowByRow()
+    {
+        string path = Path.Combine(_folder, "save.json");
+        var progress = new GameProgress(_rules);
+        progress.AddItems("CLOVER", 2);
+        progress.Field.Move(Direction.East);
+        progress.Field.Move(Direction.East);
+        progress.Field.Move(Direction.South);
+        progress.Field.Till();
+        progress.Field.Till();
+        progress.Field.Plant(_rules.Crops.Single(crop => crop.Name == "RADISH"));
+
+        SaveFile.Save(path, new SavedGame(progress, ScriptLanguage.Python, new SavedScripts(null, null)));
+
+        using JsonDocument document = JsonDocument.Parse(File.ReadAllText(path));
+        JsonElement tiles = document.RootElement.GetProperty("field").GetProperty("tiles");
+        Assert.Equal("RADISH", tiles[5].GetProperty("crop").GetString());
+        Assert.Equal(0, tiles[5].GetProperty("ageTicks").GetInt32());
     }
 
     [Fact]
@@ -94,7 +112,7 @@ public class SaveFileWriteTests : IDisposable
 
         SaveFile.Save(path, GameWithForLoopAndBiggerField());
 
-        Assert.Contains("\"version\": 1", File.ReadAllText(path));
+        Assert.Contains("\"version\": 2", File.ReadAllText(path));
         Assert.Empty(Directory.GetFiles(_folder, "*.tmp"));
     }
 

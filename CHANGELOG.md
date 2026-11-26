@@ -2,12 +2,16 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
-## 0.9.3 — 2026-11-26
+## 0.10.1 — 2026-11-26
 
 - Give the view one palette (`Palette`) for every colour of the field, the drone, the sky and the script window.
 - Calmer, earthy colours; clover is drawn as a green three-leaf clover instead of yellow discs.
 - A sky with a soft gradient replaces the flat background, with light fog, filmic tone mapping, glow for ripe crops and the drone's light, and a warmer, lower sun with softer shadows. The field fills the screen and is framed left of the script window.
 - Fix a NaN drone tilt on a zero-length frame.
+
+## 0.10.0 — 2026-11-26
+
+- Crops stay on the field: what you plant keeps growing in later runs, the drone stays where it stopped, and the field is saved. Save files move to version 2; version 1 saves still load, with a fresh field. Design: decision 0012.
 
 ## 0.9.2 — 2026-11-26
 

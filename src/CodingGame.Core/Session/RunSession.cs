@@ -6,7 +6,7 @@ using CodingGame.Core.Simulation;
 namespace CodingGame.Core.Session;
 
 /// <summary>
-/// A script run in progress on a fresh field of the player's progress. It is started from the script text,
+/// A script run in progress on the field of the player's progress. It is started from the script text,
 /// the language and the progress, then advanced one tick or one statement at a time. A script that does not
 /// parse, or that uses a feature the player has not unlocked, is a session that has failed from the start.
 /// </summary>
@@ -63,6 +63,7 @@ public sealed class RunSession
     /// <summary>
     /// Parses a script and checks it against the player's unlocks. Creates a session that has not run any
     /// tick yet, or a session that has failed if the script does not parse or uses a locked feature.
+    /// The session runs on the field of the progress, so the crops and the drone keep what the run changed.
     /// </summary>
     /// <param name="source">The script text.</param>
     /// <param name="language">The language the script is written in.</param>
@@ -77,7 +78,7 @@ public sealed class RunSession
             ScriptLanguage.JavaScript => JavaScriptFrontEnd.Parse(source),
             _ => throw new ArgumentOutOfRangeException(nameof(language), language, "unknown script language"),
         };
-        Field field = progress.NewField();
+        Field field = progress.Field;
         if (parsed.Error is { } error)
         {
             return new RunSession(language, field, null, StepStatus.Failed, error);

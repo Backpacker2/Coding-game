@@ -27,7 +27,7 @@ The field starts 3x3. This is for testing only, so that nested loops can be trie
    - Change the script and press Run again.
    - Press Step several times and watch the yellow line move.
    - While a loop runs, change the speed to Slow and then to Fast. The drone moves slower or faster, and the end result stays the same.
-   - Press Stop. The field is reset, but your items stay.
+   - Press Stop. The run ends, the farm stays as the run left it, and your items stay.
    - Switch the language between Python and JavaScript. Each language keeps its own script text, so your edits come back when you switch back.
    - Cause an error. For example type `harvest(` (a syntax error), or `mvoe(EAST)` (a name that is not defined, found when the line runs). The line turns red and the message shows the line number.
    - Harvest clover with the starter script and press Run several times. Watch the item bar at the top left grow. Items stay between runs and after Stop.
@@ -57,7 +57,13 @@ The field starts 3x3. This is for testing only, so that nested loops can be trie
    - Close the window and start the game again. It starts as a new game too.
    - Start a run with a long loop. Check that the New game item in the Menu is greyed out while it runs, and that it is active again after Stop.
 
-10. What to report:
+10. Crops stay on the field:
+   - Once you have bought `Radish and plant()` and `Potato, till() and ground()`: a radish can only go on an empty tile, and every starting tile has clover, so this step needs `till()`. The radish costs 2 clover to plant.
+   - Write a script that tills the drone's tile twice (grass, soil, grass, so the clover is removed), plants `RADISH` and then moves the drone one tile east. Press Run and let it finish.
+   - Press Run again with a script that moves the drone one tile west. The drone starts one tile east, where the last run stopped, so after the move it stands on the radish. The radish is still there and has kept growing. Do not harvest it yet: an unripe radish is destroyed.
+   - Close the window and start the game again. The radish and the drone are still there.
+
+11. What to report:
    - Do the three speeds (Slow, Normal, Fast) feel right? At Normal, a move should take about one second.
    - Is anything hard to read or ugly?
    - Is anything confusing?
@@ -73,8 +79,21 @@ The field starts 3x3. This is for testing only, so that nested loops can be trie
 - JavaScript is not an unlock yet: both languages are open from the start.
 - The art is placeholder: simple coloured shapes built in code for the crops, and a grey drone with four rotors and a blue eye.
 
+## Update to the newest version
+
+Do this before every test round, so you test what is on `main`.
+
+1. Close Godot.
+2. Get the newest code: in the code folder run `git checkout main` and `git pull`, or in GitHub Desktop pick the branch `main` and press Fetch, then Pull origin. If you use the zip, download the newest release again.
+3. Open the project in Godot and press the hammer icon (Build) at the top right, or run `dotnet build` in the code folder.
+4. Still the old look? Close Godot, delete the folder `src/CodingGame.Godot/.godot` and open the project again. Godot rebuilds that folder. Your save is not in it and is kept.
+5. The version is in `Directory.Build.props` and at the top of `CHANGELOG.md`; check that it matches the newest release.
+
+The editor's built-in game view keeps the game at the size of that view. To see the game maximised, turn off Embed in the Game tab's menu, or run the exported game.
+
 ## Troubleshooting
 
 - **Godot cannot find the .NET SDK:** install the SDK from step 1, then restart Godot.
 - **NU1201 error when building:** a `net8.0` line was added to `src/CodingGame.Godot/CodingGame.Godot.csproj`. Remove the `net8.0` line. The `net10.0` line must stay.
+- **The game still looks like an older version:** follow "Update to the newest version" above.
 - **Empty window and a `GameRulesException` in Godot's output:** the `data` folder was not copied. Run `dotnet build src/CodingGame.Godot` in the code folder, then restart the game.

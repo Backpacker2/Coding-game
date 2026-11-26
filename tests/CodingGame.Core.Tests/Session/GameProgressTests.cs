@@ -109,31 +109,46 @@ public class GameProgressTests
     }
 
     [Fact]
-    public void BuyingBiggerFieldGrowsNewFields()
+    public void BuyingBiggerFieldGrowsTheField()
     {
         var progress = new GameProgress(_rules);
         progress.AddItems("CLOVER", 30);
 
         progress.Buy(UnlockNamed("BIGGER_FIELD"));
-        Field field = progress.NewField();
 
         Assert.Equal(new FieldSize(5, 5), progress.FieldSize);
-        Assert.Equal(5, field.Width);
-        Assert.Equal(5, field.Height);
-        Assert.Equal("CLOVER", field.GetTile(4, 4).Crop?.Name);
+        Assert.Equal(5, progress.Field.Width);
+        Assert.Equal(5, progress.Field.Height);
+        Assert.Equal("CLOVER", progress.Field.GetTile(4, 4).Crop?.Name);
     }
 
     [Fact]
-    public void ItemsFromAFieldStayInProgressAcrossFields()
+    public void BuyingBiggerFieldKeepsPlantedTilesWithTheirAge()
     {
         var progress = new GameProgress(_rules);
-        Field first = progress.NewField();
+        progress.AddItems("CLOVER", 32);
+        progress.Field.Till();
+        progress.Field.Till();
+        progress.Field.Plant(RadishCrop());
+        progress.Field.Advance(50);
+        progress.Field.Move(Direction.East);
 
-        first.Harvest();
-        Field second = progress.NewField();
+        progress.Buy(UnlockNamed("BIGGER_FIELD"));
+
+        Assert.Equal(new Tile(Ground.Grass, RadishCrop(), 50), progress.Field.GetTile(0, 0));
+        Assert.Equal(new Tile(Ground.Grass, CloverCrop(), 200), progress.Field.GetTile(4, 4));
+        Assert.Equal(new TilePosition(1, 0), progress.Field.DronePosition);
+    }
+
+    [Fact]
+    public void ItemsFromAFieldStayInProgress()
+    {
+        var progress = new GameProgress(_rules);
+
+        progress.Field.Harvest();
 
         Assert.Equal(1, progress.Items["CLOVER"]);
-        Assert.Equal("CLOVER", second.GetTile(0, 0).Crop?.Name);
+        Assert.Equal("CLOVER", progress.Field.GetTile(0, 0).Crop?.Name);
     }
 
     [Fact]
@@ -172,10 +187,28 @@ public class GameProgressTests
     }
 
     [Fact]
+    public void ResetGivesAFreshStartField()
+    {
+        var progress = new GameProgress(_rules);
+        progress.AddItems("CLOVER", 32);
+        progress.Field.Till();
+        progress.Field.Till();
+        progress.Field.Plant(RadishCrop());
+        progress.Buy(UnlockNamed("BIGGER_FIELD"));
+        progress.Field.Move(Direction.East);
+
+        progress.Reset();
+
+        Assert.Equal(3, progress.Field.Width);
+        Assert.Equal(new TilePosition(0, 0), progress.Field.DronePosition);
+        Assert.Equal(new Tile(Ground.Grass, CloverCrop(), 200), progress.Field.GetTile(0, 0));
+    }
+
+    [Fact]
     public void ResetEmptiesTheItemsOfAFieldMadeEarlier()
     {
         var progress = new GameProgress(_rules);
-        Field field = progress.NewField();
+        Field field = progress.Field;
         progress.AddItems("CLOVER", 3);
         Assert.NotEmpty(field.Items);
 
@@ -201,7 +234,7 @@ public class GameProgressTests
     {
         var items = new Dictionary<string, int> { ["CLOVER"] = 5 };
         var bought = new HashSet<string> { "FOR_LOOP" };
-        var progress = new GameProgress(_rules, items, bought);
+        var progress = new GameProgress(_rules, items, bought, null, default);
 
         Assert.Equal(5, progress.Items["CLOVER"]);
         Assert.True(progress.IsBought(UnlockNamed("FOR_LOOP")));
@@ -210,18 +243,47 @@ public class GameProgressTests
     }
 
     [Fact]
-    public void RestoredProgressKeepsSavedFieldSize()
+    public void RestoredProgressWithoutTilesHasAFreshFieldOfSavedSize()
     {
-        var progress = new GameProgress(_rules, new Dictionary<string, int>(), new HashSet<string> { "BIGGER_FIELD" });
+        var progress = new GameProgress(_rules, new Dictionary<string, int>(), new HashSet<string> { "BIGGER_FIELD" }, null, default);
 
         Assert.Equal(new FieldSize(5, 5), progress.FieldSize);
+        Assert.Equal(5, progress.Field.Width);
+        Assert.Equal(new Tile(Ground.Grass, CloverCrop(), 200), progress.Field.GetTile(4, 4));
+    }
+
+    [Fact]
+    public void RestoredProgressKeepsSavedTilesAndDrone()
+    {
+        var tiles = new Tile[3, 3];
+        for (int x = 0; x < 3; x++)
+        {
+            for (int y = 0; y < 3; y++)
+            {
+                tiles[x, y] = new Tile(Ground.Grass, null, 0);
+            }
+        }
+
+        tiles[2, 1] = new Tile(Ground.Grass, CloverCrop(), 77);
+        var progress = new GameProgress(_rules, new Dictionary<string, int>(), new HashSet<string>(), tiles, new TilePosition(2, 1));
+
+        Assert.Equal(new Tile(Ground.Grass, CloverCrop(), 77), progress.Field.GetTile(2, 1));
+        Assert.Equal(new TilePosition(2, 1), progress.Field.DronePosition);
+    }
+
+    [Fact]
+    public void RestoredProgressRejectsTilesOfAnotherSize()
+    {
+        var tiles = new Tile[2, 2];
+
+        Assert.Throws<ArgumentException>(() => new GameProgress(_rules, new Dictionary<string, int>(), new HashSet<string>(), tiles, default));
     }
 
     [Fact]
     public void RestoredProgressDoesNotShareTheSourceDictionary()
     {
         var items = new Dictionary<string, int> { ["CLOVER"] = 5 };
-        var progress = new GameProgress(_rules, items, new HashSet<string>());
+        var progress = new GameProgress(_rules, items, new HashSet<string>(), null, default);
 
         items["CLOVER"] = 99;
 
@@ -231,5 +293,15 @@ public class GameProgressTests
     private static Unlock UnlockNamed(string id)
     {
         return _rules.Unlocks.Single(unlock => unlock.Id == id);
+    }
+
+    private static Crop CloverCrop()
+    {
+        return _rules.Crops.Single(crop => crop.Name == "CLOVER");
+    }
+
+    private static Crop RadishCrop()
+    {
+        return _rules.Crops.Single(crop => crop.Name == "RADISH");
     }
 }

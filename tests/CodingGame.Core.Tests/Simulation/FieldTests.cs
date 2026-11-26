@@ -291,6 +291,65 @@ public class FieldTests
         }
     }
 
+    [Fact]
+    public void RestoredFieldCopiesTheTiles()
+    {
+        var tiles = new Tile[2, 1];
+        tiles[0, 0] = new Tile(Ground.Grass, _clover, 10);
+        tiles[1, 0] = new Tile(Ground.Grass, null, 0);
+        var field = new Field(tiles, new TilePosition(1, 0), new Dictionary<string, int>());
+
+        tiles[0, 0] = new Tile(Ground.Soil, null, 0);
+
+        Assert.Equal(new Tile(Ground.Grass, _clover, 10), field.GetTile(0, 0));
+        Assert.Equal(2, field.Width);
+        Assert.Equal(1, field.Height);
+        Assert.Equal(new TilePosition(1, 0), field.DronePosition);
+    }
+
+    [Fact]
+    public void RestoredFieldRejectsDroneOutsideTheField()
+    {
+        var tiles = new Tile[2, 1];
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => new Field(tiles, new TilePosition(2, 0), new Dictionary<string, int>()));
+    }
+
+    [Fact]
+    public void RestoredFieldRejectsAnEmptyArray()
+    {
+        var tiles = new Tile[0, 1];
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => new Field(tiles, new TilePosition(0, 0), new Dictionary<string, int>()));
+    }
+
+    [Fact]
+    public void GrownKeepsTilesDroneAndItemsAndFillsNewTilesWithWildCrop()
+    {
+        var items = new Dictionary<string, int> { ["CLOVER"] = 4 };
+        var field = new Field(3, 1, _clover, items);
+        field.Move(Direction.East);
+        field.Till();
+
+        Field grown = field.Grown(5, 2, _clover);
+
+        Assert.Equal(5, grown.Width);
+        Assert.Equal(2, grown.Height);
+        Assert.Equal(new TilePosition(1, 0), grown.DronePosition);
+        Assert.Equal(new Tile(Ground.Soil, null, 0), grown.GetTile(1, 0));
+        Assert.Equal(new Tile(Ground.Grass, _clover, 200), grown.GetTile(4, 1));
+        Assert.Same(field.Items, grown.Items);
+    }
+
+    [Fact]
+    public void GrownRejectsASmallerField()
+    {
+        var field = new Field(3, 3, _clover);
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => field.Grown(2, 3, _clover));
+        Assert.Throws<ArgumentOutOfRangeException>(() => field.Grown(3, 2, _clover));
+    }
+
     private static Field FieldWithThreeClover()
     {
         var field = new Field(3, 1, _clover);

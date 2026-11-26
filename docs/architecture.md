@@ -1,6 +1,6 @@
 # Architecture
 
-This is the technical overview of the prototype (version 0.9.1). The rules for writing code are in [`../CLAUDE.md`](../CLAUDE.md). The reasons behind the big choices are in the decision records listed at the end of this document.
+This is the technical overview of the prototype (version 0.10.0). The rules for writing code are in [`../CLAUDE.md`](../CLAUDE.md). The reasons behind the big choices are in the decision records listed at the end of this document.
 
 ## Projects and folders
 
@@ -27,8 +27,8 @@ This is the technical overview of the prototype (version 0.9.1). The rules for w
 ```
 data/*.json ──► GameRules.Load ──► GameRules
                                        │
-save.json ──► SaveFile.Load ──► GameProgress (items, bought unlocks)
-                                       │ NewField()
+save.json ──► SaveFile.Load ──► GameProgress (items, bought unlocks, field)
+                                       │ Field
                                        ▼
 script text + language ──► RunSession.Start
                                        │
@@ -48,9 +48,9 @@ data/help.json ──► HelpBook.Load (checked against DroneApi) ──► Help
 
 - `GameRules.Load` reads the four files, turns them into precise types and checks them. A broken file throws `GameRulesException`.
 - `SaveFile.Load` reads `save.json`, checks it the same way and returns a `SavedGame`. A missing file gives a new game.
-- `RunSession.Start` parses the script. A parse error or a locked feature gives a session that has failed at once. Otherwise it creates an `Evaluator` with a `DroneApi` bound to a new field.
+- `RunSession.Start` parses the script. A parse error or a locked feature gives a session that has failed at once. Otherwise it creates an `Evaluator` with a `DroneApi` bound to the field of the progress.
 - Each step of the evaluator runs one tick. The `DroneApi` table gives the command names and their costs, and the field holds the state.
-- The items live in `GameProgress`. The field of a run keeps a reference to the same item store, so a harvest adds to the player's bank at once.
+- The items and the field live in `GameProgress`. The field keeps a reference to the same item store, so a harvest adds to the player's bank at once. A run changes the field of the progress, so crops and the drone stay as the run left them.
 - `HelpBook.Load` reads `data/help.json` and checks it against the drone API and the keywords. `HelpBook.EntriesFor` returns the entries the player can use now, with the example for the selected language.
 
 ### Who reads and who changes
@@ -125,3 +125,4 @@ A new language is a larger change, so it starts with a decision record that sket
 | [0009](decisions/0009-save-format.md) | accepted, built in 0.6.0 | A versioned `save.json`, checked when it is loaded, with a broken file kept as `save.json.broken`. |
 | [0010](decisions/0010-in-game-help.md) | accepted, built in 0.7.0 | Help texts live in `data/help.json`, checked against the drone API, and New game resets the progress in place and saves at once. |
 | [0011](decisions/0011-3d-field.md) | accepted, built in 0.9.0 | The field is a 3D scene in a `SubViewportContainer`, built from primitive meshes; the drone's animation runs in real time and never changes the game. |
+| [0012](decisions/0012-persistent-field.md) | accepted, built in 0.10.0 | `GameProgress` owns one field for the whole game, so crops and the drone stay between runs. The field is part of save format version 2. |
