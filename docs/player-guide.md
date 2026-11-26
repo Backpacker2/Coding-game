@@ -6,7 +6,7 @@ The same drone commands work in both languages. Only the way you write them chan
 
 ## The screen
 
-- **Farm**: the field fills the screen and is centred. Dark green is grass, brown is soil. A coloured circle is a crop: clover is gold, radish red and potato orange. A circle grows as the crop grows, and a white ring means it is ripe. The drone is the blue dot with a white ring in the top-left of its tile, inside a blue outline.
+- **Farm**: the field fills the screen and is centred, seen from an angle in 3D. Green tiles are grass, brown tiles are soil. A crop is a small shape: clover is gold, radish red and potato orange. A crop grows bigger as it grows, and a ripe crop glows a little. The drone hovers over its tile with spinning rotors.
 - **Items** (top left): one pill for each item you own, with a coloured circle and the count, for example clover 3 and radish 1. Hover over a pill to see the item's name. With no items it says `No items yet`.
 - **Code** (top right): shows or hides the Script window. See below.
 - **Unlocks** (top right): opens the unlock list in its own window. Each unlock has its price and a Buy button. A bought unlock says `Unlocked`. Buy is greyed out while a script runs or when you cannot pay. The list scrolls when it is long.
