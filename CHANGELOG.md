@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.15.1 — 2026-11-26
+
+- Real 3D models: the trees and rocks on the island, every crop's sprout, the radish and the potato's bush are now low-poly models from Kenney's Nature Kit (CC0), in the game's own colours. Credits are in `src/CodingGame.Godot/models/CREDITS.md`, the design in decision 0015.
+
 ## 0.15.0 — 2026-11-26
 
 - Variables and counting: a new unlock (40 potato) lets a script read its for-loop counter, make its own variables, calculate with + - * and compare with < > <= >=, in Python and JavaScript with the same results. Help and two new lessons teach it; = in a condition now explains to use == (Python) or === (JavaScript).
