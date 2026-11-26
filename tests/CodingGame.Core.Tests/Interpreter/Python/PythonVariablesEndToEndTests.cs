@@ -316,6 +316,40 @@ public class PythonVariablesEndToEndTests
         Assert.Equal(equality.TicksUsed, comparison.TicksUsed);
     }
 
+    [Theory]
+    [InlineData("x = 3\nif x = 3:\n    harvest()")]
+    [InlineData("x = 3\nwhile x = 3:\n    harvest()")]
+    public void AssignmentInAConditionIsASyntaxErrorThatNamesTheEqualOperator(string source)
+    {
+        RunSession session = Run(source, AllUnlocked(_rules));
+
+        Assert.Equal(StepStatus.Failed, session.Status);
+        Assert.Equal("SyntaxError on line 2: use == to compare; = gives a variable a value", session.ErrorMessage);
+    }
+
+    [Theory]
+    [InlineData("count = 0\ncount += 1", "+=")]
+    [InlineData("count = 0\ncount -= 1", "-=")]
+    [InlineData("count = 0\ncount *= 2", "*=")]
+    public void CompoundAssignmentOutsideTheForLoopIsNotInGame(string source, string operatorText)
+    {
+        RunSession session = Run(source, AllUnlocked(_rules));
+
+        Assert.Equal(StepStatus.Failed, session.Status);
+        Assert.Equal($"Error on line 2: '{operatorText}' is not part of this game yet", session.ErrorMessage);
+    }
+
+    [Theory]
+    [InlineData("range = 3")]
+    [InlineData("for range in range(2):\n    harvest()")]
+    public void RangeIsAGameNameThatCannotBeAVariableOrCounter(string source)
+    {
+        RunSession session = Run(source, AllUnlocked(_rules));
+
+        Assert.Equal(StepStatus.Failed, session.Status);
+        Assert.Equal("SyntaxError on line 1: 'range' is a name the game uses; pick another name", session.ErrorMessage);
+    }
+
     private static RunSession Run(string source, GameProgress progress)
     {
         RunSession session = RunSession.Start(source, ScriptLanguage.Python, progress);

@@ -110,16 +110,16 @@ public class JavaScriptEndToEndTests
     }
 
     [Fact]
-    public void LoopVariableIsNotDefined()
+    public void LoopCounterIsANumberInsideItsLoop()
     {
         Field field = NewField(_rules);
 
         (StepResult result, _) = Run("for (let i = 0; i < 2; i++) {\n    move(i);\n}", field);
 
         Assert.Equal(StepStatus.Failed, result.Status);
-        Assert.Equal(new ScriptError(ScriptErrorKind.UndefinedName, 2, "i"), result.Error);
+        Assert.Equal(new ScriptError(ScriptErrorKind.WrongArgument, 2, "move expects direction, got number"), result.Error);
         Assert.Equal(
-            "ReferenceError on line 2: i is not defined",
+            "TypeError on line 2: move expects direction, got number",
             result.Error!.ToMessage(ScriptLanguage.JavaScript));
     }
 

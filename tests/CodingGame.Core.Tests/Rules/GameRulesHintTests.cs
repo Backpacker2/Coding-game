@@ -19,7 +19,7 @@ public class GameRulesHintTests
     {
         GameRules rules = GameRules.Load(Path.Combine(AppContext.BaseDirectory, "data"));
 
-        Assert.Equal(10, rules.Hints.Count);
+        Assert.Equal(11, rules.Hints.Count);
     }
 
     [Fact]

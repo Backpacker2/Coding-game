@@ -130,6 +130,18 @@ public class HintTrackerTests
         Assert.Equal(SeedHint, RecordRun(tracker, progress, "plant(RADISH)"));
     }
 
+    [Fact]
+    public void ThirdCompoundAssignmentGivesTheAddOneHint()
+    {
+        var tracker = new HintTracker(_rules);
+        var progress = EvaluatorTestSupport.AllUnlocked(_rules);
+        const string script = "count = 0\ncount += 1";
+        RecordRun(tracker, progress, script);
+        RecordRun(tracker, progress, script);
+
+        Assert.Equal("Write count = count + 1 to add one.", RecordRun(tracker, progress, script));
+    }
+
     private static string? RecordRun(HintTracker tracker, GameProgress progress, string script)
     {
         RunSession session = RunSession.Start(script, ScriptLanguage.Python, progress);

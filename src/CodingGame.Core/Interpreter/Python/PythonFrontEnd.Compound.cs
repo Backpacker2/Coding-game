@@ -5,7 +5,7 @@ public sealed partial class PythonFrontEnd
     private If ParseIf()
     {
         Token keyword = Advance();
-        Expression condition = ParseExpression();
+        Expression condition = ParseCondition();
         IReadOnlyList<Statement> then = ParseBlock($"'{keyword.Text}' statement", keyword.Line);
 
         IReadOnlyList<Statement> otherwise = [];
@@ -28,9 +28,20 @@ public sealed partial class PythonFrontEnd
     private While ParseWhile()
     {
         Token keyword = Advance();
-        Expression condition = ParseExpression();
+        Expression condition = ParseCondition();
         IReadOnlyList<Statement> body = ParseBlock("'while' statement", keyword.Line);
         return new While(keyword.Line, condition, body);
+    }
+
+    private Expression ParseCondition()
+    {
+        Expression condition = ParseExpression();
+        if (IsOperator("="))
+        {
+            throw Failure(ScriptErrorKind.SyntaxError, Current.Line, "use == to compare; = gives a variable a value");
+        }
+
+        return condition;
     }
 
     private Assign ParseAssignment()

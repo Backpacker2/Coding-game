@@ -81,7 +81,7 @@ public class JavaScriptFrontEndStatementTests
     [InlineData("===;", ScriptErrorKind.SyntaxError, 1, "Unexpected token '==='")]
     [InlineData("ripe() ===;", ScriptErrorKind.SyntaxError, 1, "Unexpected token ';'")]
     [InlineData("move(1 2);", ScriptErrorKind.SyntaxError, 1, "Unexpected number")]
-    [InlineData("(a);", ScriptErrorKind.SyntaxError, 1, "Unexpected token '('")]
+    [InlineData("(a;", ScriptErrorKind.SyntaxError, 1, "Unexpected token ';'")]
     [InlineData(";", ScriptErrorKind.SyntaxError, 1, "Unexpected token ';'")]
     [InlineData("}", ScriptErrorKind.SyntaxError, 1, "Unexpected token '}'")]
     [InlineData("{", ScriptErrorKind.SyntaxError, 1, "Unexpected token '{'")]

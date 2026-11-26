@@ -163,9 +163,11 @@ public static class ScopeCheck
             return null;
         }
 
+        // range is the name the Python for loop uses. JavaScript has no such name, but both
+        // languages share these rules, so a variable called range is refused in both.
         private bool IsGameName(string name)
         {
-            return api.Commands.ContainsKey(name) || api.Constants.ContainsKey(name);
+            return api.Commands.ContainsKey(name) || api.Constants.ContainsKey(name) || name == "range";
         }
 
         private static ScriptError GameNameError(int line, string name)
