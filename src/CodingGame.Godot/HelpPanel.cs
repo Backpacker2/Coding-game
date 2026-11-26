@@ -8,6 +8,8 @@ public partial class HelpPanel : ScrollContainer
 {
     private static readonly (HelpKind Kind, string Heading)[] _groups =
     [
+        (HelpKind.Lesson, "LESSONS"),
+        (HelpKind.NextLesson, "NEXT"),
         (HelpKind.Command, "COMMANDS"),
         (HelpKind.Constant, "CONSTANTS"),
         (HelpKind.Keyword, "LANGUAGE"),

@@ -251,6 +251,7 @@ public sealed record GameRules(
                 "undefinedName" => ScriptErrorKind.UndefinedName,
                 "wrongArgument" => ScriptErrorKind.WrongArgument,
                 "notUnlocked" => ScriptErrorKind.NotUnlocked,
+                "notInGame" => ScriptErrorKind.NotInGame,
                 "commandFailed" => ScriptErrorKind.CommandFailed,
                 "tooDeep" => ScriptErrorKind.TooDeep,
                 "syntaxError" => ScriptErrorKind.SyntaxError,

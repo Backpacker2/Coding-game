@@ -62,18 +62,18 @@ Share one tokenizer and one parser, and pass a configuration object that switche
 - **No new error kind.** The messages use the kinds that already exist in the shared `ScriptErrorKind`. `IndentationError` is Python only, because JavaScript has no indentation rule. A one-statement body needs braces.
 - **Subset.**
   - Keywords accepted: `if else while for function true false`. The word `let` is accepted only in the header of a `for`.
-  - Every other JavaScript reserved word gives `NotUnlocked` with the word.
-  - Operators other than `( ) { } , ; === !==` give `NotUnlocked` with their text.
-  - Strings (`'`, `"` and backtick), decimal numbers and block comments give `NotUnlocked`.
+  - Every other JavaScript reserved word gives `NotInGame` with the word.
+  - Operators other than `( ) { } , ; === !==` give `NotInGame` with their text.
+  - Strings (`'`, `"` and backtick), decimal numbers and block comments give `NotInGame`.
   - `true` and `false` are keywords. `True` is an ordinary name and fails at run time, as in real JavaScript.
   - `$` is a valid identifier character, as in real JavaScript.
-- **The `for` header has one shape.** It must be exactly `for (let N = 0; N < EXPR; N++)`, with the same name `N` three times. Any other shape gives `NotUnlocked` with `other for loops`. The loop variable is parsed and dropped, as in Python, so reading it gives a `ReferenceError`.
-- **Parameters and parentheses.** Parameters in `function` give `NotUnlocked` with `parameters`. Parentheses around an expression are not supported. A chained comparison such as `a === b === c` gives `NotUnlocked` with `chained comparisons`.
+- **The `for` header has one shape.** It must be exactly `for (let N = 0; N < EXPR; N++)`, with the same name `N` three times. Any other shape gives `NotInGame` with `other for loops`. The loop variable is parsed and dropped, as in Python, so reading it gives a `ReferenceError`.
+- **Parameters and parentheses.** Parameters in `function` give `NotInGame` with `parameters`. Parentheses around an expression are not supported. A chained comparison such as `a === b === c` gives `NotInGame` with `chained comparisons`.
 - **Nesting has a limit.** The parser recurses once per nested call, block and `else if`. Past 100 levels it gives `SyntaxError: too many nested levels`. An `else if` chain counts as nesting, so a long chain cannot overflow the stack. [`0005`](0005-python-front-end.md) has the same limit, and counts `elif` the same way.
 
 ## Consequences
 
 - The C front end can copy this shape. After the third front end, consider sharing `Token`.
-- Each rule that rejects a feature gives a message that says the feature is not unlocked yet, not that the code is wrong ([`languages.md`](../languages.md), principle 4).
+- Each rule that rejects a feature says why, and never that the code is wrong ([`languages.md`](../languages.md), principle 4). A feature that an unlock gives says it is not unlocked yet and names the unlock. Syntax that no unlock gives says it is not part of this game yet (`NotInGame`, since 0.14.0).
 - Hoisting is one method on the statement list. The tree does not know whether a definition was hoisted.
 - The tree shows `==` and `!=` in dumps for `===` and `!==`, because the tree is shared by both languages.

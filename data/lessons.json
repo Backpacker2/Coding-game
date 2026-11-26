@@ -1,0 +1,119 @@
+[
+  {
+    "id": "first-script",
+    "title": "Your first script",
+    "feature": null,
+    "python": {
+      "text": "A script is a list of commands. The drone runs them one by one, from the top line to the bottom. Put one command on each line, with its name and round brackets, like move(EAST). Press Run to run the whole script, or Step to run one line at a time.",
+      "example": "harvest()\nmove(EAST)\nharvest()"
+    },
+    "javascript": {
+      "text": "A script is a list of commands. The drone runs them one by one, from the top line to the bottom. Put one command on each line, and end each command with a semicolon. Press Run to run the whole script, or Step to run one line at a time.",
+      "example": "harvest();\nmove(EAST);\nharvest();"
+    }
+  },
+  {
+    "id": "comments",
+    "title": "Comments",
+    "feature": null,
+    "python": {
+      "text": "A line that starts with # is a comment. The game skips comments, so you can write notes for yourself. A comment does not change what the drone does.",
+      "example": "# Harvest, move, then harvest again.\nharvest()\nmove(EAST)\nharvest()"
+    },
+    "javascript": {
+      "text": "A line that starts with // is a comment. The game skips comments, so you can write notes for yourself. A comment does not change what the drone does.",
+      "example": "// Harvest, move, then harvest again.\nharvest();\nmove(EAST);\nharvest();"
+    }
+  },
+  {
+    "id": "moving",
+    "title": "Moving around the field",
+    "feature": null,
+    "python": {
+      "text": "move() sends the drone one tile in a direction. The directions are NORTH, EAST, SOUTH and WEST, and you write them without quotes. At the edge of the field the drone comes out on the other side.",
+      "example": "move(EAST)\nmove(EAST)\nmove(SOUTH)"
+    },
+    "javascript": {
+      "text": "move() sends the drone one tile in a direction. The directions are NORTH, EAST, SOUTH and WEST, and you write them without quotes. At the edge of the field the drone comes out on the other side.",
+      "example": "move(EAST);\nmove(EAST);\nmove(SOUTH);"
+    }
+  },
+  {
+    "id": "for-loop",
+    "title": "Repeating with for",
+    "feature": "for",
+    "python": {
+      "text": "A for loop repeats the indented lines under it. range(3) makes the loop run three times. The name after for, i here, counts the turns, but this game does not let you use it in your script yet. End the for line with a colon, and indent the lines inside the loop with 4 spaces or with one tab. Use the same kind of indent for the whole script.",
+      "example": "for i in range(3):\n    harvest()\n    move(EAST)"
+    },
+    "javascript": {
+      "text": "A for loop repeats the commands between its curly braces. This loop runs three times, because i starts at 0 and stops before 3. The name i counts the turns, but this game does not let you use it in your script yet. Put each command inside the braces, and end each command with a semicolon.",
+      "example": "for (let i = 0; i < 3; i++) {\n    harvest();\n    move(EAST);\n}"
+    }
+  },
+  {
+    "id": "nested-loops",
+    "title": "Loops inside loops",
+    "feature": "for",
+    "python": {
+      "text": "A loop can stand inside another loop. The inner loop runs all its turns each time the outer loop runs once. This script harvests the 3 by 3 starting field, row by row. The move(SOUTH) line is indented to the outer loop, so it runs once after each row.",
+      "example": "# harvest the whole field, row by row\nfor y in range(3):\n    for x in range(3):\n        harvest()\n        move(EAST)\n    move(SOUTH)"
+    },
+    "javascript": {
+      "text": "A loop can stand inside another loop. The inner loop runs all its turns each time the outer loop runs once. This script harvests the 3 by 3 starting field, row by row. The move(SOUTH) line is inside the outer loop, so it runs once after each row.",
+      "example": "// harvest the whole field, row by row\nfor (let y = 0; y < 3; y++) {\n    for (let x = 0; x < 3; x++) {\n        harvest();\n        move(EAST);\n    }\n    move(SOUTH);\n}"
+    }
+  },
+  {
+    "id": "if",
+    "title": "Choosing with if",
+    "feature": "if",
+    "python": {
+      "text": "An if line runs the indented lines under it only when its condition is true. ripe() is true when the crop under the drone is ripe. Add an else: line with a colon to run other lines when the condition is false.",
+      "example": "if ripe():\n    harvest()\nelse:\n    move(EAST)"
+    },
+    "javascript": {
+      "text": "An if runs the commands between its curly braces only when its condition is true. ripe() is true when the crop under the drone is ripe. Add an else part after the closing brace to run other commands when the condition is false.",
+      "example": "if (ripe()) {\n    harvest();\n} else {\n    move(EAST);\n}"
+    }
+  },
+  {
+    "id": "while",
+    "title": "Repeating while",
+    "feature": "while",
+    "python": {
+      "text": "A while loop repeats the indented lines as long as its condition is true. The condition is checked before every run, so the loop stops when it becomes false. This example also needs the if / else and ripe() unlock. A loop whose condition never becomes false never ends.",
+      "example": "while ripe():\n    harvest()"
+    },
+    "javascript": {
+      "text": "A while loop repeats the commands between its curly braces as long as its condition is true. The condition is checked before every run, so the loop stops when it becomes false. This example also needs the if / else and ripe() unlock. A loop whose condition never becomes false never ends.",
+      "example": "while (ripe()) {\n    harvest();\n}"
+    }
+  },
+  {
+    "id": "equals",
+    "title": "Comparing with ==",
+    "feature": "==",
+    "python": {
+      "text": "== asks whether two things are equal. The answer is True or False, so you use it on an if line. ground() tells you whether the tile is GRASS or SOIL. This example also needs the if / else and ripe() unlock.",
+      "example": "if ground() == SOIL:\n    harvest()"
+    },
+    "javascript": {
+      "text": "=== asks whether two things are equal. The answer is true or false, so you use it on an if line. ground() tells you whether the tile is GRASS or SOIL. This example also needs the if / else and ripe() unlock.",
+      "example": "if (ground() === SOIL) {\n    harvest();\n}"
+    }
+  },
+  {
+    "id": "functions",
+    "title": "Your own functions",
+    "feature": "def",
+    "python": {
+      "text": "A def line gives a name to a group of commands, so one line can run them all. Write def, the name, empty round brackets and a colon. Indent the commands under the def line, the same way as in a loop. Then write the name with round brackets on its own line wherever the commands should run.",
+      "example": "def harvest_two():\n    harvest()\n    move(EAST)\n    harvest()\n\nharvest_two()"
+    },
+    "javascript": {
+      "text": "A function gives a name to a group of commands, so one line can run them all. Write function, the name, empty round brackets, and then the commands between curly braces. Write the name with round brackets and a semicolon on its own line wherever the commands should run.",
+      "example": "function harvestTwo() {\n    harvest();\n    move(EAST);\n    harvest();\n}\n\nharvestTwo();"
+    }
+  }
+]

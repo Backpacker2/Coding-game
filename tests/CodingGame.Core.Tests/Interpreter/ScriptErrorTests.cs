@@ -1,10 +1,13 @@
 using CodingGame.Core.Interpreter;
+using CodingGame.Core.Rules;
 using Xunit;
 
 namespace CodingGame.Core.Tests.Interpreter;
 
 public class ScriptErrorTests
 {
+    private static readonly Unlock _forLoop = new("FOR_LOOP", "for loop", new UnlockPrice("CLOVER", 10), ["for"], null);
+
     [Fact]
     public void UndefinedNameInPythonSaysNameError()
     {
@@ -38,19 +41,39 @@ public class ScriptErrorTests
     }
 
     [Fact]
-    public void NotUnlockedInPythonSaysGenericError()
+    public void NotUnlockedInPythonNamesTheUnlockAndItsPrice()
     {
-        var error = new ScriptError(ScriptErrorKind.NotUnlocked, 5, "import");
+        var error = new ScriptError(ScriptErrorKind.NotUnlocked, 2, "for", _forLoop);
 
-        Assert.Equal("Error on line 5: 'import' is not unlocked yet", error.ToMessage(ScriptLanguage.Python));
+        Assert.Equal(
+            "Error on line 2: 'for' is not unlocked yet. Buy \"for loop\" in Unlocks for 10 CLOVER.",
+            error.ToMessage(ScriptLanguage.Python));
     }
 
     [Fact]
-    public void NotUnlockedInJavaScriptSaysGenericError()
+    public void NotUnlockedInJavaScriptNamesTheUnlockAndItsPrice()
     {
-        var error = new ScriptError(ScriptErrorKind.NotUnlocked, 5, "import");
+        var error = new ScriptError(ScriptErrorKind.NotUnlocked, 2, "for", _forLoop);
 
-        Assert.Equal("Error on line 5: 'import' is not unlocked yet", error.ToMessage(ScriptLanguage.JavaScript));
+        Assert.Equal(
+            "Error on line 2: 'for' is not unlocked yet. Buy \"for loop\" in Unlocks for 10 CLOVER.",
+            error.ToMessage(ScriptLanguage.JavaScript));
+    }
+
+    [Fact]
+    public void NotInGameInPythonSaysItIsNotPartOfThisGameYet()
+    {
+        var error = new ScriptError(ScriptErrorKind.NotInGame, 3, "break");
+
+        Assert.Equal("Error on line 3: 'break' is not part of this game yet", error.ToMessage(ScriptLanguage.Python));
+    }
+
+    [Fact]
+    public void NotInGameInJavaScriptSaysItIsNotPartOfThisGameYet()
+    {
+        var error = new ScriptError(ScriptErrorKind.NotInGame, 3, "break");
+
+        Assert.Equal("Error on line 3: 'break' is not part of this game yet", error.ToMessage(ScriptLanguage.JavaScript));
     }
 
     [Fact]

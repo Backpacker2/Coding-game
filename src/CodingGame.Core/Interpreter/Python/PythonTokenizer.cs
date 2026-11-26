@@ -48,6 +48,7 @@ internal static class PythonTokenizer
     private static ScriptError? TokenizeLines(string source, List<Token> tokens, List<int> indentWidths)
     {
         var lines = source.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
+        char? indentCharacter = null;
 
         for (var index = 0; index < lines.Length; index++)
         {
@@ -64,9 +65,14 @@ internal static class PythonTokenizer
                 continue;
             }
 
-            if (line[..contentStart].Contains('\t'))
+            var indentation = line[..contentStart];
+            if (indentation.Length > 0)
             {
-                return new ScriptError(ScriptErrorKind.IndentationError, lineNumber, "tabs are not allowed in indentation, use spaces");
+                var indentError = CheckIndentationKind(indentation, lineNumber, ref indentCharacter);
+                if (indentError is not null)
+                {
+                    return indentError;
+                }
             }
 
             if (contentStart > indentWidths[^1])
@@ -104,6 +110,27 @@ internal static class PythonTokenizer
         }
 
         return null;
+    }
+
+    private static ScriptError? CheckIndentationKind(string indentation, int lineNumber, ref char? indentCharacter)
+    {
+        if (indentation.Any(character => character != indentation[0]))
+        {
+            return new ScriptError(ScriptErrorKind.IndentationError, lineNumber, "indentation mixes tabs and spaces; use one kind");
+        }
+
+        indentCharacter ??= indentation[0];
+        if (indentation[0] == indentCharacter)
+        {
+            return null;
+        }
+
+        string thisLine = indentation[0] == '\t' ? "tabs" : "spaces";
+        string earlierLines = indentCharacter == '\t' ? "tabs" : "spaces";
+        return new ScriptError(
+            ScriptErrorKind.IndentationError,
+            lineNumber,
+            $"this line is indented with {thisLine}, earlier lines use {earlierLines}; use one kind");
     }
 
     private static ScriptError? ScanLine(string line, int start, int lineNumber, List<Token> into)
@@ -152,7 +179,7 @@ internal static class PythonTokenizer
             }
             else if (character is '\'' or '"')
             {
-                return new ScriptError(ScriptErrorKind.NotUnlocked, lineNumber, "strings");
+                return new ScriptError(ScriptErrorKind.NotInGame, lineNumber, "strings");
             }
             else
             {
@@ -175,7 +202,7 @@ internal static class PythonTokenizer
         var next = end < line.Length ? line[end] : '\0';
         if (next == '.')
         {
-            return new ScriptError(ScriptErrorKind.NotUnlocked, lineNumber, "decimal numbers");
+            return new ScriptError(ScriptErrorKind.NotInGame, lineNumber, "decimal numbers");
         }
 
         if (char.IsAsciiLetter(next) || next == '_')

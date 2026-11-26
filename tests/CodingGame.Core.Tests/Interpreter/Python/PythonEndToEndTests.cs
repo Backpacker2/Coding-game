@@ -1,6 +1,7 @@
 using CodingGame.Core.Interpreter;
 using CodingGame.Core.Interpreter.Python;
 using CodingGame.Core.Rules;
+using CodingGame.Core.Session;
 using CodingGame.Core.Simulation;
 using Xunit;
 using static CodingGame.Core.Tests.Interpreter.EvaluatorTestSupport;
@@ -137,12 +138,12 @@ public class PythonEndToEndTests
     }
 
     [Fact]
-    public void ImportIsNotUnlockedYet()
+    public void ImportIsNotInGame()
     {
         ParseResult result = PythonFrontEnd.Parse("import os");
 
         Assert.Equal(
-            "Error on line 1: 'import' is not unlocked yet",
+            "Error on line 1: 'import' is not part of this game yet",
             result.Error!.ToMessage(ScriptLanguage.Python));
     }
 
@@ -177,6 +178,36 @@ public class PythonEndToEndTests
             "TypeError on line 1: spin expects 0 argument(s), got 1",
             result.Error!.ToMessage(ScriptLanguage.Python));
         Assert.Equal(0, field.SpinCount);
+    }
+
+    [Fact]
+    public void TabIndentedNestedLoopEndsLikeTheSameScriptWithSpaces()
+    {
+        const string withSpaces = "for y in range(2):\n    for x in range(2):\n        harvest()\n        move(EAST)\n    move(SOUTH)";
+        const string withTabs = "for y in range(2):\n\tfor x in range(2):\n\t\tharvest()\n\t\tmove(EAST)\n\tmove(SOUTH)";
+
+        RunSession spaces = RunWithForLoopBought(withSpaces);
+        RunSession tabs = RunWithForLoopBought(withTabs);
+
+        Assert.Equal(StepStatus.Finished, tabs.Status);
+        Assert.Null(tabs.Error);
+        Assert.Equal(spaces.TicksUsed, tabs.TicksUsed);
+        Assert.Equal(spaces.Field.DronePosition, tabs.Field.DronePosition);
+        Assert.Equal(spaces.Field.Items.GetValueOrDefault("CLOVER"), tabs.Field.Items.GetValueOrDefault("CLOVER"));
+    }
+
+    private static RunSession RunWithForLoopBought(string source)
+    {
+        var progress = new GameProgress(_rules);
+        progress.AddItems("CLOVER", 10);
+        progress.Buy(_rules.Unlocks.Single(unlock => unlock.Id == "FOR_LOOP"));
+        RunSession session = RunSession.Start(source, ScriptLanguage.Python, progress);
+        for (int step = 0; step < 1000 && session.Status == StepStatus.Running; step++)
+        {
+            session.StepTick();
+        }
+
+        return session;
     }
 
     private static (StepResult Result, Evaluator Evaluator) Run(string source, Field field)

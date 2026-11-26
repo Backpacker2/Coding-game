@@ -130,11 +130,11 @@ public sealed partial class PythonFrontEnd
         switch (token.Kind)
         {
             case TokenKind.Keyword when token.Text is not ("if" or "elif" or "else" or "while" or "for" or "in" or "def" or "pass" or "True" or "False"):
-                return Failure(ScriptErrorKind.NotUnlocked, token.Line, token.Text);
+                return Failure(ScriptErrorKind.NotInGame, token.Line, token.Text);
             case TokenKind.Operator when token.Text == ")":
                 return Failure(ScriptErrorKind.SyntaxError, token.Line, "unmatched ')'");
             case TokenKind.Operator when token.Text is not ("(" or "," or ":" or "==" or "!="):
-                return Failure(ScriptErrorKind.NotUnlocked, token.Line, token.Text);
+                return Failure(ScriptErrorKind.NotInGame, token.Line, token.Text);
             default:
                 return Failure(ScriptErrorKind.SyntaxError, token.Line, "invalid syntax");
         }

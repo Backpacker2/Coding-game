@@ -4,7 +4,7 @@ using Xunit;
 
 namespace CodingGame.Core.Tests.Interpreter.Python;
 
-public class PythonFrontEndNotUnlockedTests
+public class PythonFrontEndNotInGameTests
 {
     [Theory]
     [InlineData("import os", 1, "import")]
@@ -28,23 +28,23 @@ public class PythonFrontEndNotUnlockedTests
     [InlineData("break", 1, "break")]
     [InlineData("continue", 1, "continue")]
     [InlineData("harvest()\nimport os", 2, "import")]
-    public void ReportsAFeatureThatIsNotUnlockedYet(string source, int line, string detail)
+    public void ReportsSyntaxThatIsNotInTheGameYet(string source, int line, string detail)
     {
         ParseResult result = PythonFrontEnd.Parse(source);
 
         Assert.Null(result.Program);
-        Assert.Equal(new ScriptError(ScriptErrorKind.NotUnlocked, line, detail), result.Error);
+        Assert.Equal(new ScriptError(ScriptErrorKind.NotInGame, line, detail), result.Error);
     }
 
     [Theory]
     [InlineData("a == b == c", 1, "chained comparisons")]
     [InlineData("a != b == c", 1, "chained comparisons")]
-    public void ReportsChainedComparisonsAsNotUnlocked(string source, int line, string detail)
+    public void ReportsChainedComparisonsAsNotInGame(string source, int line, string detail)
     {
         ParseResult result = PythonFrontEnd.Parse(source);
 
         Assert.Null(result.Program);
-        Assert.Equal(new ScriptError(ScriptErrorKind.NotUnlocked, line, detail), result.Error);
+        Assert.Equal(new ScriptError(ScriptErrorKind.NotInGame, line, detail), result.Error);
     }
 
     [Theory]
@@ -72,11 +72,11 @@ public class PythonFrontEndNotUnlockedTests
     }
 
     [Fact]
-    public void FormatsTheNotUnlockedMessageForPython()
+    public void FormatsTheNotInGameMessageForPython()
     {
         ParseResult result = PythonFrontEnd.Parse("import os");
 
-        Assert.Equal("Error on line 1: 'import' is not unlocked yet", result.Error!.ToMessage(ScriptLanguage.Python));
+        Assert.Equal("Error on line 1: 'import' is not part of this game yet", result.Error!.ToMessage(ScriptLanguage.Python));
     }
 
     [Fact]

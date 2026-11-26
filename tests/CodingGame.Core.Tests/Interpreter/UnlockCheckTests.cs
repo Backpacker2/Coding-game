@@ -1,6 +1,7 @@
 using CodingGame.Core.Interpreter;
 using CodingGame.Core.Interpreter.JavaScript;
 using CodingGame.Core.Interpreter.Python;
+using CodingGame.Core.Rules;
 using Xunit;
 
 namespace CodingGame.Core.Tests.Interpreter;
@@ -36,102 +37,110 @@ public class UnlockCheckTests
     [Fact]
     public void NothingLockedGivesNoError()
     {
-        Assert.Null(UnlockCheck.FindLocked(PythonProgram(AllFeaturesPython), new HashSet<string>()));
-        Assert.Null(UnlockCheck.FindLocked(JavaScriptProgram(AllFeaturesJavaScript), new HashSet<string>()));
+        Assert.Null(UnlockCheck.FindLocked(PythonProgram(AllFeaturesPython), Locked()));
+        Assert.Null(UnlockCheck.FindLocked(JavaScriptProgram(AllFeaturesJavaScript), Locked()));
     }
 
     [Fact]
     public void LockedForLoopIsReportedAtItsLine()
     {
         string source = "harvest()\nfor i in range(3):\n    harvest()";
+        var locked = Locked("for");
         Assert.Equal(
-            new ScriptError(ScriptErrorKind.NotUnlocked, 2, "for"),
-            UnlockCheck.FindLocked(PythonProgram(source), new HashSet<string> { "for" }));
+            new ScriptError(ScriptErrorKind.NotUnlocked, 2, "for", locked["for"]),
+            UnlockCheck.FindLocked(PythonProgram(source), locked));
     }
 
     [Fact]
     public void LockedForLoopInJavaScriptIsReported()
     {
         string source = "for (let i = 0; i < 3; i++) {\n harvest();\n}";
+        var locked = Locked("for");
         Assert.Equal(
-            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "for"),
-            UnlockCheck.FindLocked(JavaScriptProgram(source), new HashSet<string> { "for" }));
+            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "for", locked["for"]),
+            UnlockCheck.FindLocked(JavaScriptProgram(source), locked));
     }
 
     [Fact]
     public void LockedWhileLoopIsReportedInBothLanguages()
     {
+        var locked = Locked("while");
         Assert.Equal(
-            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "while"),
-            UnlockCheck.FindLocked(PythonProgram("while True:\n    harvest()"), new HashSet<string> { "while" }));
+            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "while", locked["while"]),
+            UnlockCheck.FindLocked(PythonProgram("while True:\n    harvest()"), locked));
         Assert.Equal(
-            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "while"),
-            UnlockCheck.FindLocked(JavaScriptProgram("while (true) { harvest(); }"), new HashSet<string> { "while" }));
+            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "while", locked["while"]),
+            UnlockCheck.FindLocked(JavaScriptProgram("while (true) { harvest(); }"), locked));
     }
 
     [Fact]
     public void LockedIfIsReportedAndTheFirstIfWinsOverElif()
     {
+        var locked = Locked("if");
         Assert.Equal(
-            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "if"),
-            UnlockCheck.FindLocked(PythonProgram("if ripe():\n    harvest()"), new HashSet<string> { "if" }));
+            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "if", locked["if"]),
+            UnlockCheck.FindLocked(PythonProgram("if ripe():\n    harvest()"), locked));
         Assert.Equal(
-            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "if"),
+            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "if", locked["if"]),
             UnlockCheck.FindLocked(
                 PythonProgram("if ripe():\n    harvest()\nelif ripe():\n    harvest()"),
-                new HashSet<string> { "if" }));
+                locked));
     }
 
     [Fact]
     public void LockedFunctionDefinitionUsesTheWordOfEachLanguage()
     {
+        var locked = Locked("def");
         Assert.Equal(
-            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "def"),
-            UnlockCheck.FindLocked(PythonProgram("def f():\n    harvest()"), new HashSet<string> { "def" }));
+            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "def", locked["def"]),
+            UnlockCheck.FindLocked(PythonProgram("def f():\n    harvest()"), locked));
         Assert.Equal(
-            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "function"),
-            UnlockCheck.FindLocked(JavaScriptProgram("function f() { harvest(); }"), new HashSet<string> { "def" }));
+            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "function", locked["def"]),
+            UnlockCheck.FindLocked(JavaScriptProgram("function f() { harvest(); }"), locked));
     }
 
     [Fact]
     public void LockedNameIsReportedInConditionAndInsideABody()
     {
+        var locked = Locked("ripe");
         Assert.Equal(
-            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "ripe"),
-            UnlockCheck.FindLocked(PythonProgram("if ripe():\n    harvest()"), new HashSet<string> { "ripe" }));
+            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "ripe", locked["ripe"]),
+            UnlockCheck.FindLocked(PythonProgram("if ripe():\n    harvest()"), locked));
         Assert.Equal(
-            new ScriptError(ScriptErrorKind.NotUnlocked, 2, "ripe"),
+            new ScriptError(ScriptErrorKind.NotUnlocked, 2, "ripe", locked["ripe"]),
             UnlockCheck.FindLocked(
                 PythonProgram("for i in range(2):\n    if ripe():\n        harvest()"),
-                new HashSet<string> { "ripe" }));
+                locked));
     }
 
     [Fact]
     public void CallIsCheckedBeforeItsArguments()
     {
+        var locked = Locked("plant", "RADISH");
         Assert.Equal(
-            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "plant"),
-            UnlockCheck.FindLocked(PythonProgram("plant(RADISH)"), new HashSet<string> { "plant", "RADISH" }));
+            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "plant", locked["plant"]),
+            UnlockCheck.FindLocked(PythonProgram("plant(RADISH)"), locked));
+        var radishOnly = Locked("RADISH");
         Assert.Equal(
-            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "RADISH"),
-            UnlockCheck.FindLocked(PythonProgram("plant(RADISH)"), new HashSet<string> { "RADISH" }));
+            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "RADISH", radishOnly["RADISH"]),
+            UnlockCheck.FindLocked(PythonProgram("plant(RADISH)"), radishOnly));
     }
 
     [Fact]
     public void ComparisonUsesTheOperatorOfEachLanguage()
     {
-        HashSet<string> locked = new() { "==" };
+        var locked = Locked("==");
         Assert.Equal(
-            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "=="),
+            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "==", locked["=="]),
             UnlockCheck.FindLocked(PythonProgram("if ground() == SOIL:\n    harvest()"), locked));
         Assert.Equal(
-            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "==="),
+            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "===", locked["=="]),
             UnlockCheck.FindLocked(JavaScriptProgram("if (ground() === SOIL) {\n harvest();\n}"), locked));
         Assert.Equal(
-            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "!="),
+            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "!=", locked["=="]),
             UnlockCheck.FindLocked(PythonProgram("if ground() != SOIL:\n    harvest()"), locked));
         Assert.Equal(
-            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "!=="),
+            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "!==", locked["=="]),
             UnlockCheck.FindLocked(JavaScriptProgram("if (ground() !== SOIL) {\n harvest();\n}"), locked));
     }
 
@@ -139,16 +148,24 @@ public class UnlockCheckTests
     public void FirstLockedUseInSourceOrderWins()
     {
         string source = "while True:\n    for i in range(2):\n        harvest()";
+        var locked = Locked("while", "for");
         Assert.Equal(
-            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "while"),
-            UnlockCheck.FindLocked(PythonProgram(source), new HashSet<string> { "while", "for" }));
+            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "while", locked["while"]),
+            UnlockCheck.FindLocked(PythonProgram(source), locked));
     }
 
     [Fact]
     public void UnlockedFeaturesNeverGiveAnError()
     {
         string source = "move(EAST)\nharvest()\nif True:\n    harvest()";
-        Assert.Null(UnlockCheck.FindLocked(PythonProgram(source), new HashSet<string> { "plant", "ripe", "==" }));
+        Assert.Null(UnlockCheck.FindLocked(PythonProgram(source), Locked("plant", "ripe", "==")));
+    }
+
+    private static Dictionary<string, Unlock> Locked(params string[] features)
+    {
+        return features.ToDictionary(
+            feature => feature,
+            feature => new Unlock(feature, feature, new UnlockPrice("CLOVER", 10), [feature], null));
     }
 
     private static ScriptProgram PythonProgram(string source)
