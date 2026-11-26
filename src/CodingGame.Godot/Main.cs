@@ -54,12 +54,17 @@ public partial class Main : Control
         _help = HelpBook.Load(DataFolder, _api);
 
         _codeWindow.Editor.Text = _scripts.Text(_scripts.Selected, _language);
+        _codeWindow.ShowScripts(_scripts.Names, _scripts.Selected);
         _codeWindow.Editor.UseLanguage(_language, _api);
         _codeWindow.SelectLanguage(_language);
         _codeWindow.RunPressed += OnRun;
         _codeWindow.StepPressed += OnStep;
         _codeWindow.StopPressed += OnStop;
         _codeWindow.LanguageSelected += OnLanguageSelected;
+        _codeWindow.ScriptSelected += OnScriptSelected;
+        _codeWindow.ScriptAddPressed += OnScriptAddPressed;
+        _codeWindow.ScriptRemovePressed += OnScriptRemovePressed;
+        _codeWindow.ScriptRenameRequested += OnScriptRenameRequested;
         Vector2 viewport = GetViewportRect().Size;
         _codeWindow.Position = new Vector2I((int)(viewport.X * 0.55f), 80);
         _codeWindow.Size = new Vector2I((int)(viewport.X * 0.42f), (int)(viewport.Y * 0.8f));
@@ -308,6 +313,55 @@ public partial class Main : Control
         RefreshHelp();
     }
 
+    private void OnScriptSelected(string name)
+    {
+        _scripts.SetText(_scripts.Selected, _language, _codeWindow.Editor.Text);
+        _scripts.Select(name);
+        ShowSelectedScript();
+    }
+
+    private void OnScriptAddPressed()
+    {
+        _scripts.SetText(_scripts.Selected, _language, _codeWindow.Editor.Text);
+        _scripts.Add();
+        ShowSelectedScript();
+    }
+
+    private void OnScriptRemovePressed(string name)
+    {
+        _scripts.SetText(_scripts.Selected, _language, _codeWindow.Editor.Text);
+        _scripts.Remove(name);
+        ShowSelectedScript();
+    }
+
+    private void OnScriptRenameRequested(string name, string newName)
+    {
+        try
+        {
+            _scripts.Rename(name, newName);
+            _codeWindow.ShowNotice("");
+        }
+        catch (ArgumentException error)
+        {
+            // A name the player typed is input at the edge; the book's message tells them what to change.
+            _codeWindow.ShowNotice($"Name not changed: {error.Message}.");
+        }
+
+        _codeWindow.ShowScripts(_scripts.Names, _scripts.Selected);
+        Save();
+    }
+
+    // Shows the selected script in the editor and the tabs. An old run belonged to the previous script, so it is dropped.
+    private void ShowSelectedScript()
+    {
+        _codeWindow.Editor.Text = _scripts.Text(_scripts.Selected, _language);
+        _codeWindow.ShowScripts(_scripts.Names, _scripts.Selected);
+        _session = null;
+        _playing = false;
+        _codeWindow.ShowNotice("");
+        Save();
+    }
+
     private void OnNewGameConfirmed()
     {
         _progress.Reset();
@@ -315,6 +369,7 @@ public partial class Main : Control
         _language = ScriptLanguage.Python;
         _codeWindow.SelectLanguage(_language);
         _codeWindow.Editor.Text = _scripts.Text(_scripts.Selected, _language);
+        _codeWindow.ShowScripts(_scripts.Names, _scripts.Selected);
         _codeWindow.Editor.UseLanguage(_language, _api);
         _session = null;
         _playing = false;

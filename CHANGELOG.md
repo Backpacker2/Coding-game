@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.12.1 — 2026-11-26
+
+- Script tabs: the script window has a tab per script and a + button to add one. Close a tab to remove its script (the last one stays), right-click a tab to rename it. During a run the tabs lock and the running script's tab is marked with ▶.
+
 ## 0.12.0 — 2026-11-26
 
 - First-steps goals (Core): four first goals in `data/goals.json` (run the script, have 3 clover, visit every tile, buy an unlock), checked when a run ends and after a buy, and saved (save format version 4). The goal card comes next.

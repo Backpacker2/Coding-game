@@ -6,8 +6,9 @@ using ScriptLanguage = CodingGame.Core.Interpreter.ScriptLanguage;
 namespace CodingGame.Godot;
 
 /// <summary>
-/// The floating script window: the language picker, Run, Step and Stop, the speed picker, the tick count,
-/// the script editor and the Messages box. Closing it hides the window; the Code button shows it again.
+/// The floating script window: a tab per script with + to add one, the language picker, Run, Step and Stop,
+/// the speed picker, the tick count, the script editor and the Messages box. Closing it hides the window; the
+/// Code button shows it again.
 /// </summary>
 public partial class CodeWindow : Window
 {
@@ -21,6 +22,14 @@ public partial class CodeWindow : Window
     private Label _tickLabel = null!;
     private Label _errorLabel = null!;
     private Label _noticeLabel = null!;
+    private TabBar _scriptTabs = null!;
+    private Button _addScriptButton = null!;
+    private ConfirmationDialog _renameDialog = null!;
+    private LineEdit _renameEdit = null!;
+    private string _renamingName = "";
+    private string _selectedName = "";
+    private TabBar.CloseButtonDisplayPolicy _closePolicy;
+    private bool _running;
 
     /// <summary>Raised when the player presses Run.</summary>
     public event Action? RunPressed;
@@ -33,6 +42,18 @@ public partial class CodeWindow : Window
 
     /// <summary>Raised when the player picks another language in the language picker.</summary>
     public event Action<ScriptLanguage>? LanguageSelected;
+
+    /// <summary>Raised when the player picks another script tab, with that script's name.</summary>
+    public event Action<string>? ScriptSelected;
+
+    /// <summary>Raised when the player presses + to add a script.</summary>
+    public event Action? ScriptAddPressed;
+
+    /// <summary>Raised when the player closes a script tab, with that script's name.</summary>
+    public event Action<string>? ScriptRemovePressed;
+
+    /// <summary>Raised when the player confirms a new name for a script: the current name, then the new name as typed.</summary>
+    public event Action<string, string>? ScriptRenameRequested;
 
     /// <summary>Gets the script editor, which holds the text of the script being edited.</summary>
     public ScriptEditor Editor { get; } = new();
@@ -54,6 +75,28 @@ public partial class CodeWindow : Window
     public void SelectLanguage(ScriptLanguage language)
     {
         _languagePicker.Select((int)language);
+    }
+
+    /// <summary>
+    /// Shows one tab per script with the selected one active, without raising <see cref="ScriptSelected"/>. A tab can
+    /// be closed only while there is more than one script, because a game always keeps one.
+    /// </summary>
+    /// <param name="names">The names of the scripts, in tab order.</param>
+    /// <param name="selected">The name of the script to show as active.</param>
+    public void ShowScripts(IReadOnlyList<string> names, string selected)
+    {
+        _scriptTabs.SetBlockSignals(true);
+        _selectedName = selected;
+        _scriptTabs.ClearTabs();
+        foreach (string name in names)
+        {
+            _scriptTabs.AddTab(name);
+        }
+
+        _scriptTabs.CurrentTab = names.ToList().IndexOf(selected);
+        _closePolicy = names.Count > 1 ? TabBar.CloseButtonDisplayPolicy.ShowActiveOnly : TabBar.CloseButtonDisplayPolicy.ShowNever;
+        _scriptTabs.TabCloseDisplayPolicy = _closePolicy;
+        _scriptTabs.SetBlockSignals(false);
     }
 
     /// <summary>Shows a red notice above the Messages box. An empty text clears it.</summary>
@@ -85,6 +128,16 @@ public partial class CodeWindow : Window
         Editor.Editable = !running;
         _stopButton.Disabled = session is null;
         _languagePicker.Disabled = running;
+        // The tabs lock during a run, so the running script is always the selected tab, which gets a mark.
+        _running = running;
+        _addScriptButton.Disabled = running;
+        for (int index = 0; index < _scriptTabs.TabCount; index++)
+        {
+            _scriptTabs.SetTabDisabled(index, running && index != _scriptTabs.CurrentTab);
+        }
+
+        _scriptTabs.SetTabTitle(_scriptTabs.CurrentTab, running ? $"▶ {_selectedName}" : _selectedName);
+        _scriptTabs.TabCloseDisplayPolicy = running ? TabBar.CloseButtonDisplayPolicy.ShowNever : _closePolicy;
 
         int line = session?.Error?.Line ?? session?.CurrentLine ?? 0;
         if (session is null || line == 0)
@@ -106,6 +159,41 @@ public partial class CodeWindow : Window
 
         _noticeLabel = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart };
         _noticeLabel.AddThemeColorOverride("font_color", Palette.ErrorText);
+
+        _scriptTabs = new TabBar { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, ClipTabs = true };
+        _scriptTabs.TooltipText = "Right-click a tab to rename it";
+        _scriptTabs.TabChanged += index => ScriptSelected?.Invoke(_scriptTabs.GetTabTitle((int)index));
+        _scriptTabs.TabClosePressed += index => ScriptRemovePressed?.Invoke(_scriptTabs.GetTabTitle((int)index));
+        _scriptTabs.TabRmbClicked += index =>
+        {
+            // A running script cannot be renamed, and its tab title carries the run mark.
+            if (_running)
+            {
+                return;
+            }
+
+            _renamingName = _scriptTabs.GetTabTitle((int)index);
+            _renameEdit.Text = _renamingName;
+            _renameDialog.PopupCentered(new Vector2I(320, 100));
+            _renameEdit.GrabFocus();
+            _renameEdit.SelectAll();
+        };
+        _addScriptButton = new Button { Text = "+", TooltipText = "Add a script" };
+        _addScriptButton.Pressed += () => ScriptAddPressed?.Invoke();
+        HBoxContainer scriptRow = new();
+        scriptRow.AddChild(_scriptTabs);
+        scriptRow.AddChild(_addScriptButton);
+
+        _renameEdit = new LineEdit { MaxLength = ScriptBook.MaxNameLength };
+        _renameDialog = new ConfirmationDialog { Title = "Rename script", OkButtonText = "Rename" };
+        _renameDialog.AddChild(_renameEdit);
+        AddChild(_renameDialog);
+        _renameDialog.Confirmed += () => ScriptRenameRequested?.Invoke(_renamingName, _renameEdit.Text);
+        _renameEdit.TextSubmitted += _ =>
+        {
+            _renameDialog.Hide();
+            ScriptRenameRequested?.Invoke(_renamingName, _renameEdit.Text);
+        };
 
         _languagePicker = new OptionButton();
         _languagePicker.AddItem("Python");
@@ -139,6 +227,7 @@ public partial class CodeWindow : Window
 
         VBoxContainer column = new();
         column.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+        column.AddChild(scriptRow);
         column.AddChild(toolbar);
         column.AddChild(Editor);
         column.AddChild(_noticeLabel);
