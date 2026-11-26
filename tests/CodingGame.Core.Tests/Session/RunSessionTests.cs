@@ -16,19 +16,87 @@ public class RunSessionTests
     private static readonly GameRules _rules = EvaluatorTestSupport.Rules();
 
     [Fact]
-    public void NewFieldUsesStartFieldAndWildCrop()
+    public void StartUsesStartFieldAndWildCrop()
     {
-        Field field = RunSession.NewField(_rules);
+        RunSession session = RunSession.Start(PythonThreeLines, ScriptLanguage.Python, new GameProgress(_rules));
 
-        Assert.Equal(3, field.Width);
-        Assert.Equal(3, field.Height);
-        Assert.Equal("CLOVER", field.GetTile(0, 0).Crop?.Name);
+        Assert.Equal(3, session.Field.Width);
+        Assert.Equal(3, session.Field.Height);
+        Assert.Equal("CLOVER", session.Field.GetTile(0, 0).Crop?.Name);
+    }
+
+    [Fact]
+    public void LockedLoopFailsAtStartBeforeAnyTick()
+    {
+        RunSession session = RunSession.Start("for i in range(2):\n    harvest()", ScriptLanguage.Python, new GameProgress(_rules));
+
+        Assert.Equal(StepStatus.Failed, session.Status);
+        Assert.Equal(new ScriptError(ScriptErrorKind.NotUnlocked, 1, "for"), session.Error);
+        Assert.Equal("Error on line 1: 'for' is not unlocked yet", session.ErrorMessage);
+        Assert.Equal(0, session.TicksUsed);
+        Assert.Equal(0, session.CurrentLine);
+    }
+
+    [Fact]
+    public void LockedFunctionShowsJavaScriptWording()
+    {
+        RunSession session = RunSession.Start("function f() {}", ScriptLanguage.JavaScript, new GameProgress(_rules));
+
+        Assert.Equal("Error on line 1: 'function' is not unlocked yet", session.ErrorMessage);
+    }
+
+    [Fact]
+    public void LockedPlantFailsAtStart()
+    {
+        RunSession session = RunSession.Start("plant(RADISH)", ScriptLanguage.Python, new GameProgress(_rules));
+
+        Assert.Equal(StepStatus.Failed, session.Status);
+        Assert.Equal("Error on line 1: 'plant' is not unlocked yet", session.ErrorMessage);
+    }
+
+    [Fact]
+    public void UnlockedScriptRunsWithItemsKeptInProgress()
+    {
+        var progress = new GameProgress(_rules);
+
+        RunSession first = RunSession.Start(PythonThreeLines, ScriptLanguage.Python, progress);
+        RunToEnd(first);
+
+        Assert.Equal(StepStatus.Finished, first.Status);
+        Assert.Equal(2, progress.Items["CLOVER"]);
+
+        RunSession second = RunSession.Start(PythonThreeLines, ScriptLanguage.Python, progress);
+        RunToEnd(second);
+
+        Assert.Equal(StepStatus.Finished, second.Status);
+        Assert.Equal(4, progress.Items["CLOVER"]);
+    }
+
+    [Fact]
+    public void BoughtUnlockLetsLockedScriptRun()
+    {
+        var progress = new GameProgress(_rules);
+        progress.AddItems("CLOVER", 10);
+        progress.Buy(_rules.Unlocks.Single(unlock => unlock.Id == "FOR_LOOP"));
+
+        RunSession session = RunSession.Start("for i in range(2):\n    harvest()", ScriptLanguage.Python, progress);
+        RunToEnd(session);
+
+        Assert.Equal(StepStatus.Finished, session.Status);
+    }
+
+    [Fact]
+    public void SyntaxErrorStaysSyntaxErrorWithLockedFeatures()
+    {
+        RunSession session = RunSession.Start("harvest(", ScriptLanguage.Python, new GameProgress(_rules));
+
+        Assert.Equal(ScriptErrorKind.SyntaxError, session.Error?.Kind);
     }
 
     [Fact]
     public void StartRunsNothingYet()
     {
-        RunSession session = RunSession.Start(PythonThreeLines, ScriptLanguage.Python, _rules);
+        RunSession session = RunSession.Start(PythonThreeLines, ScriptLanguage.Python, EvaluatorTestSupport.AllUnlocked(_rules));
 
         Assert.Equal(StepStatus.Running, session.Status);
         Assert.Equal(0, session.TicksUsed);
@@ -39,7 +107,7 @@ public class RunSessionTests
     [Fact]
     public void StepTickUsesOneTick()
     {
-        RunSession session = RunSession.Start(PythonThreeLines, ScriptLanguage.Python, _rules);
+        RunSession session = RunSession.Start(PythonThreeLines, ScriptLanguage.Python, EvaluatorTestSupport.AllUnlocked(_rules));
 
         session.StepTick();
 
@@ -50,7 +118,7 @@ public class RunSessionTests
     [Fact]
     public void StepLineRunsUntilNextStatement()
     {
-        RunSession session = RunSession.Start(PythonThreeLines, ScriptLanguage.Python, _rules);
+        RunSession session = RunSession.Start(PythonThreeLines, ScriptLanguage.Python, EvaluatorTestSupport.AllUnlocked(_rules));
 
         session.StepLine();
 
@@ -67,7 +135,7 @@ public class RunSessionTests
     [Fact]
     public void StepLineAfterEndDoesNothing()
     {
-        RunSession session = RunSession.Start(PythonThreeLines, ScriptLanguage.Python, _rules);
+        RunSession session = RunSession.Start(PythonThreeLines, ScriptLanguage.Python, EvaluatorTestSupport.AllUnlocked(_rules));
         RunToEnd(session);
 
         session.StepLine();
@@ -80,7 +148,7 @@ public class RunSessionTests
     [Fact]
     public void PythonSyntaxErrorFailsAtStart()
     {
-        RunSession session = RunSession.Start("harvest(", ScriptLanguage.Python, _rules);
+        RunSession session = RunSession.Start("harvest(", ScriptLanguage.Python, EvaluatorTestSupport.AllUnlocked(_rules));
 
         Assert.Equal(StepStatus.Failed, session.Status);
         Assert.Equal(ScriptErrorKind.SyntaxError, session.Error?.Kind);
@@ -95,10 +163,10 @@ public class RunSessionTests
     [Fact]
     public void RuntimeErrorShowsLanguageMessage()
     {
-        RunSession python = RunSession.Start("plant(RADISH)", ScriptLanguage.Python, _rules);
+        RunSession python = RunSession.Start("plant(RADISH)", ScriptLanguage.Python, EvaluatorTestSupport.AllUnlocked(_rules));
         python.StepLine();
 
-        RunSession javaScript = RunSession.Start("plant(RADISH);", ScriptLanguage.JavaScript, _rules);
+        RunSession javaScript = RunSession.Start("plant(RADISH);", ScriptLanguage.JavaScript, EvaluatorTestSupport.AllUnlocked(_rules));
         javaScript.StepLine();
 
         Assert.Equal(StepStatus.Failed, python.Status);
@@ -110,8 +178,8 @@ public class RunSessionTests
     [Fact]
     public void SameScriptSameResultInBothLanguages()
     {
-        RunSession python = RunSession.Start(PythonThreeLines, ScriptLanguage.Python, _rules);
-        RunSession javaScript = RunSession.Start(JavaScriptThreeLines, ScriptLanguage.JavaScript, _rules);
+        RunSession python = RunSession.Start(PythonThreeLines, ScriptLanguage.Python, EvaluatorTestSupport.AllUnlocked(_rules));
+        RunSession javaScript = RunSession.Start(JavaScriptThreeLines, ScriptLanguage.JavaScript, EvaluatorTestSupport.AllUnlocked(_rules));
         RunToEnd(python);
         RunToEnd(javaScript);
 
@@ -124,7 +192,7 @@ public class RunSessionTests
     [Fact]
     public void StepLineStopsAtTickCap()
     {
-        RunSession session = RunSession.Start("while (ripe()) {}", ScriptLanguage.JavaScript, _rules);
+        RunSession session = RunSession.Start("while (ripe()) {}", ScriptLanguage.JavaScript, EvaluatorTestSupport.AllUnlocked(_rules));
 
         session.StepLine();
 

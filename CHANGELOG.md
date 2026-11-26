@@ -2,6 +2,14 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.5.0 — 2026-11-26
+
+- Add the first unlocks in `data/unlocks.json`: the for loop, a bigger field, radish and `plant()`, `if`/`else` and `ripe()`, the while loop, potato with `till()` and `ground()`, and functions. Each has a price in clover, radish or potato. The file is loaded and checked by `GameRules.Load`.
+- Add `GameProgress`: the items now stay between runs and after Stop, the player can buy unlocks, and the field grows after the Bigger field unlock.
+- Report a feature that is not bought yet as `'x' is not unlocked yet`, with its line number, before the script runs, in both languages.
+- Add an unlock panel to the window, with each unlock's price and a Buy button. Buying is not possible while a script runs.
+- Record the design in decision 0008, and update `docs/languages.md`, `docs/game-design.md` and the play-test guide.
+
 ## 0.4.0 — 2026-11-25
 
 - Add the first playable window, built with Godot 4.7.2 (.NET): a script editor with line numbers, a Python/JavaScript picker, Run, Step and Stop, a tick counter, an error panel, and a farm view that draws the field, the crops and the drone. The running line is highlighted yellow, an error line red.

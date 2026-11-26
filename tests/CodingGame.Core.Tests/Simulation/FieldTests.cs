@@ -343,4 +343,41 @@ public class FieldTests
         Assert.Equal(PlantResult.Planted, result);
         Assert.Empty(field.Items);
     }
+
+    [Fact]
+    public void HarvestWritesYieldToSharedItemDictionary()
+    {
+        var items = new Dictionary<string, int>();
+        var field = new Field(3, 1, _clover, items);
+
+        field.Harvest();
+
+        Assert.Equal(1, items["CLOVER"]);
+    }
+
+    [Fact]
+    public void PlantTakesSeedItemsFromSharedItemDictionary()
+    {
+        var items = new Dictionary<string, int> { ["CLOVER"] = 2 };
+        var field = new Field(3, 1, _clover, items);
+        field.Till();
+        field.Till();
+
+        Assert.Equal(PlantResult.Planted, field.Plant(_radish));
+        Assert.False(items.ContainsKey("CLOVER"));
+    }
+
+    [Fact]
+    public void FieldsSharingItemDictionarySeeEachOthersItems()
+    {
+        var items = new Dictionary<string, int>();
+        var first = new Field(3, 1, _clover, items);
+        var second = new Field(3, 1, _clover, items);
+
+        first.Harvest();
+        Assert.Equal(1, second.Items["CLOVER"]);
+
+        second.Harvest();
+        Assert.Equal(2, first.Items["CLOVER"]);
+    }
 }

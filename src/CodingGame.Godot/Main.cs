@@ -15,6 +15,7 @@ public partial class Main : Control
 
     // The controls and the rules are created in _Ready, after Godot has built the object.
     private GameRules _rules = null!;
+    private GameProgress _progress = null!;
     private Field _idleField = null!;
     private FarmView _farm = null!;
     private ScriptEditor _editor = null!;
@@ -23,6 +24,7 @@ public partial class Main : Control
     private Label _tickLabel = null!;
     private Label _itemsLabel = null!;
     private Label _errorLabel = null!;
+    private UnlockPanel _unlockPanel = null!;
 
     private RunSession? _session;
     private bool _playing;
@@ -33,7 +35,8 @@ public partial class Main : Control
     public override void _Ready()
     {
         _rules = GameRules.Load(DataFolder);
-        _idleField = RunSession.NewField(_rules);
+        _progress = new GameProgress(_rules);
+        _idleField = _progress.NewField();
 
         _languagePicker = new OptionButton();
         _languagePicker.AddItem("Python");
@@ -69,10 +72,14 @@ public partial class Main : Control
 
         _farm = new FarmView { SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill };
         _itemsLabel = new Label();
+        _unlockPanel = new UnlockPanel();
+        _unlockPanel.Show(_progress);
+        _unlockPanel.Bought += OnBought;
 
         VBoxContainer right = new() { SizeFlagsHorizontal = SizeFlags.ExpandFill };
         right.AddChild(_farm);
         right.AddChild(_itemsLabel);
+        right.AddChild(_unlockPanel);
 
         HSplitContainer split = new();
         split.SetAnchorsPreset(LayoutPreset.FullRect);
@@ -115,7 +122,7 @@ public partial class Main : Control
     {
         if (_session is null || _session.Status != StepStatus.Running)
         {
-            _session = RunSession.Start(_editor.Text, _language, _rules);
+            _session = RunSession.Start(_editor.Text, _language, _progress);
             _tickBudget = 0;
         }
 
@@ -139,7 +146,12 @@ public partial class Main : Control
     {
         _session = null;
         _playing = false;
-        _idleField = RunSession.NewField(_rules);
+        _idleField = _progress.NewField();
+    }
+
+    private void OnBought()
+    {
+        _idleField = _progress.NewField();
     }
 
     private void OnLanguageSelected(long index)
@@ -175,6 +187,7 @@ public partial class Main : Control
         _editor.Editable = !running;
         _stopButton.Disabled = session is null;
         _languagePicker.Disabled = running;
+        _unlockPanel.Refresh(running);
 
         int line = session?.Error?.Line ?? session?.CurrentLine ?? 0;
         if (session is null || line == 0)

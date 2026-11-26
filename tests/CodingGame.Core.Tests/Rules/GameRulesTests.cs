@@ -11,6 +11,8 @@ public class GameRulesTests
 
     private const string ValidFieldJson = """{"width":3,"height":3}""";
 
+    private const string ValidUnlocksJson = "[]";
+
     [Fact]
     public void LoadsThreeCropsFromDataFolder()
     {
@@ -85,6 +87,55 @@ public class GameRulesTests
     }
 
     [Fact]
+    public void LoadsSevenUnlocksFromDataFolder()
+    {
+        GameRules rules = GameRules.Load(Path.Combine(AppContext.BaseDirectory, "data"));
+
+        Assert.Equal(7, rules.Unlocks.Count);
+    }
+
+    [Fact]
+    public void ForLoopUnlockCostsCloverAndOpensFor()
+    {
+        GameRules rules = GameRules.Load(Path.Combine(AppContext.BaseDirectory, "data"));
+
+        Unlock unlock = rules.Unlocks[0];
+
+        Assert.Equal("FOR_LOOP", unlock.Id);
+        Assert.Equal(new UnlockPrice("CLOVER", 10), unlock.Price);
+        Assert.Equal("for", Assert.Single(unlock.Features));
+        Assert.Null(unlock.FieldSize);
+    }
+
+    [Fact]
+    public void BiggerFieldUnlockGrowsFieldToFiveByFive()
+    {
+        GameRules rules = GameRules.Load(Path.Combine(AppContext.BaseDirectory, "data"));
+
+        Unlock unlock = rules.Unlocks[1];
+
+        Assert.Equal(new FieldSize(5, 5), unlock.FieldSize);
+        Assert.Empty(unlock.Features);
+    }
+
+    [Fact]
+    public void MissingUnlocksFileIsReported()
+    {
+        GameRulesException exception = Assert.Throws<GameRulesException>(() => LoadWith(ValidCropsJson, ValidTicksJson, ValidFieldJson, null));
+
+        Assert.Contains("unlocks.json", exception.Message);
+        Assert.Contains("file not found", exception.Message);
+    }
+
+    [Fact]
+    public void InvalidUnlocksJsonIsReported()
+    {
+        GameRulesException exception = Assert.Throws<GameRulesException>(() => LoadWith(ValidCropsJson, ValidTicksJson, ValidFieldJson, "{"));
+
+        Assert.Contains("unlocks.json", exception.Message);
+    }
+
+    [Fact]
     public void TickCostsComeFromDataFolder()
     {
         GameRules rules = GameRules.Load(Path.Combine(AppContext.BaseDirectory, "data"));
@@ -144,7 +195,7 @@ public class GameRulesTests
         Assert.Contains(expectedText, exception.Message);
     }
 
-    private static GameRules LoadWith(string? cropsJson, string? ticksJson, string? fieldJson = ValidFieldJson)
+    private static GameRules LoadWith(string? cropsJson, string? ticksJson, string? fieldJson = ValidFieldJson, string? unlocksJson = ValidUnlocksJson)
     {
         string folder = Directory.CreateTempSubdirectory().FullName;
         try
@@ -162,6 +213,11 @@ public class GameRulesTests
             if (fieldJson is not null)
             {
                 File.WriteAllText(Path.Combine(folder, "field.json"), fieldJson);
+            }
+
+            if (unlocksJson is not null)
+            {
+                File.WriteAllText(Path.Combine(folder, "unlocks.json"), unlocksJson);
             }
 
             return GameRules.Load(folder);

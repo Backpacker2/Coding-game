@@ -228,6 +228,24 @@ Some mistakes are plain JavaScript errors:
 - A body without braces gives `SyntaxError on line 2: expected '{', braces are required around the body`.
 - Other mistakes give `Unexpected token`, `Unexpected identifier`, `Unexpected number` or `Unexpected end of input`, with the line number, for example `SyntaxError on line 1: Unexpected token ')'`.
 
+### Features that are not bought yet
+
+The game teaches some features only after the player buys the unlock that opens them. Using one of them gives `'x' is not unlocked yet`, with the line number, in the language of the script. The check runs on the whole script before it starts, so the drone does not move at all. The first locked use in source order is reported (in JavaScript, function declarations are checked first, because they are hoisted). A locked feature is refused even in a branch that would never run.
+
+The unlocks are listed in `data/unlocks.json`. They open these features:
+
+| Unlock | Price | Opens |
+| --- | --- | --- |
+| for loop | 10 clover | `for` |
+| Bigger field | 30 clover | nothing: the field grows to 5x5 |
+| Radish and plant() | 40 clover | `plant`, `RADISH` |
+| if / else and ripe() | 20 radish | `if`, `ripe` (`elif` and `else if` count as `if`) |
+| while loop | 40 radish | `while` |
+| Potato, till() and ground() | 60 radish | `till`, `ground`, `POTATO`, `SOIL`, `GRASS`, `==`, `!=` |
+| Functions | 30 potato | `def` |
+
+The name in the message is the one the player wrote. Two exceptions: in JavaScript the function feature is named `function`, and the comparison is named `===` or `!==`. A JavaScript `==` is still a syntax error, as described above. For example, a Python and a JavaScript script that call `plant(RADISH)` both give `'plant' is not unlocked yet`.
+
 ## How scripts run
 
 Scripts run in the game's own small interpreter: one front end per language subset, one shared program format, and one evaluator that owns the tick costs and the drone API ([`decisions/0001-how-player-scripts-run.md`](decisions/0001-how-player-scripts-run.md)). This document is the list of features each front end supports and how they map onto each other.
@@ -239,3 +257,4 @@ Scripts run in the game's own small interpreter: one front end per language subs
 3. Crops and directions are uppercase constants, not strings.
 4. JavaScript in the game requires semicolons and braces.
 5. JavaScript only allows `===` and `!==`, with an error that explains why `==` is not allowed.
+6. Features the player has not bought yet are reported before the script runs, with the line number ([`decisions/0008-unlocks.md`](decisions/0008-unlocks.md)).

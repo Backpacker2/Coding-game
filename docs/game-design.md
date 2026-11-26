@@ -21,6 +21,8 @@ Each concept is unlocked at the moment the player feels the pain it solves. The 
 4. Items pay for unlocks: new commands, new language features, new crops and a bigger field.
 5. The new unlock makes the old script feel slow or clumsy, so the player rewrites it.
 
+In the prototype, the unlocks and their prices are in `data/unlocks.json`. Items stay between runs and after Stop, until the game closes.
+
 ## Words used in this document
 
 One word per concept, as in `CLAUDE.md`. These are also the words the game itself uses.
@@ -75,7 +77,7 @@ Times are where we want an average beginner to be, not hard limits. **(guess, al
 | --- | --- | --- | --- | --- |
 | 0 | 0:00 | Start: `move`, `harvest`, a field of 3 tiles in a row | – | Sequence |
 | 1 | 0:03 | `for` loop (repeat a fixed number of times) | 10 clover | Loops |
-| 2 | 0:07 | Field grows to 3×3 | 30 clover | Nested loops |
+| 2 | 0:07 | Field grows to 3×3 (in the prototype the start field is 3x3 and this unlock grows it to 5x5, see `data/unlocks.json`) | 30 clover | Nested loops |
 | 3 | 0:11 | Radish and `plant()` | 40 clover | (new crop) |
 | 4 | 0:14 | `if` / `else` and `ripe()` | 20 radish | Conditions |
 | 5 | 0:18 | `while` loop | 40 radish | Loops that run on a condition |
@@ -164,7 +166,7 @@ else:
     plant(RADISH)
 ```
 
-The lesson: **compare a value** (`==`) and choose between more than two options with `elif` **(guess: is `elif` part of this unlock, or a later one?)**.
+The lesson: **compare a value** (`==`) and choose between more than two options with `elif`. In the prototype `elif` is part of the `if` unlock, and `==` and `!=` come with this unlock.
 
 ### 7. Functions (around 0:27)
 
