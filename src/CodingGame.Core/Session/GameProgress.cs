@@ -33,11 +33,6 @@ public sealed class GameProgress
     public IReadOnlyDictionary<string, int> Items => _items;
 
     /// <summary>
-    /// Gets the ids of the unlocks the player has bought.
-    /// </summary>
-    public IReadOnlySet<string> BoughtIds => _boughtIds;
-
-    /// <summary>
     /// Gets the features that are still locked: the features of every unlock that is not bought yet.
     /// Each call returns a new set.
     /// </summary>

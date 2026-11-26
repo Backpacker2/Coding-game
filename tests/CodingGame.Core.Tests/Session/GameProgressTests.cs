@@ -16,7 +16,7 @@ public class GameProgressTests
         var progress = new GameProgress(_rules);
 
         Assert.Empty(progress.Items);
-        Assert.Empty(progress.BoughtIds);
+        Assert.All(_rules.Unlocks, unlock => Assert.False(progress.IsBought(unlock)));
         Assert.Equal(new FieldSize(3, 3), progress.FieldSize);
     }
 
@@ -75,7 +75,6 @@ public class GameProgressTests
 
         Assert.Equal(2, progress.Items["CLOVER"]);
         Assert.True(progress.IsBought(forLoop));
-        Assert.Contains("FOR_LOOP", progress.BoughtIds);
         Assert.DoesNotContain("for", progress.LockedFeatures);
     }
 
