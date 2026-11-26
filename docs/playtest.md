@@ -1,6 +1,6 @@
 # Play-test guide
 
-This guide is for the owner. It takes about 30 minutes. Please report what you find (step 8).
+This guide is for the owner. It takes about 30 minutes. Please report what you find (step 10).
 
 The field starts 3x3. This is for testing only, so that nested loops can be tried. The size is set in `data/field.json`. The Bigger field unlock grows it to 5x5.
 
@@ -38,10 +38,23 @@ The field starts 3x3. This is for testing only, so that nested loops can be trie
    - After buying `for loop`, write a loop that moves the drone 10 times and run it.
    - Later, once you have radish to buy `if / else and ripe()` and `while loop`, write a JavaScript loop that never ends: `while (ripe()) {}`. Press Run, watch the tick counter, then press Stop. Press Step on it too: it stops after a fixed number of ticks.
    - Buy something, edit the script in both languages, close the window, and start the game again. Your items, your unlocks, both scripts and the language should all be back.
-   - Your progress is in the file `save.json`, in Godot's user data folder for the project "Coding Game" (Godot menu Project, Open User Data Folder). Delete that file to start over.
+   - Your progress is in the file `save.json`, in Godot's user data folder for the project "Coding Game" (Godot menu Project, Open User Data Folder). The New game button resets it (step 9). Deleting `save.json` also starts over.
    - Open `save.json` in a text editor, replace its whole content with the word `garbage`, and start the game. A red notice explains that the save could not be read. The old file is kept as `save.json.broken` in the same folder, and the game starts as a new game.
 
-8. What to report:
+8. Help panel:
+   - Press Help. The panel hides; press it again and the panel shows. The panel is shown when the game starts.
+   - At the start it lists `move`, `harvest`, `NORTH`, `EAST`, `SOUTH`, `WEST` and `CLOVER`. It does not list `for`, `while`, `if` or `def`.
+   - Switch the language to JavaScript. The examples gain semicolons and braces.
+   - Buy the for loop. `for` appears.
+   - Buy Radish and plant(). `plant` and `RADISH` appear.
+
+9. New game:
+   - Press New game and then Cancel. Everything stays as it was.
+   - Press New game again and confirm. Check that the items are 0, every unlock says Buy, the starter script is back in both languages, the language is Python and the field is 3x3.
+   - Close the window and start the game again. It starts as a new game too.
+   - Start a run with a long loop. Check that the New game button is greyed out while it runs, and that it is active again after Stop.
+
+10. What to report:
    - Do the three speeds (Slow, Normal, Fast) feel right? At Normal, a move should take about one second.
    - Is anything hard to read or ugly?
    - Is anything confusing?

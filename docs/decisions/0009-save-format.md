@@ -49,6 +49,7 @@ Option A, format version 1.
 ## Consequences
 
 - Progress and scripts now survive closing the game. The play-test guide says where the file is and how to reset (delete it).
+- New game resets the progress and scripts and writes a fresh save at once (0.7.0). It does not delete the file, and `save.json.broken` is left alone. See [`0010`](0010-in-game-help.md).
 - A save the game cannot read is kept as `save.json.broken` (an older `.broken` file is replaced) and the player starts again with a notice.
 - Changing what a version means (a removed or renamed unlock, a new language, a new field) must raise `CurrentVersion` and bring a migration for the old versions, with a new decision record.
 - Items from a run are saved when the run ends. A crash in the middle of a run loses that run's harvest.

@@ -1,6 +1,6 @@
 # Architecture
 
-This is the technical overview of the prototype (version 0.6.1). The rules for writing code are in [`../CLAUDE.md`](../CLAUDE.md). The reasons behind the big choices are in the decision records listed at the end of this document.
+This is the technical overview of the prototype (version 0.7.0). The rules for writing code are in [`../CLAUDE.md`](../CLAUDE.md). The reasons behind the big choices are in the decision records listed at the end of this document.
 
 ## Projects and folders
 
@@ -9,13 +9,13 @@ This is the technical overview of the prototype (version 0.6.1). The rules for w
 | `src/CodingGame.Core/` | A class library with all the game logic. It does not use Godot, so the tests run without it. |
 | `src/CodingGame.Core/Rules/` | `GameRules` reads and checks the files in `data/`. It also holds the types `Crop`, `TickCosts`, `FieldSize` and `Unlock`. |
 | `src/CodingGame.Core/Simulation/` | `Field`: the tiles, the drone and the items. Also `Tile`, `Direction` and `PlantResult`. |
-| `src/CodingGame.Core/Interpreter/` | The shared syntax tree, the `Evaluator`, the `DroneApi`, `UnlockCheck` and the script errors. |
+| `src/CodingGame.Core/Interpreter/` | The shared syntax tree, the `Evaluator`, the `DroneApi`, `UnlockCheck`, `HelpBook` and the script errors. |
 | `src/CodingGame.Core/Interpreter/Python/` | The Python front end: tokenizer and parser. |
 | `src/CodingGame.Core/Interpreter/JavaScript/` | The JavaScript front end: tokenizer and parser. |
 | `src/CodingGame.Core/Session/` | `GameProgress`, `RunSession`, `SaveFile` and the types around them. |
-| `src/CodingGame.Godot/` | The Godot 4.7 project (C#): `Main.cs` (the window), `FarmView.cs`, `ScriptEditor.cs`, `UnlockPanel.cs`, `main.tscn` and `project.godot`. |
+| `src/CodingGame.Godot/` | The Godot 4.7 project (C#): `Main.cs` (the window), `FarmView.cs`, `ScriptEditor.cs`, `UnlockPanel.cs`, `HelpPanel.cs`, `main.tscn` and `project.godot`. |
 | `src/CodingGame.Godot/data/` | A copy of the top-level `data/` folder, made by the build and not in the repository. |
-| `data/` | The game rules and the starter scripts: `crops.json`, `ticks.json`, `field.json`, `unlocks.json`, `starter.py` and `starter.js`. |
+| `data/` | The game rules, the help texts and the starter scripts: `crops.json`, `ticks.json`, `field.json`, `unlocks.json`, `help.json`, `starter.py` and `starter.js`. |
 | `tests/CodingGame.Core.Tests/` | The xUnit tests of Core. |
 | `tests/examples/` | Example scripts, one folder per example. |
 | `docs/` | The design documents, the decision records and the player guide. |
@@ -37,6 +37,11 @@ script text + language ──► RunSession.Start
                                        │ no locked feature used
                                        ▼
                    Evaluator + DroneApi ──► Field (advances one tick per step)
+
+data/help.json ──► HelpBook.Load (checked against DroneApi) ──► HelpBook
+                                                                  │ EntriesFor (LockedFeatures, language)
+                                                                  ▼
+                                                       HelpPanel (Godot, only shows)
 ```
 
 - `GameRules.Load` reads the four files, turns them into precise types and checks them. A broken file throws `GameRulesException`.
@@ -44,15 +49,17 @@ script text + language ──► RunSession.Start
 - `RunSession.Start` parses the script. A parse error or a locked feature gives a session that has failed at once. Otherwise it creates an `Evaluator` with a `DroneApi` bound to a new field.
 - Each step of the evaluator runs one tick. The `DroneApi` table gives the command names and their costs, and the field holds the state.
 - The items live in `GameProgress`. The field of a run keeps a reference to the same item store, so a harvest adds to the player's bank at once.
+- `HelpBook.Load` reads `data/help.json` and checks it against the drone API and the keywords. `HelpBook.EntriesFor` returns the entries the player can use now, with the example for the selected language.
 
 ### Who reads and who changes
 
-The Godot project never changes the field or the rules itself. It changes the game only through `GameProgress.Buy` (the Buy button in `UnlockPanel`) and through `RunSession.Start`, `StepTick` and `StepLine` (the Run and Step buttons in `Main`). Everything else is read:
+The Godot project never changes the field or the rules itself. It changes the game only through `GameProgress.Buy` (the Buy button in `UnlockPanel`), `GameProgress.Reset` (the New game button in `Main`) and through `RunSession.Start`, `StepTick` and `StepLine` (the Run and Step buttons in `Main`). Everything else is read:
 
 - `Main` reads the session status, the tick count, the error and the current line, and calls `SaveFile.Save` at the save points.
 - `FarmView` reads the `Field` and draws it.
 - `ScriptEditor` only shows and highlights the text.
 - `UnlockPanel` reads `GameProgress` to show each unlock and its price.
+- `HelpPanel` shows the entries that `Main` gives it from `HelpBook`.
 
 ## Where each rule lives
 
@@ -63,6 +70,7 @@ The Godot project never changes the field or the rules itself. It changes the ga
 | Crops: ground, grow time, yield, seed cost and regrowth | `data/crops.json`, record `Crop` | `Field`, `DroneApi` (the crop constants) |
 | Starting field size | `data/field.json`, record `FieldSize` | `GameProgress.FieldSize` |
 | Unlocks: id, price, features and field size | `data/unlocks.json`, record `Unlock` | `UnlockCheck`, `GameProgress` |
+| Help summary and example per language, for each command, constant and keyword | `data/help.json` | `HelpBook` |
 | Growth, harvest, planting and tilling rules | `Simulation/Field.cs` | `DroneApi` |
 | Command names, argument kinds and constants | `Interpreter/DroneApi.cs` | `Evaluator` |
 | Which Python or JavaScript features exist | The two front ends | Parsing |
@@ -79,7 +87,8 @@ The drone API is the same set of commands in every language (`CLAUDE.md`, Game-s
 1. Add its tick cost to `data/ticks.json`, to the record `TickCosts` and to `GameRules.ValidateTickCosts`.
 2. Add the command to `DroneApi.Commands`, and change `Field` if the command changes the field.
 3. Add its name to the features of an unlock in `data/unlocks.json`, if the player must buy it. A name that is in no unlock is always available.
-4. Add a test, an example folder in `tests/examples/` with a script in each language, and the command to `docs/languages.md` and `docs/player-guide.md`.
+4. Add a help entry to `data/help.json`: a summary and an example in each language. `HelpBook.Load` fails until every command, constant and keyword has one.
+5. Add a test, an example folder in `tests/examples/` with a script in each language, and the command to `docs/languages.md` and `docs/player-guide.md`.
 
 ## Adding a language
 
@@ -87,7 +96,8 @@ A new language is a larger change, so it starts with a decision record that sket
 
 - a front end in its own folder under `Interpreter/`, whose `Parse` method returns a `ParseResult` with the shared syntax tree,
 - a new value in `ScriptLanguage`, and a case for it in `RunSession.Start`, `ScriptError.ToMessage`, `UnlockCheck` and the picker and starter text in `Main.cs`,
-- a starter script in `data/`, and example folders in `tests/examples/`.
+- a starter script in `data/`, and example folders in `tests/examples/`,
+- an example for the new language in every entry of `data/help.json`.
 
 ## Testing
 
@@ -109,3 +119,4 @@ A new language is a larger change, so it starts with a decision record that sket
 | [0007](decisions/0007-godot-view.md) | accepted, built in 0.4.0 | Core holds all the logic, and the Godot view only draws and takes input. |
 | [0008](decisions/0008-unlocks.md) | accepted, built in 0.5.0 | Unlocks are data, and a locked feature is reported before the script runs. |
 | [0009](decisions/0009-save-format.md) | accepted, built in 0.6.0 | A versioned `save.json`, checked when it is loaded, with a broken file kept as `save.json.broken`. |
+| [0010](decisions/0010-in-game-help.md) | accepted, built in 0.7.0 | Help texts live in `data/help.json`, checked against the drone API, and New game resets the progress in place and saves at once. |

@@ -2,6 +2,12 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.7.0 — 2026-11-26
+
+- Add a Help button that shows the drone commands, constants and language features the player can use now, each with a short example in the selected language. New entries appear when an unlock is bought. The texts are in `data/help.json` and are checked against the drone API when the game loads.
+- Add a New game button. After a confirmation it erases the items, the unlocks and both scripts, goes back to Python and saves the new state at once.
+- Add `GameProgress.Reset`. Record the design in decision 0010.
+
 ## 0.6.2 — 2026-11-26
 
 - Add `docs/player-guide.md` for players: the window, the commands, the crops and their growth, the unlocks, the error messages, tips and saving.
