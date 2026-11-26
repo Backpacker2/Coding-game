@@ -20,6 +20,8 @@ public partial class CodeWindow : Window
     private OptionButton _speedPicker = null!;
     private Button _stopButton = null!;
     private Label _tickLabel = null!;
+    private Label _statusChip = null!;
+    private Color _chipColor;
     private Label _statsLabel = null!;
     private Label _errorLabel = null!;
     private Label _noticeLabel = null!;
@@ -140,19 +142,26 @@ public partial class CodeWindow : Window
     }
 
     /// <summary>
-    /// Shows the state of a run: the tick count and its status, the error or the hint in the Messages box,
-    /// whether the editor and the language picker are locked, and the line the run is on.
+    /// Shows the state of a run: the tick count and the status chip in the toolbar, the error or the hint in the
+    /// Messages box, whether the editor and the language picker are locked, and the line the run is on.
     /// </summary>
     /// <param name="session">The run to show, or null when no run has started.</param>
     public void Refresh(RunSession? session)
     {
-        string statusText = session?.Status switch
+        _tickLabel.Text = $"Ticks: {session?.TicksUsed ?? 0}";
+        (string chipText, Color chipColor) = session?.Status switch
         {
-            StepStatus.Finished => " - finished",
-            StepStatus.Failed => " - stopped by an error",
-            _ => "",
+            StepStatus.Running => ("Running", Palette.UiAccent),
+            StepStatus.Finished => ("Finished", Palette.UiFinished),
+            StepStatus.Failed => ("Error", Palette.UiDanger),
+            _ => ("Ready", Palette.UiButton),
         };
-        _tickLabel.Text = $"Ticks: {session?.TicksUsed ?? 0}{statusText}";
+        _statusChip.Text = chipText;
+        if (chipColor != _chipColor)
+        {
+            _statusChip.AddThemeStyleboxOverride("normal", GameTheme.Box(chipColor, 10));
+            _chipColor = chipColor;
+        }
 
         string? error = session?.ErrorMessage;
         _errorLabel.Text = error ?? "Errors in your script appear here, with the line number.";
@@ -247,6 +256,7 @@ public partial class CodeWindow : Window
         _speedPicker.AddItem("Fast");
         _speedPicker.Select(1);
         _tickLabel = new Label();
+        _statusChip = new Label();
         _statsLabel = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, Visible = false };
 
         HBoxContainer toolbar = new();
@@ -256,6 +266,7 @@ public partial class CodeWindow : Window
         toolbar.AddChild(_stopButton);
         toolbar.AddChild(_speedPicker);
         toolbar.AddChild(_tickLabel);
+        toolbar.AddChild(_statusChip);
 
         _errorLabel = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart };
         PanelContainer errorPanel = new() { CustomMinimumSize = new Vector2(0, 80) };

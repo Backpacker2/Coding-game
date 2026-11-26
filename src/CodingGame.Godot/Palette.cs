@@ -161,6 +161,9 @@ public static class Palette
     /// <summary>Background of the code editor, the Messages box and text fields.</summary>
     public static readonly Color UiEditor = new(0.11f, 0.11f, 0.12f);
 
+    /// <summary>Status chip of a run that finished.</summary>
+    public static readonly Color UiFinished = new(0.27f, 0.47f, 0.66f);
+
     // Placeholder art: the colours only tell the crops apart until real art exists.
     // The order follows the crops in data/crops.json: clover, radish, potato.
     private static readonly Color[] _cropColors = [new(0.14f, 0.40f, 0.20f), new(0.85f, 0.28f, 0.35f), new(0.82f, 0.66f, 0.38f)];
