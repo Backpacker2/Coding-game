@@ -26,7 +26,7 @@ public class SaveFileWriteTests : IDisposable
     }
 
     [Fact]
-    public void SavesProgressScriptsAndFieldAsVersionFourJson()
+    public void SavesProgressScriptsAndFieldAsVersionFiveJson()
     {
         string path = Path.Combine(_folder, "save.json");
         SavedGame game = GameWithForLoopAndBiggerField();
@@ -35,7 +35,7 @@ public class SaveFileWriteTests : IDisposable
 
         using JsonDocument document = JsonDocument.Parse(File.ReadAllText(path));
         JsonElement root = document.RootElement;
-        Assert.Equal(4, root.GetProperty("version").GetInt32());
+        Assert.Equal(5, root.GetProperty("version").GetInt32());
         Assert.Equal(12, root.GetProperty("items").GetProperty("CLOVER").GetInt32());
         string[] bought = root.GetProperty("boughtUnlocks").EnumerateArray()
             .Select(element => element.GetString() ?? string.Empty)
@@ -134,8 +134,23 @@ public class SaveFileWriteTests : IDisposable
 
         SaveFile.Save(path, GameWithForLoopAndBiggerField());
 
-        Assert.Contains("\"version\": 4", File.ReadAllText(path));
+        Assert.Contains("\"version\": 5", File.ReadAllText(path));
         Assert.Empty(Directory.GetFiles(_folder, "*.tmp"));
+    }
+
+    [Fact]
+    public void BestRatesAreWrittenSortedByItemName()
+    {
+        string path = Path.Combine(_folder, "save.json");
+        var bests = new Dictionary<string, int> { ["RADISH"] = 7, ["CLOVER"] = 15 };
+        var progress = new GameProgress(_rules, new Dictionary<string, int>(), new HashSet<string>(), new HashSet<string>(), bests, null, default);
+
+        SaveFile.Save(path, new SavedGame(progress, ScriptLanguage.Python, new ScriptBook(_rules)));
+
+        using JsonDocument document = JsonDocument.Parse(File.ReadAllText(path));
+        JsonElement bestRates = document.RootElement.GetProperty("bestRates");
+        Assert.Equal(["CLOVER", "RADISH"], bestRates.EnumerateObject().Select(property => property.Name));
+        Assert.Equal(15, bestRates.GetProperty("CLOVER").GetInt32());
     }
 
     [Fact]

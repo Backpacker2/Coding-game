@@ -2,9 +2,13 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
-## 0.12.7 — 2026-11-26
+## 0.13.1 — 2026-11-26
 
 - `spin()` now shows: the drone turns a full circle on its tile for every spin.
+
+## 0.13.0 — 2026-11-26
+
+- Script stats (Core): every run reports the items gained per 1,000 ticks, and the best rate per item is kept and saved (save format version 5). The stats line comes next.
 
 ## 0.12.6 — 2026-11-26
 

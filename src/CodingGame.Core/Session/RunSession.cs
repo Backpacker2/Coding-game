@@ -21,6 +21,7 @@ public sealed class RunSession
     private readonly ScriptLanguage _language;
     private readonly Evaluator? _evaluator;
     private readonly bool[] _visitedTiles;
+    private readonly Dictionary<string, int> _itemsAtStart;
     private int _unvisitedTileCount;
 
     private RunSession(ScriptLanguage language, Field field, Evaluator? evaluator, StepStatus status, ScriptError? error)
@@ -32,6 +33,7 @@ public sealed class RunSession
         Error = error;
         _visitedTiles = new bool[field.Width * field.Height];
         _unvisitedTileCount = _visitedTiles.Length;
+        _itemsAtStart = new Dictionary<string, int>(field.Items);
         MarkDroneTileVisited();
     }
 
@@ -69,6 +71,11 @@ public sealed class RunSession
     /// Gets the number of ticks the script has used. It is 0 after a parse error.
     /// </summary>
     public int TicksUsed => _evaluator?.TicksUsed ?? 0;
+
+    /// <summary>
+    /// Gets the item counts of the field when the run started, so the progress can work out what the run gained.
+    /// </summary>
+    internal IReadOnlyDictionary<string, int> ItemsAtStart => _itemsAtStart;
 
     /// <summary>
     /// Parses a script and checks it against the player's unlocks. Creates a session that has not run any

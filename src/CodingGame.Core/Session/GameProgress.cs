@@ -5,12 +5,13 @@ using CodingGame.Core.Simulation;
 namespace CodingGame.Core.Session;
 
 /// <summary>
-/// What the player owns: the items from harvests, the unlocks the player has bought, the field with its crops and
-/// the first-steps goals that are done. It is saved to the save file with <see cref="SaveFile"/> and loaded again when the game starts.
+/// What the player owns: the items from harvests, the unlocks the player has bought, the field with its crops,
+/// the first-steps goals that are done and the best rate per 1,000 ticks for each item. It is saved to the save file with <see cref="SaveFile"/> and loaded again when the game starts.
 /// </summary>
 public sealed class GameProgress
 {
     private readonly Dictionary<string, int> _items = [];
+    private readonly Dictionary<string, int> _bestRates = [];
     private readonly HashSet<string> _boughtIds = [];
     private readonly HashSet<string> _doneGoalIds = [];
 
@@ -19,7 +20,7 @@ public sealed class GameProgress
     /// </summary>
     /// <param name="rules">The game rules, with the unlocks, the crops and the starting field.</param>
     public GameProgress(GameRules rules)
-        : this(rules, new Dictionary<string, int>(), new HashSet<string>(), new HashSet<string>(), null, default)
+        : this(rules, new Dictionary<string, int>(), new HashSet<string>(), new HashSet<string>(), new Dictionary<string, int>(), null, default)
     {
     }
 
@@ -31,15 +32,17 @@ public sealed class GameProgress
     /// <param name="items">Item name to count. The caller guarantees every name is a crop and every count is at least 1.</param>
     /// <param name="boughtUnlockIds">Ids of bought unlocks. The caller guarantees each id is in <paramref name="rules"/>.Unlocks.</param>
     /// <param name="doneGoalIds">Ids of the goals that are done.</param>
+    /// <param name="bestRates">Item name to the best rate per 1,000 ticks. Each name must be a crop and each rate must be at least 1.</param>
     /// <param name="tiles">The tiles of the field, in the size that the bought unlocks give. Null gives a fresh field of that size.</param>
     /// <param name="dronePosition">The tile the drone stands on. Not used when <paramref name="tiles"/> is null.</param>
-    /// <exception cref="ArgumentException">A goal id in <paramref name="doneGoalIds"/> is not a goal in the rules, or the size of <paramref name="tiles"/> is not the size of the field that the bought unlocks give.</exception>
+    /// <exception cref="ArgumentException">A goal id in <paramref name="doneGoalIds"/> is not a goal in the rules, a best rate names an item that is not a crop or is below 1, or the size of <paramref name="tiles"/> is not the size of the field that the bought unlocks give.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The drone is outside the field.</exception>
     public GameProgress(
         GameRules rules,
         IReadOnlyDictionary<string, int> items,
         IReadOnlySet<string> boughtUnlockIds,
         IReadOnlySet<string> doneGoalIds,
+        IReadOnlyDictionary<string, int> bestRates,
         Tile[,]? tiles,
         TilePosition dronePosition)
     {
@@ -47,6 +50,21 @@ public sealed class GameProgress
         foreach (KeyValuePair<string, int> item in items)
         {
             _items[item.Key] = item.Value;
+        }
+
+        foreach (KeyValuePair<string, int> best in bestRates)
+        {
+            if (!rules.Crops.Any(crop => crop.Name == best.Key))
+            {
+                throw new ArgumentException($"unknown item {best.Key}", nameof(bestRates));
+            }
+
+            if (best.Value < 1)
+            {
+                throw new ArgumentException($"{best.Key}: best rate must be at least 1, was {best.Value}", nameof(bestRates));
+            }
+
+            _bestRates[best.Key] = best.Value;
         }
 
         _boughtIds.UnionWith(boughtUnlockIds);
@@ -85,6 +103,12 @@ public sealed class GameProgress
     /// has none of is not listed.
     /// </summary>
     public IReadOnlyDictionary<string, int> Items => _items;
+
+    /// <summary>
+    /// Gets the best rate per 1,000 ticks that the player has had for each item, keyed by item name. Every rate is at least 1.
+    /// An item the player has no best for is not listed.
+    /// </summary>
+    public IReadOnlyDictionary<string, int> BestRates => _bestRates;
 
     /// <summary>
     /// Gets the field the player works on. It lasts from run to run and is changed by the runs and by buying a bigger field.
@@ -169,6 +193,44 @@ public sealed class GameProgress
     }
 
     /// <summary>
+    /// Works out the rate per 1,000 ticks of every item an ended run gained, and keeps a rate as the best for its item
+    /// when it is higher than the best kept so far. The rate is the gain times 1,000 divided by the ticks the run used,
+    /// rounded down. A rate of 0 is reported but is never kept as a best. Call it once when a run ends or is stopped,
+    /// before the progress is saved.
+    /// </summary>
+    /// <param name="endedRun">The run that ended or was stopped. Every ended run counts, whatever the reason it stopped.</param>
+    /// <returns>The ticks the run used and the rate of each item it gained, sorted by item name. Empty when the run used no ticks.</returns>
+    public RunStats RecordRunStats(RunSession endedRun)
+    {
+        int ticksUsed = endedRun.TicksUsed;
+        if (ticksUsed == 0)
+        {
+            return new RunStats(0, []);
+        }
+
+        var rates = new List<ItemRate>();
+        foreach (KeyValuePair<string, int> entry in endedRun.Field.Items.OrderBy(item => item.Key, StringComparer.Ordinal))
+        {
+            int gained = entry.Value - endedRun.ItemsAtStart.GetValueOrDefault(entry.Key);
+            if (gained <= 0)
+            {
+                continue;
+            }
+
+            int perThousandTicks = gained * 1000 / ticksUsed;
+            bool isNewBest = perThousandTicks >= 1 && (!_bestRates.TryGetValue(entry.Key, out int best) || perThousandTicks > best);
+            if (isNewBest)
+            {
+                _bestRates[entry.Key] = perThousandTicks;
+            }
+
+            rates.Add(new ItemRate(entry.Key, gained, perThousandTicks, isNewBest));
+        }
+
+        return new RunStats(ticksUsed, rates);
+    }
+
+    /// <summary>
     /// Checks whether the player can buy an unlock now: it is not bought yet and the player has
     /// enough of the price item.
     /// </summary>
@@ -231,12 +293,13 @@ public sealed class GameProgress
     }
 
     /// <summary>
-    /// Puts the progress back to the state of a new player: no items, nothing bought, no goal done and a fresh start field.
+    /// Puts the progress back to the state of a new player: no items, no best rate, nothing bought, no goal done and a fresh start field.
     /// The item store is emptied in place.
     /// </summary>
     public void Reset()
     {
         _items.Clear();
+        _bestRates.Clear();
         _boughtIds.Clear();
         _doneGoalIds.Clear();
         Field = CreateFreshField();

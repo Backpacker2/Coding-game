@@ -66,3 +66,7 @@ Since 0.11.0 the save format is version 3. `scripts` is a list of `{ name, pytho
 ## Update 2026-11-26: version 4 adds done goals
 
 Since 0.12.0 the save format is version 4. It adds `doneGoals`: the ids of the first-steps goals that are done, in the order of `data/goals.json`. Versions 1 to 3 still load, with no goal done. This is one more list with the same rules as `boughtUnlocks` (checked against the rules, an unknown or duplicate id refuses the save), so no new decision record was written.
+
+## Update 2026-11-26: version 5 adds best rates
+
+Since 0.13.0 the save format is version 5. It adds `bestRates`: the best rate per 1,000 ticks for each item, keyed by item name and sorted by name, with every rate at least 1. Versions 1 to 4 still load, with no best rate. The list has the same checks as `items`: an unknown item or a rate below 1 refuses the save. See [`docs/gameplay-plan.md`](../gameplay-plan.md), milestone 33. No new decision record was written.

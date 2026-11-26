@@ -13,12 +13,14 @@ namespace CodingGame.Core.Session;
 public static class SaveFile
 {
     /// <summary>
-    /// The save format version that <see cref="Save"/> writes. Versions 1 to 3 still load.
+    /// The save format version that <see cref="Save"/> writes. Versions 1 to 4 still load.
     /// </summary>
-    public const int CurrentVersion = 4;
+    public const int CurrentVersion = 5;
 
     private const int FirstVersionWithField = 2;
     private const int FirstVersionWithScripts = 3;
+    private const int FirstVersionWithDoneGoals = 4;
+    private const int FirstVersionWithBestRates = 5;
 
     private static readonly JsonSerializerOptions _jsonOptions = new()
     {
@@ -43,7 +45,8 @@ public static class SaveFile
         IReadOnlyList<ScriptDto> Scripts,
         string SelectedScript,
         FieldDto? Field = null,
-        IReadOnlyList<string>? DoneGoals = null);
+        IReadOnlyList<string>? DoneGoals = null,
+        IReadOnlyDictionary<string, int>? BestRates = null);
 
     private sealed record VersionThreeSaveDto(
         int Version,
@@ -88,6 +91,12 @@ public static class SaveFile
             items[item.Key] = item.Value;
         }
 
+        var bestRates = new SortedDictionary<string, int>(StringComparer.Ordinal);
+        foreach (KeyValuePair<string, int> best in game.Progress.BestRates)
+        {
+            bestRates[best.Key] = best.Value;
+        }
+
         List<string> boughtUnlocks = game.Progress.Rules.Unlocks
             .Where(game.Progress.IsBought)
             .Select(unlock => unlock.Id)
@@ -99,7 +108,16 @@ public static class SaveFile
         List<ScriptDto> scripts = game.Scripts.Names
             .Select(name => new ScriptDto(name, game.Scripts.Text(name, ScriptLanguage.Python), game.Scripts.Text(name, ScriptLanguage.JavaScript)))
             .ToList();
-        var dto = new SaveDto(CurrentVersion, items, boughtUnlocks, game.Language, scripts, game.Scripts.Selected, ToFieldDto(game.Progress.Field), doneGoals);
+        var dto = new SaveDto(
+            CurrentVersion,
+            items,
+            boughtUnlocks,
+            game.Language,
+            scripts,
+            game.Scripts.Selected,
+            ToFieldDto(game.Progress.Field),
+            doneGoals,
+            bestRates);
         string text = JsonSerializer.Serialize(dto, _jsonOptions) + "\n";
 
         string temporaryPath = path + ".tmp";
@@ -111,12 +129,12 @@ public static class SaveFile
     /// Reads a save file and checks it against the game rules. A missing file is a new player and gives a new game.
     /// A version 1 file has no field and gives a fresh start field. A version 1 or 2 file has one script text per
     /// language, and becomes one script named main; a text that is null becomes the starter text. A version 1 to 3
-    /// file has no goals done.
+    /// file has no goals done, and a version 1 to 4 file has no best rates.
     /// </summary>
     /// <param name="path">The path of the save file.</param>
     /// <param name="rules">The game rules that the item names, the unlock ids, the goal ids, the crops, the language and the starter texts must match.</param>
     /// <returns>The saved game, or a new game when there is no file.</returns>
-    /// <exception cref="SaveException">The file is broken, is from another save version, or breaks a rule such as an unknown unlock or goal id, an item or crop that is unknown, a tile that does not fit the field, a drone outside the field, a missing doneGoals list, or a script that has no name, a duplicate name, no texts or a selected script that does not exist.</exception>
+    /// <exception cref="SaveException">The file is broken, is from another save version, or breaks a rule such as an unknown unlock or goal id, an item or crop that is unknown, a tile that does not fit the field, a drone outside the field, a missing doneGoals or bestRates list, a best rate that is for an unknown item or is below 1, or a script that has no name, a duplicate name, no texts or a selected script that does not exist.</exception>
     public static SavedGame Load(string path, GameRules rules)
     {
         string fileName = Path.GetFileName(path);
@@ -127,23 +145,24 @@ public static class SaveFile
 
         string text = File.ReadAllText(path);
         int version = CheckVersion(fileName, text);
-        if (version == CurrentVersion)
+        if (version >= FirstVersionWithDoneGoals)
         {
             SaveDto dto = ReadDto<SaveDto>(fileName, text);
             IReadOnlyList<string> doneGoals = dto.DoneGoals ?? throw new SaveException(fileName, "doneGoals is missing");
-            GameProgress progress = ReadProgress(fileName, rules, version, dto.Items, dto.BoughtUnlocks, doneGoals, dto.Field);
+            IReadOnlyDictionary<string, int> bestRates = ReadBestRates(fileName, rules, version, dto.BestRates);
+            GameProgress progress = ReadProgress(fileName, rules, version, dto.Items, dto.BoughtUnlocks, doneGoals, bestRates, dto.Field);
             return new SavedGame(progress, dto.Language, ReadScripts(fileName, rules, dto.Scripts, dto.SelectedScript));
         }
 
         if (version == FirstVersionWithScripts)
         {
             VersionThreeSaveDto three = ReadDto<VersionThreeSaveDto>(fileName, text);
-            GameProgress threeProgress = ReadProgress(fileName, rules, version, three.Items, three.BoughtUnlocks, [], three.Field);
+            GameProgress threeProgress = ReadProgress(fileName, rules, version, three.Items, three.BoughtUnlocks, [], new Dictionary<string, int>(), three.Field);
             return new SavedGame(threeProgress, three.Language, ReadScripts(fileName, rules, three.Scripts, three.SelectedScript));
         }
 
         LegacySaveDto legacy = ReadDto<LegacySaveDto>(fileName, text);
-        GameProgress legacyProgress = ReadProgress(fileName, rules, version, legacy.Items, legacy.BoughtUnlocks, [], legacy.Field);
+        GameProgress legacyProgress = ReadProgress(fileName, rules, version, legacy.Items, legacy.BoughtUnlocks, [], new Dictionary<string, int>(), legacy.Field);
         return new SavedGame(legacyProgress, legacy.Language, ReadLegacyScripts(rules, legacy.Scripts));
     }
 
@@ -182,6 +201,7 @@ public static class SaveFile
         IReadOnlyDictionary<string, int> items,
         IReadOnlyList<string> boughtUnlocks,
         IReadOnlyList<string> doneGoals,
+        IReadOnlyDictionary<string, int> bestRates,
         FieldDto? field)
     {
         CheckItems(fileName, items, rules);
@@ -189,7 +209,7 @@ public static class SaveFile
         IReadOnlySet<string> doneGoalIds = CheckDoneGoals(fileName, doneGoals, rules);
 
         // Only the field size is needed to check the tiles. The progress built here is replaced by the one below.
-        FieldSize size = new GameProgress(rules, items, boughtIds, doneGoalIds, null, default).FieldSize;
+        FieldSize size = new GameProgress(rules, items, boughtIds, doneGoalIds, bestRates, null, default).FieldSize;
         Tile[,]? tiles = null;
         TilePosition dronePosition = default;
         if (field is { } fieldDto)
@@ -201,7 +221,32 @@ public static class SaveFile
             throw new SaveException(fileName, "field is missing");
         }
 
-        return new GameProgress(rules, items, boughtIds, doneGoalIds, tiles, dronePosition);
+        return new GameProgress(rules, items, boughtIds, doneGoalIds, bestRates, tiles, dronePosition);
+    }
+
+    private static IReadOnlyDictionary<string, int> ReadBestRates(string fileName, GameRules rules, int version, IReadOnlyDictionary<string, int>? bestRates)
+    {
+        if (bestRates is null)
+        {
+            return version >= FirstVersionWithBestRates
+                ? throw new SaveException(fileName, "bestRates is missing")
+                : new Dictionary<string, int>();
+        }
+
+        foreach (KeyValuePair<string, int> best in bestRates)
+        {
+            if (!rules.Crops.Any(crop => crop.Name == best.Key))
+            {
+                throw new SaveException(fileName, $"bestRates: unknown item {best.Key}");
+            }
+
+            if (best.Value < 1)
+            {
+                throw new SaveException(fileName, $"bestRates: {best.Key}: best rate must be at least 1, was {best.Value}");
+            }
+        }
+
+        return bestRates;
     }
 
     private static ScriptBook ReadScripts(string fileName, GameRules rules, IReadOnlyList<ScriptDto> scripts, string selectedScript)
