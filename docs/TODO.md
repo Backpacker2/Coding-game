@@ -42,6 +42,9 @@ Milestones 22 to 28 follow [`visual-plan.md`](visual-plan.md), with the research
 - [x] **27. Camera.** Orbit, zoom and reset, with limits; the fixed angle stays the default. (0.14.1: right-drag turns, the wheel zooms, Menu > Reset view.)
 - [x] **28. Polish and check.** Motion pass, colour-blindness and font-size check, before and after screenshots. (0.14.7; results in `visual-plan.md`.)
 
+- [x] **28b. Real 3D models.** (0.15.1) Kenney CC0 models for trees, rocks and crops, recoloured to the palette. Design: [`docs/decisions/0015-imported-models.md`](decisions/0015-imported-models.md).
+- [ ] **28c. Drone model.** A low-poly CC BY drone, picked with the owner, credited in `models/CREDITS.md`.
+
 Milestones 29 to 35 follow [`gameplay-plan.md`](gameplay-plan.md). The view halves are built by the visuals thread; halves marked "Core: build thread" are built and ticked by the build thread.
 
 - [x] **29. Next goal on screen.** (0.10.7) The cheapest unlock not yet affordable, with a progress bar; the Unlocks button glows when one is affordable.

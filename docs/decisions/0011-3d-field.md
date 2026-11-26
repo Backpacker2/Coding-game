@@ -1,6 +1,6 @@
 # 0011: The 3D field
 
-- **Status:** accepted (built in 0.9.0)
+- **Status:** accepted (built in 0.9.0); option C taken up for trees, rocks and crops in [`0015`](0015-imported-models.md)
 - **Date:** 2026-11-26
 
 ## Context

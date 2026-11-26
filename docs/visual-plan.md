@@ -144,14 +144,15 @@ Better fits found in the same search, all CC BY and downloadable: "Military Dron
 - Where: `src/CodingGame.Godot/models/`, with `models/CREDITS.md` listing each model, its author, source link and licence.
 - Code: `FieldView3D` keeps its interface. A model replaces a primitive shape behind it (decision 0011, option C), one shape at a time, starting with the drone.
 
-### Decision needed from the owner
+### Decision and what was built
 
-Using models is a new asset dependency (`CLAUDE.md`). Proposal: allow CC0 and CC BY models with a credits file, start with a CC0 low-poly kit (Kenney) for trees, rocks and crops, and pick one low-poly CC BY drone together with the owner. Until the owner agrees, the art stays primitive.
+The owner agreed on 2026-11-26 to CC0 and CC BY models with a credits file. In 0.15.1 the island's trees and rocks, every crop's sprout, the radish and the potato's bush became Kenney Nature Kit models (CC0), recoloured to the palette in code. Design: [`decisions/0015-imported-models.md`](decisions/0015-imported-models.md). Credits: `src/CodingGame.Godot/models/CREDITS.md`. The clover keeps its primitive shape because the kit has none. The drone stays primitive until the owner picks a low-poly CC BY drone.
 
 ## Later, needs the owner
 
 - **Sound.** Harvest pops, a soft drone hum and UI clicks make a big difference to feel. Generated sounds are possible without assets, but real sound effects are an asset dependency.
-- **A custom font.** A new asset, so it waits for the owner. Models: see the research section above.
+- **A custom font.** A new asset, so it waits for the owner.
+- **The drone model.** A low-poly CC BY drone, picked with the owner (Sketchfab needs his account to download).
 - **Several code windows.** Open question from the owner; it is a gameplay change, not only a visual one.
 
 ## Sources
