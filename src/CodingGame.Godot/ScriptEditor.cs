@@ -16,6 +16,10 @@ public partial class ScriptEditor : CodeEdit
     {
         GuttersDrawLineNumbers = true;
         SizeFlagsVertical = SizeFlags.ExpandFill;
+
+        // The Tab key types four spaces, the indent every example and lesson uses, so pressing Tab never mixes tabs and spaces.
+        IndentUseSpaces = true;
+        IndentSize = 4;
     }
 
     /// <summary>Colours the keywords, drone commands, constants, numbers, strings and comments of a language.</summary>

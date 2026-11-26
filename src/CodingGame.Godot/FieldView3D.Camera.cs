@@ -37,7 +37,6 @@ public partial class FieldView3D
         _zoomGoal = 1f;
     }
 
-    /// <inheritdoc/>
     /// <summary>
     /// Lets the camera follow right-drag and scroll over the field while <paramref name="window"/> has focus.
     /// A focused window gets all mouse input, also outside its own area, so without this the camera would
