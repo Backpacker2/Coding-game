@@ -110,6 +110,9 @@ public static class Palette
     /// <summary>Text of an error in the messages box.</summary>
     public static readonly Color ErrorText = Colors.Red;
 
+    /// <summary>Text of a hint under the messages box: calm, so it reads as help and not as another error.</summary>
+    public static readonly Color HintText = new(0.55f, 0.78f, 0.90f);
+
     /// <summary>Background of the line where a run failed.</summary>
     public static readonly Color ErrorLineHighlight = new(1f, 0f, 0f, 0.35f);
 

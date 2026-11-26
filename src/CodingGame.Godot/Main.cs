@@ -29,7 +29,6 @@ public partial class Main : Control
     private HelpPanel _helpPanel = null!;
     private HelpBook _help = null!;
     private HintTracker _hints = null!;
-    private bool _showingHint;
     private MenuButton _menuButton = null!;
     private ConfirmationDialog _newGameDialog = null!;
 
@@ -309,15 +308,7 @@ public partial class Main : Control
     private void EndRun(RunSession session)
     {
         _progress.CheckGoals(session);
-        string? hint = _hints.RecordRunEnd(session);
-
-        // The notice also carries the save warning from start-up, so only a hint this code showed is cleared.
-        if (hint is not null || _showingHint)
-        {
-            _codeWindow.ShowNotice(hint is null ? "" : $"Hint: {hint}");
-            _showingHint = hint is not null;
-        }
-
+        _codeWindow.ShowHint(_hints.RecordRunEnd(session));
         Save();
     }
 
@@ -400,6 +391,7 @@ public partial class Main : Control
         _playing = false;
         _tickBudget = 0;
         _codeWindow.ShowNotice("");
+        _codeWindow.ShowHint(null);
         RefreshHelp();
         Save();
     }
