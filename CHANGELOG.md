@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.14.2 — 2026-11-26
+
+- Fix: the Tab key in the script editor types four spaces instead of a tab character, so indents match the examples and lessons.
+
 ## 0.14.1 — 2026-11-26
 
 - Camera: right-drag over the field turns the view and the mouse wheel zooms, both smoothly and within limits so the field stays readable. Menu > Reset view brings back the default angle. This also works while the script window has focus.
