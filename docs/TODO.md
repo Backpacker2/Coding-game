@@ -17,7 +17,7 @@ The prototype is done when a player can write a Python or JavaScript script in t
 - [x] **8. Same script, same result.** (0.3.1) Example scripts in both languages with expected end state and tick count, checked by tests.
 - [x] **9. Godot view.** (0.4.0) Godot project that draws the farm and drone from the game state, a script editor, Run, Stop and step, and an error panel with the line highlighted. Design: `docs/decisions/0007-godot-view.md`, play-test: `docs/playtest.md`.
 - [x] **10. First unlocks.** (0.5.0) Items pay for the unlocks of the first 30 minutes; locked features give "not unlocked yet" errors. First playable release. Design: `docs/decisions/0008-unlocks.md`.
-- [ ] **11. Save and load.** Progress (items and bought unlocks) and the player's script survive closing the game. A versioned save file, checked at the edge like the data files. Design sketch with two options in `docs/decisions/`.
+- [x] **11. Save and load.** (0.6.0) Progress (items and bought unlocks) and the player's script survive closing the game. A versioned save file, checked at the edge like the data files. Design: [`docs/decisions/0009-save-format.md`](decisions/0009-save-format.md).
 - [ ] **12. Run speed.** A speed control in the window (slow, normal, fast) so long scripts do not take minutes; ticks stay deterministic.
 - [ ] **13. Play-test round 1.** Fix what the owner finds in the play-test of 0.4.0 and 0.5.0.
 

@@ -10,7 +10,7 @@
 1. **One place decides what is locked.** A new unlock is data, not code, and it covers every language at once ([`CLAUDE.md`](../../CLAUDE.md), Game-specific).
 2. **A locked feature is reported before the script runs**, with a line number, in the language of the script.
 3. **Items outlive one run**, so they can pay for unlocks. The simulation stays deterministic: the same script, the same items and the same unlocks give the same result.
-4. **Core stays free of Godot.** Progress lives in memory. There is no save format yet.
+4. **Core stays free of Godot.** Progress lives in memory. Progress is saved since 0.6.0, see [`0009`](0009-save-format.md).
 
 ## Option A: a check on the shared tree before the script runs (chosen)
 
@@ -47,12 +47,12 @@ Option A. The locked features are a set of names. The tree check returns the fir
 
 The front ends keep their own `NotUnlocked` errors for features that are not taught in this version (strings, `+`, `return`). The new check covers features that are taught but not bought yet. Both use the same message on purpose.
 
-Progress is in memory only. The save format is a separate interface and will get its own decision record.
+Progress is in memory only at this version. Progress is saved since 0.6.0, see [`0009`](0009-save-format.md).
 
 ## Consequences
 
 - `data/unlocks.json` holds the seven unlocks of the first 30 minutes. A test checks that every feature name is a real keyword, drone command or constant.
 - `elif` and `else if` are part of the `if` unlock. `==` and `!=` come with the soil unlock (`till`, `ground`). JavaScript is not an unlock in this version.
 - The start field stays 3x3 for testing, so the bigger-field unlock grows it to 5x5, not to 3x3 as in the design table.
-- Progress is lost when the game closes.
-- Items now persist across runs and across Stop, until the game closes.
+- Progress is saved since 0.6.0, see [`0009`](0009-save-format.md).
+- Items now persist across runs and across Stop, and since 0.6.0 across restarts.

@@ -27,7 +27,7 @@ The field starts 3x3. This is for testing only, so that nested loops can be trie
    - Change the script and press Run again.
    - Press Step several times and watch the yellow line move.
    - Press Stop. The field is reset, but your items stay.
-   - Switch the language between Python and JavaScript. The starter script changes too, if you have not edited it.
+   - Switch the language between Python and JavaScript. Each language keeps its own script text, so your edits come back when you switch back.
    - Cause an error. For example type `harvest(` (a syntax error), or `mvoe(EAST)` (a name that is not defined, found when the line runs). The line turns red and the message shows the line number.
    - Harvest clover with the starter script and press Run several times. Watch the Items label grow. Items stay between runs and after Stop.
    - Buy `for loop` for 10 clover, then write a `for` loop and run it.
@@ -36,6 +36,9 @@ The field starts 3x3. This is for testing only, so that nested loops can be trie
    - Buy `Radish and plant()` for 40 clover, and plant a radish.
    - After buying `for loop`, write a loop that moves the drone 10 times and run it.
    - Later, once you have radish to buy `if / else and ripe()` and `while loop`, write a JavaScript loop that never ends: `while (ripe()) {}`. Press Run, watch the tick counter, then press Stop. Press Step on it too: it stops after a fixed number of ticks.
+   - Buy something, edit the script in both languages, close the window, and start the game again. Your items, your unlocks, both scripts and the language should all be back.
+   - Your progress is in the file `save.json`, in Godot's user data folder for the project "Coding Game" (Godot menu Project, Open User Data Folder). Delete that file to start over.
+   - Open `save.json` in a text editor, replace its whole content with the word `garbage`, and start the game. A red notice explains that the save could not be read. The old file is kept as `save.json.broken` in the same folder, and the game starts as a new game.
 
 8. What to report:
    - Is the speed too fast or too slow? A move should take about one second.
@@ -45,10 +48,11 @@ The field starts 3x3. This is for testing only, so that nested loops can be trie
    - Does the 3x3 starting field look right?
    - Are the prices fair? How many minutes did it take to reach the radish unlock?
    - Is the unlock list clear? Did you know what to do next?
+   - Did saving surprise you anywhere?
 
 ## Known limits
 
-- Progress is lost when the game closes.
+- Progress and both scripts are saved when you close the game, after each buy, and when a run starts or ends. Items from a run that is cut off by a crash are lost.
 - JavaScript is not an unlock yet: both languages are open from the start.
 - There is no speed slider.
 - The art is placeholder: coloured circles for crops and a blue square for the drone.
