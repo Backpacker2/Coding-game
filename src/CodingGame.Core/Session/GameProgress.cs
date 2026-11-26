@@ -5,7 +5,7 @@ namespace CodingGame.Core.Session;
 
 /// <summary>
 /// What the player owns: the items from harvests and the unlocks the player has bought.
-/// It is kept in memory only, so closing the game resets it.
+/// It is saved to the save file with <see cref="SaveFile"/> and loaded again when the game starts.
 /// </summary>
 public sealed class GameProgress
 {
@@ -149,6 +149,16 @@ public sealed class GameProgress
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(count, 1);
         _items[item] = _items.GetValueOrDefault(item) + count;
+    }
+
+    /// <summary>
+    /// Puts the progress back to the state of a new player: no items and nothing bought. The item store is
+    /// emptied in place, so a field that shares it sees the change.
+    /// </summary>
+    public void Reset()
+    {
+        _items.Clear();
+        _boughtIds.Clear();
     }
 
     /// <summary>

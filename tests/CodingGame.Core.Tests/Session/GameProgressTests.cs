@@ -145,6 +145,58 @@ public class GameProgressTests
     }
 
     [Fact]
+    public void ResetEmptiesItemsAndBoughtUnlocks()
+    {
+        var progress = new GameProgress(_rules);
+        progress.AddItems("CLOVER", 10);
+        progress.Buy(UnlockNamed("FOR_LOOP"));
+
+        progress.Reset();
+
+        Assert.Empty(progress.Items);
+        Assert.False(progress.IsBought(UnlockNamed("FOR_LOOP")));
+        Assert.Contains("for", progress.LockedFeatures);
+    }
+
+    [Fact]
+    public void ResetShrinksTheFieldBackToTheStartSize()
+    {
+        var progress = new GameProgress(_rules);
+        progress.AddItems("CLOVER", 30);
+        progress.Buy(UnlockNamed("BIGGER_FIELD"));
+        Assert.Equal(new FieldSize(5, 5), progress.FieldSize);
+
+        progress.Reset();
+
+        Assert.Equal(_rules.StartField, progress.FieldSize);
+    }
+
+    [Fact]
+    public void ResetEmptiesTheItemsOfAFieldMadeEarlier()
+    {
+        var progress = new GameProgress(_rules);
+        Field field = progress.NewField();
+        progress.AddItems("CLOVER", 3);
+        Assert.NotEmpty(field.Items);
+
+        progress.Reset();
+
+        Assert.Empty(field.Items);
+    }
+
+    [Fact]
+    public void ResetOnANewProgressChangesNothing()
+    {
+        var progress = new GameProgress(_rules);
+
+        progress.Reset();
+
+        Assert.Empty(progress.Items);
+        Assert.All(_rules.Unlocks, unlock => Assert.False(progress.IsBought(unlock)));
+        Assert.Equal(new FieldSize(3, 3), progress.FieldSize);
+    }
+
+    [Fact]
     public void RestoredProgressHasSavedItemsAndUnlocks()
     {
         var items = new Dictionary<string, int> { ["CLOVER"] = 5 };
