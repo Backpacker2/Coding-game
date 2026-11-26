@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.10.3 — 2026-11-26
+
+- Fix: the build failed with NU1900 ("Error occurred while getting package vulnerability data") when the NuGet feed could not be reached. That warning no longer stops the build.
+
 ## 0.10.2 — 2026-11-26
 
 - Fix: radish could never be planted, because every grass tile holds wild clover and `till()` comes later. Planting now replaces wild clover.
