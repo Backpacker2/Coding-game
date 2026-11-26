@@ -71,7 +71,7 @@ The field starts 3x3. This is for testing only, so that nested loops can be trie
 
 - Progress and both scripts are saved when you close the game, after each buy, and when a run starts or ends. Items from a run that is cut off by a crash are lost.
 - JavaScript is not an unlock yet: both languages are open from the start.
-- The art is placeholder: coloured circles for crops and a blue dot for the drone.
+- The art is placeholder: simple coloured shapes built in code for the crops, and a grey drone with four rotors and a blue eye.
 
 ## Troubleshooting
 

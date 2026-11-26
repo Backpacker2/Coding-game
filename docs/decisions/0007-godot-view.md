@@ -71,3 +71,7 @@
 - CI does not run Godot. It builds and tests the view with the .NET SDK only.
 - The view was checked headless and in a virtual display on Linux only. Windows and macOS are checked by the owner's play-test.
 - If the Godot editor cannot run with `net10.0` on some system, the fallback is to multi-target Core. That needs a new decision.
+
+## Update 2026-11-26: the field is 3D
+
+Since 0.9.0 `FarmView` is replaced by `FieldView3D`, which builds a 3D scene from the same `Field` and only reads it. The rule that rendering never changes the game stays as it is. The placeholder art above describes the 2D version of 0.4.0 to 0.8.0. See [`0011`](0011-3d-field.md).

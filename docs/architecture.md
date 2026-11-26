@@ -13,7 +13,7 @@ This is the technical overview of the prototype (version 0.7.0). The rules for w
 | `src/CodingGame.Core/Interpreter/Python/` | The Python front end: tokenizer and parser. |
 | `src/CodingGame.Core/Interpreter/JavaScript/` | The JavaScript front end: tokenizer and parser. |
 | `src/CodingGame.Core/Session/` | `GameProgress`, `RunSession`, `SaveFile` and the types around them. |
-| `src/CodingGame.Godot/` | The Godot 4.7 project (C#): `Main.cs` (the screen), `CodeWindow.cs`, `ResourceBar.cs`, `FarmView.cs`, `ScriptEditor.cs`, `UnlockPanel.cs`, `HelpPanel.cs`, `main.tscn` and `project.godot`. |
+| `src/CodingGame.Godot/` | The Godot 4.7 project (C#): `Main.cs` (the screen), `CodeWindow.cs`, `ResourceBar.cs`, `FieldView3D.cs`, `ScriptEditor.cs`, `UnlockPanel.cs`, `HelpPanel.cs`, `main.tscn` and `project.godot`. |
 | `src/CodingGame.Godot/CodeWindow.cs` | The floating Script window: toolbar, editor, notice and Messages box. It shows the run and reports Run, Step, Stop and the language to `Main`. |
 | `src/CodingGame.Godot/ResourceBar.cs` | The item bar at the top left: one pill per item with its crop colour and count. |
 | `src/CodingGame.Godot/data/` | A copy of the top-level `data/` folder, made by the build and not in the repository. |
@@ -58,7 +58,7 @@ data/help.json ──► HelpBook.Load (checked against DroneApi) ──► Help
 The Godot project never changes the field or the rules itself. It changes the game only through `GameProgress.Buy` (the Buy button in `UnlockPanel`), `GameProgress.Reset` (the New game item of the Menu in `Main`) and through `RunSession.Start`, `StepTick` and `StepLine` (the Run and Step buttons of `CodeWindow`, handled in `Main`). Everything else is read:
 
 - `Main` reads the session status, the tick count, the error and the current line, and calls `SaveFile.Save` at the save points.
-- `FarmView` reads the `Field` and draws it.
+- `FieldView3D` reads the `Field` and builds its 3D scene from it.
 - `ResourceBar` reads the items of the `Field` and shows one pill for each.
 - `CodeWindow` shows the run state and the Messages box, and raises events for Run, Step, Stop and the language picker, which `Main` handles.
 - `ScriptEditor` only shows and highlights the text, and colours its syntax for the selected language.
@@ -124,3 +124,4 @@ A new language is a larger change, so it starts with a decision record that sket
 | [0008](decisions/0008-unlocks.md) | accepted, built in 0.5.0 | Unlocks are data, and a locked feature is reported before the script runs. |
 | [0009](decisions/0009-save-format.md) | accepted, built in 0.6.0 | A versioned `save.json`, checked when it is loaded, with a broken file kept as `save.json.broken`. |
 | [0010](decisions/0010-in-game-help.md) | accepted, built in 0.7.0 | Help texts live in `data/help.json`, checked against the drone API, and New game resets the progress in place and saves at once. |
+| [0011](decisions/0011-3d-field.md) | accepted, built in 0.9.0 | The field is a 3D scene in a `SubViewportContainer`, built from primitive meshes; the drone's animation runs in real time and never changes the game. |

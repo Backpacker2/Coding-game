@@ -26,7 +26,7 @@ The prototype is done when a player can write a Python or JavaScript script in t
 - [x] **17. Syntax highlighting.** (0.7.1) The script editor colours keywords, drone commands, constants, numbers, strings and comments for the selected language.
 - [x] **18. Layout from the first screenshot.** (0.7.2) The window opens maximised, the farm is centred, unlocks and help are tabs, the messages box has a title and a hint, and the drone is a marker.
 - [x] **19. The farm is the scene.** (0.8.0) Floating code window, resource bar, round buttons with overlays. Owner's look: [docs/visual-direction.md](visual-direction.md).
-- [ ] **20. 3D field.** A low-poly 3D field seen from an angle, made from Godot primitives, with growing crops and a hovering drone. Needs a decision record.
+- [x] **20. 3D field.** (0.9.0) A low-poly 3D field seen from an angle, made from Godot primitives, with growing crops and a hovering drone. Design: [`docs/decisions/0011-3d-field.md`](decisions/0011-3d-field.md).
 - [ ] **21. Feedback.** Smooth drone movement, harvest particles, "+N" popups, light.
 
 ## Waiting on the owner
