@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.13.7 — 2026-11-26
+
+- Fix: the Unlocks and Help windows were empty. Their content was 0 pixels high, because anchors do not size a control inside a window; it now follows the window's size.
+
 ## 0.13.6 — 2026-11-26
 
 - Fix: when several first-steps goals get done in the same run, the goal card now ticks all of them, not only one.
