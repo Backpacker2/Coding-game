@@ -84,7 +84,7 @@ The field starts 3x3. This is for testing only, so that nested loops can be trie
 Do this before every test round, so you test what is on `main`.
 
 1. Close Godot.
-2. Get the newest code: in the code folder run `git checkout main` and `git pull`, or in GitHub Desktop pick the branch `main` and press Fetch, then Pull origin. If you use the zip, download the newest release again.
+2. Get the newest code: in the code folder run `git checkout main` and `git pull`. If `git pull` stops with "Your local changes to the following files would be overwritten by merge", run `git stash` and then `git pull` again. That sets the local changes aside; they are usually changes Godot made by itself (it rewrites `project.godot` when its version differs from 4.7.2, and its script editor can rewrite indentation when a `.cs` file is saved in it). Do not edit the code in Godot's script editor. Check with `git log -1 --oneline` that the newest merge is on top. Or, or in GitHub Desktop pick the branch `main` and press Fetch, then Pull origin. If you use the zip, download the newest release again.
 3. Open the project in Godot and press the hammer icon (Build) at the top right, or run `dotnet build` in the code folder.
 4. Still the old look? Close Godot, delete the folder `src/CodingGame.Godot/.godot` and open the project again. Godot rebuilds that folder. Your save is not in it and is kept.
 5. The version is in `Directory.Build.props` and at the top of `CHANGELOG.md`; check that it matches the newest release.
