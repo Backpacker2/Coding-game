@@ -9,21 +9,37 @@ namespace CodingGame.Core.Simulation;
 public sealed class Field
 {
     private readonly Tile[,] _tiles;
-    private readonly Dictionary<string, int> _items = [];
+    private readonly Dictionary<string, int> _items;
 
     /// <summary>
     /// Creates a field of grass where the wild crop is ripe on every tile. The drone starts at (0, 0).
+    /// The field starts with no items.
     /// </summary>
     /// <param name="width">The number of columns. Must be at least 1.</param>
     /// <param name="height">The number of rows. Must be at least 1.</param>
     /// <param name="wildCrop">The crop that grows wild, ripe, on every tile at the start.</param>
     /// <exception cref="ArgumentOutOfRangeException">The width or the height is less than 1.</exception>
     public Field(int width, int height, Crop wildCrop)
+        : this(width, height, wildCrop, [])
+    {
+    }
+
+    /// <summary>
+    /// Creates a field of grass where the wild crop is ripe on every tile. The drone starts at (0, 0).
+    /// The field keeps its items in <paramref name="items"/>, so the caller sees every harvest and every seed payment.
+    /// </summary>
+    /// <param name="width">The number of columns. Must be at least 1.</param>
+    /// <param name="height">The number of rows. Must be at least 1.</param>
+    /// <param name="wildCrop">The crop that grows wild, ripe, on every tile at the start.</param>
+    /// <param name="items">The item store the field reads and writes. Every count must be at least 1.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The width or the height is less than 1.</exception>
+    public Field(int width, int height, Crop wildCrop, Dictionary<string, int> items)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(width, 1);
         ArgumentOutOfRangeException.ThrowIfLessThan(height, 1);
         Width = width;
         Height = height;
+        _items = items;
         _tiles = new Tile[width, height];
         for (int x = 0; x < width; x++)
         {
