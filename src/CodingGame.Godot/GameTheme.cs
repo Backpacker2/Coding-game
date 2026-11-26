@@ -58,6 +58,11 @@ public static class GameTheme
             theme.SetColor("font_pressed_color", type, Palette.UiText);
             theme.SetColor("font_focus_color", type, Palette.UiText);
             theme.SetColor("font_disabled_color", type, new Color(Palette.UiText, 0.4f));
+            theme.SetColor("icon_normal_color", type, Palette.UiText);
+            theme.SetColor("icon_hover_color", type, Palette.UiText);
+            theme.SetColor("icon_pressed_color", type, Palette.UiText);
+            theme.SetColor("icon_focus_color", type, Palette.UiText);
+            theme.SetColor("icon_disabled_color", type, new Color(Palette.UiText, 0.4f));
         }
 
         theme.SetStylebox("panel", "PanelContainer", Box(Palette.UiPanel, 10));
