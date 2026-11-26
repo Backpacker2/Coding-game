@@ -56,7 +56,7 @@ Option A. `FieldView3D` replaces `FarmView`. The crop colours move to `FieldView
 - The view finds harvests and plantings by comparing the `Field` with the frame before: a tile that showed a ripe crop and now has none, or a crop of age 0, was harvested; a tile that had no crop and now has one was planted. The items gained are the difference to the last frame's item counts. A new `Field` instance (a new run or New game) is shown without feedback.
 - The drone glides towards its tile in real time, and the glide never feeds back into the game. This stays view-only: the view still only reads the `Field`.
 
-### Update 2026-11-26 (0.9.3): palette, sky and light
+### Update 2026-11-26 (0.10.1): palette, sky and light
 
 - Every colour of the view lives in `Palette`; `FieldView3D.CropColor` moved there as `Palette.CropColor`.
 - The viewport is no longer transparent: it draws a procedural sky, so `Main` has no background colour any more. The field view fills the screen, and the camera is offset so the field sits in the part left of the script window.
