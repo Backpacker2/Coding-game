@@ -18,7 +18,6 @@ public partial class Main : Control
     // The controls and the rules are created in _Ready, after Godot has built the object.
     private GameRules _rules = null!;
     private GameProgress _progress = null!;
-    private Field _idleField = null!;
     private DroneApi _api = null!;
     private FieldView3D _fieldView = null!;
     private ResourceBar _resourceBar = null!;
@@ -47,8 +46,7 @@ public partial class Main : Control
         _language = saved.Language;
         _scriptTexts[ScriptLanguage.Python] = saved.Scripts.Python ?? StarterText(ScriptLanguage.Python);
         _scriptTexts[ScriptLanguage.JavaScript] = saved.Scripts.JavaScript ?? StarterText(ScriptLanguage.JavaScript);
-        _idleField = _progress.NewField();
-        _api = new DroneApi(_rules, _idleField);
+        _api = new DroneApi(_rules, _progress.Field);
         _help = HelpBook.Load(DataFolder, _api);
 
         _codeWindow.Editor.Text = _scriptTexts[_language];
@@ -282,12 +280,10 @@ public partial class Main : Control
     {
         _session = null;
         _playing = false;
-        _idleField = _progress.NewField();
     }
 
     private void OnBought()
     {
-        _idleField = _progress.NewField();
         RefreshHelp();
         Save();
     }
@@ -314,7 +310,6 @@ public partial class Main : Control
         _playing = false;
         _tickBudget = 0;
         _codeWindow.ShowNotice("");
-        _idleField = _progress.NewField();
         RefreshHelp();
         Save();
     }
@@ -327,7 +322,7 @@ public partial class Main : Control
     private void Refresh()
     {
         RunSession? session = _session;
-        Field field = session?.Field ?? _idleField;
+        Field field = _progress.Field;
         _fieldView.ShowField(field, _rules.Crops);
         _resourceBar.ShowItems(field.Items, _rules.Crops);
         _codeWindow.Refresh(session);
