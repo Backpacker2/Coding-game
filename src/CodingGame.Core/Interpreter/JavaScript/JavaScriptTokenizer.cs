@@ -5,7 +5,7 @@ namespace CodingGame.Core.Interpreter.JavaScript;
 /// </summary>
 internal static class JavaScriptTokenizer
 {
-    private static readonly HashSet<string> _keywords =
+    internal static readonly HashSet<string> Keywords =
     [
         "async", "await", "break", "case", "catch", "class", "const", "continue", "debugger", "default", "delete",
         "do", "else", "enum", "export", "extends", "false", "finally", "for", "function", "if", "import", "in",
@@ -74,7 +74,7 @@ internal static class JavaScriptTokenizer
                 }
 
                 var word = text[index..end];
-                var kind = _keywords.Contains(word) ? TokenKind.Keyword : TokenKind.Name;
+                var kind = Keywords.Contains(word) ? TokenKind.Keyword : TokenKind.Name;
                 into.Add(new Token(kind, word, line));
                 index = end;
             }

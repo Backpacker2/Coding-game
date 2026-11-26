@@ -6,6 +6,15 @@ namespace CodingGame.Core.Tests.Interpreter.JavaScript;
 
 public class JavaScriptFrontEndStatementTests
 {
+    [Fact]
+    public void KeywordsContainReservedWordsOnly()
+    {
+        Assert.Contains("while", JavaScriptFrontEnd.Keywords);
+        Assert.Contains("function", JavaScriptFrontEnd.Keywords);
+        Assert.Contains("true", JavaScriptFrontEnd.Keywords);
+        Assert.DoesNotContain("def", JavaScriptFrontEnd.Keywords);
+    }
+
     [Theory]
     [InlineData("harvest();", "1: harvest()")]
     [InlineData("move(EAST);", "1: move(EAST)")]

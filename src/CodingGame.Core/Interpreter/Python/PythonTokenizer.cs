@@ -6,7 +6,7 @@ namespace CodingGame.Core.Interpreter.Python;
 /// </summary>
 internal static class PythonTokenizer
 {
-    private static readonly HashSet<string> _keywords =
+    internal static readonly HashSet<string> Keywords =
     [
         "False", "None", "True", "and", "as", "assert", "async", "await", "break", "class", "continue",
         "def", "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in",
@@ -129,7 +129,7 @@ internal static class PythonTokenizer
                 }
 
                 var word = line[index..end];
-                var kind = _keywords.Contains(word) ? TokenKind.Keyword : TokenKind.Name;
+                var kind = Keywords.Contains(word) ? TokenKind.Keyword : TokenKind.Name;
                 into.Add(new Token(kind, word, lineNumber));
                 index = end;
             }

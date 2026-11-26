@@ -36,6 +36,9 @@ public sealed partial class JavaScriptFrontEnd
         }
     }
 
+    /// <summary>The words the language reserves, which a script cannot use as names.</summary>
+    public static IReadOnlySet<string> Keywords => JavaScriptTokenizer.Keywords;
+
     /// <summary>
     /// Parses JavaScript source text into a program, or returns the first error in the script in source order.
     /// </summary>
