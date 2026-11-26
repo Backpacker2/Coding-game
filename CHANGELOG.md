@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.12.4 — 2026-11-26
+
+- A hint after a repeated error now sits under the Messages box in a calm blue, folded behind a Show hint button, instead of as a red notice. New game clears it.
+
 ## 0.12.3 — 2026-11-26
 
 - First steps on screen: a small card under the goal bar shows the current first-steps goal in one sentence, with a ? button for a hint. A goal that gets done shows a tick for a moment before the next one; with every goal done the card hides.
