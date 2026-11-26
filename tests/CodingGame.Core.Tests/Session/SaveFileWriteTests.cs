@@ -26,7 +26,7 @@ public class SaveFileWriteTests : IDisposable
     }
 
     [Fact]
-    public void SavesProgressScriptsAndFieldAsVersionThreeJson()
+    public void SavesProgressScriptsAndFieldAsVersionFourJson()
     {
         string path = Path.Combine(_folder, "save.json");
         SavedGame game = GameWithForLoopAndBiggerField();
@@ -35,7 +35,7 @@ public class SaveFileWriteTests : IDisposable
 
         using JsonDocument document = JsonDocument.Parse(File.ReadAllText(path));
         JsonElement root = document.RootElement;
-        Assert.Equal(3, root.GetProperty("version").GetInt32());
+        Assert.Equal(4, root.GetProperty("version").GetInt32());
         Assert.Equal(12, root.GetProperty("items").GetProperty("CLOVER").GetInt32());
         string[] bought = root.GetProperty("boughtUnlocks").EnumerateArray()
             .Select(element => element.GetString() ?? string.Empty)
@@ -134,7 +134,7 @@ public class SaveFileWriteTests : IDisposable
 
         SaveFile.Save(path, GameWithForLoopAndBiggerField());
 
-        Assert.Contains("\"version\": 3", File.ReadAllText(path));
+        Assert.Contains("\"version\": 4", File.ReadAllText(path));
         Assert.Empty(Directory.GetFiles(_folder, "*.tmp"));
     }
 

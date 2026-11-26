@@ -1,23 +1,25 @@
+using CodingGame.Core.Interpreter;
 using CodingGame.Core.Rules;
 using CodingGame.Core.Simulation;
 
 namespace CodingGame.Core.Session;
 
 /// <summary>
-/// What the player owns: the items from harvests, the unlocks the player has bought and the field with its crops.
-/// It is saved to the save file with <see cref="SaveFile"/> and loaded again when the game starts.
+/// What the player owns: the items from harvests, the unlocks the player has bought, the field with its crops and
+/// the first-steps goals that are done. It is saved to the save file with <see cref="SaveFile"/> and loaded again when the game starts.
 /// </summary>
 public sealed class GameProgress
 {
     private readonly Dictionary<string, int> _items = [];
     private readonly HashSet<string> _boughtIds = [];
+    private readonly HashSet<string> _doneGoalIds = [];
 
     /// <summary>
     /// Creates the progress of a new player: no items, nothing bought and the start field.
     /// </summary>
     /// <param name="rules">The game rules, with the unlocks, the crops and the starting field.</param>
     public GameProgress(GameRules rules)
-        : this(rules, new Dictionary<string, int>(), new HashSet<string>(), null, default)
+        : this(rules, new Dictionary<string, int>(), new HashSet<string>(), new HashSet<string>(), null, default)
     {
     }
 
@@ -28,14 +30,16 @@ public sealed class GameProgress
     /// <param name="rules">The game rules, with the unlocks, the crops and the starting field.</param>
     /// <param name="items">Item name to count. The caller guarantees every name is a crop and every count is at least 1.</param>
     /// <param name="boughtUnlockIds">Ids of bought unlocks. The caller guarantees each id is in <paramref name="rules"/>.Unlocks.</param>
+    /// <param name="doneGoalIds">Ids of the goals that are done.</param>
     /// <param name="tiles">The tiles of the field, in the size that the bought unlocks give. Null gives a fresh field of that size.</param>
     /// <param name="dronePosition">The tile the drone stands on. Not used when <paramref name="tiles"/> is null.</param>
-    /// <exception cref="ArgumentException">The size of <paramref name="tiles"/> is not the size of the field that the bought unlocks give.</exception>
+    /// <exception cref="ArgumentException">A goal id in <paramref name="doneGoalIds"/> is not a goal in the rules, or the size of <paramref name="tiles"/> is not the size of the field that the bought unlocks give.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The drone is outside the field.</exception>
     public GameProgress(
         GameRules rules,
         IReadOnlyDictionary<string, int> items,
         IReadOnlySet<string> boughtUnlockIds,
+        IReadOnlySet<string> doneGoalIds,
         Tile[,]? tiles,
         TilePosition dronePosition)
     {
@@ -46,6 +50,15 @@ public sealed class GameProgress
         }
 
         _boughtIds.UnionWith(boughtUnlockIds);
+        foreach (string goalId in doneGoalIds)
+        {
+            if (!rules.Goals.Any(goal => goal.Id == goalId))
+            {
+                throw new ArgumentException($"unknown goal id {goalId}", nameof(doneGoalIds));
+            }
+        }
+
+        _doneGoalIds.UnionWith(doneGoalIds);
         if (tiles is null)
         {
             Field = CreateFreshField();
@@ -97,6 +110,11 @@ public sealed class GameProgress
     }
 
     /// <summary>
+    /// Gets the first goal, in goals.json order, that is not done yet. Null when every goal is done.
+    /// </summary>
+    public Goal? CurrentGoal => Rules.Goals.FirstOrDefault(goal => !IsDone(goal));
+
+    /// <summary>
     /// Gets the size of the field the player gets: the field size of the last bought unlock that has one,
     /// or the starting field size when none has.
     /// </summary>
@@ -127,6 +145,27 @@ public sealed class GameProgress
     public bool IsBought(Unlock unlock)
     {
         return _boughtIds.Contains(unlock.Id);
+    }
+
+    /// <summary>
+    /// Checks whether the player has reached a goal. A goal that is done stays done.
+    /// </summary>
+    /// <param name="goal">The goal to check.</param>
+    /// <returns>True when the goal is done.</returns>
+    public bool IsDone(Goal goal)
+    {
+        return _doneGoalIds.Contains(goal.Id);
+    }
+
+    /// <summary>
+    /// Checks the goals against the run that has just ended or was stopped, and against the current items and unlocks.
+    /// Call it once when a run ends or is stopped, before the progress is saved.
+    /// </summary>
+    /// <param name="endedRun">The run that ended or was stopped. A stopped run counts for the goals about tiles and items, not for finishing.</param>
+    /// <returns>The goals that became done now, in goals.json order. Empty when none did.</returns>
+    public IReadOnlyList<Goal> CheckGoals(RunSession endedRun)
+    {
+        return MarkMetGoals(endedRun);
     }
 
     /// <summary>
@@ -175,6 +214,8 @@ public sealed class GameProgress
         {
             Field = Field.Grown(sizeAfter.Width, sizeAfter.Height, WildCrop);
         }
+
+        MarkMetGoals(null);
     }
 
     /// <summary>
@@ -190,13 +231,14 @@ public sealed class GameProgress
     }
 
     /// <summary>
-    /// Puts the progress back to the state of a new player: no items, nothing bought and a fresh start field.
+    /// Puts the progress back to the state of a new player: no items, nothing bought, no goal done and a fresh start field.
     /// The item store is emptied in place.
     /// </summary>
     public void Reset()
     {
         _items.Clear();
         _boughtIds.Clear();
+        _doneGoalIds.Clear();
         Field = CreateFreshField();
     }
 
@@ -204,5 +246,32 @@ public sealed class GameProgress
     {
         FieldSize size = FieldSize;
         return new Field(size.Width, size.Height, WildCrop, _items);
+    }
+
+    private List<Goal> MarkMetGoals(RunSession? endedRun)
+    {
+        var becameDone = new List<Goal>();
+        foreach (Goal goal in Rules.Goals)
+        {
+            if (!IsDone(goal) && IsMet(goal, endedRun))
+            {
+                _doneGoalIds.Add(goal.Id);
+                becameDone.Add(goal);
+            }
+        }
+
+        return becameDone;
+    }
+
+    private bool IsMet(Goal goal, RunSession? endedRun)
+    {
+        return goal.Kind switch
+        {
+            GoalKind.FinishRun => endedRun?.Status == StepStatus.Finished,
+            GoalKind.HaveItems => goal.Item is { } item && _items.GetValueOrDefault(item) >= goal.Count,
+            GoalKind.VisitAllTiles => endedRun?.VisitedAllTiles == true,
+            GoalKind.BuyUnlock => Rules.Unlocks.Any(IsBought),
+            _ => throw new ArgumentOutOfRangeException(nameof(goal), goal.Kind, "unknown goal kind"),
+        };
     }
 }

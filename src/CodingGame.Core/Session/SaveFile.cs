@@ -13,11 +13,12 @@ namespace CodingGame.Core.Session;
 public static class SaveFile
 {
     /// <summary>
-    /// The save format version that <see cref="Save"/> writes. Versions 1 and 2 still load.
+    /// The save format version that <see cref="Save"/> writes. Versions 1 to 3 still load.
     /// </summary>
-    public const int CurrentVersion = 3;
+    public const int CurrentVersion = 4;
 
     private const int FirstVersionWithField = 2;
+    private const int FirstVersionWithScripts = 3;
 
     private static readonly JsonSerializerOptions _jsonOptions = new()
     {
@@ -35,6 +36,16 @@ public static class SaveFile
     };
 
     private sealed record SaveDto(
+        int Version,
+        IReadOnlyDictionary<string, int> Items,
+        IReadOnlyList<string> BoughtUnlocks,
+        ScriptLanguage Language,
+        IReadOnlyList<ScriptDto> Scripts,
+        string SelectedScript,
+        FieldDto? Field = null,
+        IReadOnlyList<string>? DoneGoals = null);
+
+    private sealed record VersionThreeSaveDto(
         int Version,
         IReadOnlyDictionary<string, int> Items,
         IReadOnlyList<string> BoughtUnlocks,
@@ -81,10 +92,14 @@ public static class SaveFile
             .Where(game.Progress.IsBought)
             .Select(unlock => unlock.Id)
             .ToList();
+        List<string> doneGoals = game.Progress.Rules.Goals
+            .Where(game.Progress.IsDone)
+            .Select(goal => goal.Id)
+            .ToList();
         List<ScriptDto> scripts = game.Scripts.Names
             .Select(name => new ScriptDto(name, game.Scripts.Text(name, ScriptLanguage.Python), game.Scripts.Text(name, ScriptLanguage.JavaScript)))
             .ToList();
-        var dto = new SaveDto(CurrentVersion, items, boughtUnlocks, game.Language, scripts, game.Scripts.Selected, ToFieldDto(game.Progress.Field));
+        var dto = new SaveDto(CurrentVersion, items, boughtUnlocks, game.Language, scripts, game.Scripts.Selected, ToFieldDto(game.Progress.Field), doneGoals);
         string text = JsonSerializer.Serialize(dto, _jsonOptions) + "\n";
 
         string temporaryPath = path + ".tmp";
@@ -95,12 +110,13 @@ public static class SaveFile
     /// <summary>
     /// Reads a save file and checks it against the game rules. A missing file is a new player and gives a new game.
     /// A version 1 file has no field and gives a fresh start field. A version 1 or 2 file has one script text per
-    /// language, and becomes one script named main; a text that is null becomes the starter text.
+    /// language, and becomes one script named main; a text that is null becomes the starter text. A version 1 to 3
+    /// file has no goals done.
     /// </summary>
     /// <param name="path">The path of the save file.</param>
-    /// <param name="rules">The game rules that the item names, the unlock ids, the crops, the language and the starter texts must match.</param>
+    /// <param name="rules">The game rules that the item names, the unlock ids, the goal ids, the crops, the language and the starter texts must match.</param>
     /// <returns>The saved game, or a new game when there is no file.</returns>
-    /// <exception cref="SaveException">The file is broken, is from another save version, or breaks a rule such as an unknown unlock id, item or crop, a tile that does not fit the field, a drone outside the field, or a script that has no name, a duplicate name, no texts or a selected script that does not exist.</exception>
+    /// <exception cref="SaveException">The file is broken, is from another save version, or breaks a rule such as an unknown unlock or goal id, an item or crop that is unknown, a tile that does not fit the field, a drone outside the field, a missing doneGoals list, or a script that has no name, a duplicate name, no texts or a selected script that does not exist.</exception>
     public static SavedGame Load(string path, GameRules rules)
     {
         string fileName = Path.GetFileName(path);
@@ -114,12 +130,20 @@ public static class SaveFile
         if (version == CurrentVersion)
         {
             SaveDto dto = ReadDto<SaveDto>(fileName, text);
-            GameProgress progress = ReadProgress(fileName, rules, version, dto.Items, dto.BoughtUnlocks, dto.Field);
+            IReadOnlyList<string> doneGoals = dto.DoneGoals ?? throw new SaveException(fileName, "doneGoals is missing");
+            GameProgress progress = ReadProgress(fileName, rules, version, dto.Items, dto.BoughtUnlocks, doneGoals, dto.Field);
             return new SavedGame(progress, dto.Language, ReadScripts(fileName, rules, dto.Scripts, dto.SelectedScript));
         }
 
+        if (version == FirstVersionWithScripts)
+        {
+            VersionThreeSaveDto three = ReadDto<VersionThreeSaveDto>(fileName, text);
+            GameProgress threeProgress = ReadProgress(fileName, rules, version, three.Items, three.BoughtUnlocks, [], three.Field);
+            return new SavedGame(threeProgress, three.Language, ReadScripts(fileName, rules, three.Scripts, three.SelectedScript));
+        }
+
         LegacySaveDto legacy = ReadDto<LegacySaveDto>(fileName, text);
-        GameProgress legacyProgress = ReadProgress(fileName, rules, version, legacy.Items, legacy.BoughtUnlocks, legacy.Field);
+        GameProgress legacyProgress = ReadProgress(fileName, rules, version, legacy.Items, legacy.BoughtUnlocks, [], legacy.Field);
         return new SavedGame(legacyProgress, legacy.Language, ReadLegacyScripts(rules, legacy.Scripts));
     }
 
@@ -157,13 +181,15 @@ public static class SaveFile
         int version,
         IReadOnlyDictionary<string, int> items,
         IReadOnlyList<string> boughtUnlocks,
+        IReadOnlyList<string> doneGoals,
         FieldDto? field)
     {
         CheckItems(fileName, items, rules);
         IReadOnlySet<string> boughtIds = CheckBoughtUnlocks(fileName, boughtUnlocks, rules);
+        IReadOnlySet<string> doneGoalIds = CheckDoneGoals(fileName, doneGoals, rules);
 
         // Only the field size is needed to check the tiles. The progress built here is replaced by the one below.
-        FieldSize size = new GameProgress(rules, items, boughtIds, null, default).FieldSize;
+        FieldSize size = new GameProgress(rules, items, boughtIds, doneGoalIds, null, default).FieldSize;
         Tile[,]? tiles = null;
         TilePosition dronePosition = default;
         if (field is { } fieldDto)
@@ -175,7 +201,7 @@ public static class SaveFile
             throw new SaveException(fileName, "field is missing");
         }
 
-        return new GameProgress(rules, items, boughtIds, tiles, dronePosition);
+        return new GameProgress(rules, items, boughtIds, doneGoalIds, tiles, dronePosition);
     }
 
     private static ScriptBook ReadScripts(string fileName, GameRules rules, IReadOnlyList<ScriptDto> scripts, string selectedScript)
@@ -296,6 +322,25 @@ public static class SaveFile
             if (!checkedIds.Add(id))
             {
                 throw new SaveException(fileName, $"duplicate unlock id {id}");
+            }
+        }
+
+        return checkedIds;
+    }
+
+    private static HashSet<string> CheckDoneGoals(string fileName, IReadOnlyList<string> ids, GameRules rules)
+    {
+        var checkedIds = new HashSet<string>();
+        foreach (string id in ids)
+        {
+            if (!rules.Goals.Any(goal => goal.Id == id))
+            {
+                throw new SaveException(fileName, $"unknown goal id {id}");
+            }
+
+            if (!checkedIds.Add(id))
+            {
+                throw new SaveException(fileName, $"duplicate goal id {id}");
             }
         }
 

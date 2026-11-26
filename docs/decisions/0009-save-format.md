@@ -62,3 +62,7 @@ Since 0.10.0 the save format is version 2. It adds a `field`: the drone's tile a
 ## Update 2026-11-26: version 3 holds several scripts
 
 Since 0.11.0 the save format is version 3. `scripts` is a list of `{ name, python, javaScript }` in tab order, and `selectedScript` names the one the editor shows. Versions 1 and 2 still load, and their one script text per language becomes one script named `main`. See [`0013`](0013-several-scripts.md).
+
+## Update 2026-11-26: version 4 adds done goals
+
+Since 0.12.0 the save format is version 4. It adds `doneGoals`: the ids of the first-steps goals that are done, in the order of `data/goals.json`. Versions 1 to 3 still load, with no goal done. This is one more list with the same rules as `boughtUnlocks` (checked against the rules, an unknown or duplicate id refuses the save), so no new decision record was written.

@@ -161,7 +161,7 @@ public class SaveFileLoadTests : IDisposable
     }
 
     [Theory]
-    [InlineData("""{"version":4,"items":{},"boughtUnlocks":[],"language":"python","scripts":{"python":null,"javaScript":null}}""", "save.json: version 4 is not supported, this game reads versions 1 to 3")]
+    [InlineData("""{"version":5,"items":{},"boughtUnlocks":[],"language":"python","scripts":{"python":null,"javaScript":null}}""", "save.json: version 5 is not supported, this game reads versions 1 to 4")]
     [InlineData("""{"items":{}}""", "save.json: version is missing")]
     [InlineData("", "save.json: file is not a JSON object")]
     [InlineData("[]", "save.json: file is not a JSON object")]

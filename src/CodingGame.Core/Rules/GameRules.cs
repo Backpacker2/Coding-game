@@ -5,24 +5,27 @@ using CodingGame.Core.Interpreter;
 namespace CodingGame.Core.Rules;
 
 /// <summary>
-/// The game rules read from the data folder: the crops, the tick costs, the starting field, the unlocks and the starter scripts.
+/// The game rules read from the data folder: the crops, the tick costs, the starting field, the unlocks, the goals and the starter scripts.
 /// </summary>
 /// <param name="Crops">The crops, in the order they appear in crops.json.</param>
 /// <param name="TickCosts">How many ticks each drone action and script step takes.</param>
 /// <param name="StartField">The size of the field the game starts with.</param>
 /// <param name="Unlocks">The unlocks, in the order they appear in unlocks.json.</param>
+/// <param name="Goals">The first-steps goals, in the order they appear in goals.json.</param>
 /// <param name="StarterTexts">The starter script of each language, from starter.py and starter.js.</param>
 public sealed record GameRules(
     IReadOnlyList<Crop> Crops,
     TickCosts TickCosts,
     FieldSize StartField,
     IReadOnlyList<Unlock> Unlocks,
+    IReadOnlyList<Goal> Goals,
     IReadOnlyDictionary<ScriptLanguage, string> StarterTexts)
 {
     private const string CropsFileName = "crops.json";
     private const string TicksFileName = "ticks.json";
     private const string FieldFileName = "field.json";
     private const string UnlocksFileName = "unlocks.json";
+    private const string GoalsFileName = "goals.json";
     private const string PythonStarterFileName = "starter.py";
     private const string JavaScriptStarterFileName = "starter.js";
 
@@ -34,6 +37,9 @@ public sealed record GameRules(
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         Converters = { new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper, allowIntegerValues: false) },
     };
+
+    // The goal kind is read as text and checked in ToGoal, so an unknown kind gets a message that names the goal.
+    private sealed record GoalDto(string Id, string Text, string Hint, string Kind, string? Item = null, int? Count = null);
 
     /// <summary>
     /// Gets the starter script for a language: the text a new player sees in the editor.
@@ -52,27 +58,29 @@ public sealed record GameRules(
     }
 
     /// <summary>
-    /// Reads and checks crops.json, ticks.json, field.json, unlocks.json, starter.py and starter.js from a data folder.
+    /// Reads and checks crops.json, ticks.json, field.json, unlocks.json, goals.json, starter.py and starter.js from a data folder.
     /// </summary>
     /// <param name="dataFolderPath">The folder that contains the data files.</param>
     /// <returns>The validated game rules.</returns>
-    /// <exception cref="GameRulesException">A file is missing, is not valid JSON for the rules, or breaks a rule such as a non-positive number, a duplicate crop, an unknown seed item or a missing wild crop.</exception>
+    /// <exception cref="GameRulesException">A file is missing, is not valid JSON for the rules, or breaks a rule such as a non-positive number, a duplicate crop, an unknown seed item, a missing wild crop, or a goal with an unknown kind or item.</exception>
     public static GameRules Load(string dataFolderPath)
     {
         List<Crop> crops = ReadFile<List<Crop>>(dataFolderPath, CropsFileName);
         TickCosts tickCosts = ReadFile<TickCosts>(dataFolderPath, TicksFileName);
         FieldSize startField = ReadFile<FieldSize>(dataFolderPath, FieldFileName);
         List<Unlock> unlocks = ReadFile<List<Unlock>>(dataFolderPath, UnlocksFileName);
+        List<GoalDto> goalDtos = ReadFile<List<GoalDto>>(dataFolderPath, GoalsFileName);
         ValidateCrops(crops);
         ValidateTickCosts(tickCosts);
         ValidateStartField(startField);
         ValidateUnlocks(unlocks, crops, startField);
+        List<Goal> goals = ReadGoals(goalDtos, crops);
         var starterTexts = new Dictionary<ScriptLanguage, string>
         {
             [ScriptLanguage.Python] = ReadText(dataFolderPath, PythonStarterFileName),
             [ScriptLanguage.JavaScript] = ReadText(dataFolderPath, JavaScriptStarterFileName),
         };
-        return new GameRules(crops, tickCosts, startField, unlocks, starterTexts);
+        return new GameRules(crops, tickCosts, startField, unlocks, goals, starterTexts);
     }
 
     private static string ReadText(string dataFolderPath, string fileName)
@@ -193,6 +201,72 @@ public sealed record GameRules(
                 throw new GameRulesException(UnlocksFileName, $"{unlock.Id}: fieldSize must be larger than the start field");
             }
         }
+    }
+
+    private static List<Goal> ReadGoals(List<GoalDto> dtos, List<Crop> crops)
+    {
+        var ids = new HashSet<string>();
+        var goals = new List<Goal>();
+        foreach (GoalDto dto in dtos)
+        {
+            if (!ids.Add(dto.Id))
+            {
+                throw new GameRulesException(GoalsFileName, $"duplicate goal id {dto.Id}");
+            }
+
+            if (string.IsNullOrWhiteSpace(dto.Text))
+            {
+                throw new GameRulesException(GoalsFileName, $"{dto.Id}: text is empty");
+            }
+
+            if (string.IsNullOrWhiteSpace(dto.Hint))
+            {
+                throw new GameRulesException(GoalsFileName, $"{dto.Id}: hint is empty");
+            }
+
+            goals.Add(ToGoal(dto, crops));
+        }
+
+        return goals;
+    }
+
+    private static Goal ToGoal(GoalDto dto, List<Crop> crops)
+    {
+        GoalKind kind = dto.Kind switch
+        {
+            "finishRun" => GoalKind.FinishRun,
+            "haveItems" => GoalKind.HaveItems,
+            "visitAllTiles" => GoalKind.VisitAllTiles,
+            "buyUnlock" => GoalKind.BuyUnlock,
+            _ => throw new GameRulesException(GoalsFileName, $"{dto.Id}: unknown kind {dto.Kind}"),
+        };
+        if (kind != GoalKind.HaveItems)
+        {
+            if (dto.Item is not null || dto.Count is not null)
+            {
+                throw new GameRulesException(GoalsFileName, $"{dto.Id}: item and count are only for haveItems");
+            }
+
+            return new Goal(dto.Id, dto.Text, dto.Hint, kind, null, 0);
+        }
+
+        if (dto.Item is not { } item)
+        {
+            throw new GameRulesException(GoalsFileName, $"{dto.Id}: haveItems needs an item");
+        }
+
+        if (!crops.Any(crop => crop.Name == item))
+        {
+            throw new GameRulesException(GoalsFileName, $"{dto.Id}: item {item} is not a crop");
+        }
+
+        if (dto.Count is not { } count)
+        {
+            throw new GameRulesException(GoalsFileName, $"{dto.Id}: haveItems needs a count");
+        }
+
+        RequirePositive(GoalsFileName, dto.Id, "count", count);
+        return new Goal(dto.Id, dto.Text, dto.Hint, kind, item, count);
     }
 
     private static void RequirePositive(string fileName, string owner, string jsonFieldName, int value)
