@@ -1,0 +1,122 @@
+[
+  {
+    "name": "move",
+    "summary": "Moves the drone one tile in a direction. At an edge it comes out on the other side.",
+    "python": "move(EAST)",
+    "javascript": "move(EAST);"
+  },
+  {
+    "name": "harvest",
+    "summary": "Harvests the crop under the drone. A ripe crop adds its items to your bank.",
+    "python": "harvest()",
+    "javascript": "harvest();"
+  },
+  {
+    "name": "plant",
+    "summary": "Plants a crop on the tile under the drone and pays its seed items.",
+    "python": "plant(RADISH)",
+    "javascript": "plant(RADISH);"
+  },
+  {
+    "name": "ripe",
+    "summary": "Tells whether the crop under the drone is ripe.",
+    "python": "if ripe():\n    harvest()",
+    "javascript": "if (ripe()) {\n    harvest();\n}"
+  },
+  {
+    "name": "till",
+    "summary": "Turns grass into soil, or soil into grass. A crop on the tile is removed.",
+    "python": "till()",
+    "javascript": "till();"
+  },
+  {
+    "name": "ground",
+    "summary": "Tells which ground is under the drone: GRASS or SOIL.",
+    "python": "if ground() == SOIL:\n    harvest()",
+    "javascript": "if (ground() === SOIL) {\n    harvest();\n}"
+  },
+  {
+    "name": "NORTH",
+    "summary": "A direction for move(). EAST, SOUTH and WEST are the others.",
+    "python": "move(NORTH)",
+    "javascript": "move(NORTH);"
+  },
+  {
+    "name": "EAST",
+    "summary": "A direction for move().",
+    "python": "move(EAST)",
+    "javascript": "move(EAST);"
+  },
+  {
+    "name": "SOUTH",
+    "summary": "A direction for move().",
+    "python": "move(SOUTH)",
+    "javascript": "move(SOUTH);"
+  },
+  {
+    "name": "WEST",
+    "summary": "A direction for move().",
+    "python": "move(WEST)",
+    "javascript": "move(WEST);"
+  },
+  {
+    "name": "GRASS",
+    "summary": "A kind of ground. Compare it with ground().",
+    "python": "if ground() == GRASS:\n    till()",
+    "javascript": "if (ground() === GRASS) {\n    till();\n}"
+  },
+  {
+    "name": "SOIL",
+    "summary": "A kind of ground. Compare it with ground().",
+    "python": "if ground() == SOIL:\n    harvest()",
+    "javascript": "if (ground() === SOIL) {\n    harvest();\n}"
+  },
+  {
+    "name": "CLOVER",
+    "summary": "A crop that grows wild on every tile. harvest() gives it.",
+    "python": "harvest()",
+    "javascript": "harvest();"
+  },
+  {
+    "name": "RADISH",
+    "summary": "A crop you plant on grass.",
+    "python": "plant(RADISH)",
+    "javascript": "plant(RADISH);"
+  },
+  {
+    "name": "POTATO",
+    "summary": "A crop you plant on soil.",
+    "python": "plant(POTATO)",
+    "javascript": "plant(POTATO);"
+  },
+  {
+    "name": "for",
+    "summary": "Repeats the lines inside it a fixed number of times.",
+    "python": "for i in range(3):\n    move(EAST)",
+    "javascript": "for (let i = 0; i < 3; i++) {\n    move(EAST);\n}"
+  },
+  {
+    "name": "while",
+    "summary": "Repeats the lines inside it as long as a condition is true.",
+    "python": "while ripe():\n    harvest()\n    move(EAST)",
+    "javascript": "while (ripe()) {\n    harvest();\n    move(EAST);\n}"
+  },
+  {
+    "name": "if",
+    "summary": "Runs the lines inside it only when a condition is true. else is part of it, and so is elif (Python) or else if (JavaScript).",
+    "python": "if ripe():\n    harvest()\nelse:\n    move(EAST)",
+    "javascript": "if (ripe()) {\n    harvest();\n} else {\n    move(EAST);\n}"
+  },
+  {
+    "name": "def",
+    "summary": "Gives a few lines a name, so you can run them with one call.",
+    "python": "def step():\n    move(EAST)\nstep()",
+    "javascript": "function step() {\n    move(EAST);\n}\nstep();"
+  },
+  {
+    "name": "==",
+    "summary": "Compares two values. Python writes == and !=, JavaScript writes === and !==.",
+    "python": "if ground() == SOIL:\n    harvest()",
+    "javascript": "if (ground() === SOIL) {\n    harvest();\n}"
+  }
+]
