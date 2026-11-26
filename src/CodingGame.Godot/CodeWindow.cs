@@ -20,6 +20,7 @@ public partial class CodeWindow : Window
     private OptionButton _speedPicker = null!;
     private Button _stopButton = null!;
     private Label _tickLabel = null!;
+    private Label _statsLabel = null!;
     private Label _errorLabel = null!;
     private Label _noticeLabel = null!;
     private Button _hintButton = null!;
@@ -118,6 +119,24 @@ public partial class CodeWindow : Window
         _hintLabel.Text = hint is null ? "" : $"Hint: {hint}";
         _hintButton.Visible = hint is not null;
         _hintButton.ButtonPressed = false;
+    }
+
+    /// <summary>
+    /// Shows how well the last run farmed, under the toolbar: per item the amount gained, the rate per 1,000 ticks
+    /// and the best rate so far, and "New best!" in green when a rate beat the best. Hidden when there is no run
+    /// yet or the run gained nothing.
+    /// </summary>
+    /// <param name="stats">The stats of the last run that ended, or null when none has ended yet.</param>
+    /// <param name="bestRates">The best rate per 1,000 ticks for each item, by item name.</param>
+    public void ShowStats(RunStats? stats, IReadOnlyDictionary<string, int> bestRates)
+    {
+        List<ItemRate> gained = stats?.Rates.Where(rate => rate.Gained > 0).ToList() ?? [];
+        _statsLabel.Visible = gained.Count > 0;
+        bool newBest = gained.Any(rate => rate.IsNewBest);
+        string rates = string.Join(", ", gained.Select(rate =>
+            $"+{rate.Gained} {rate.Item.ToLowerInvariant()} ({rate.PerThousandTicks} per 1,000 ticks, best {bestRates.GetValueOrDefault(rate.Item)})"));
+        _statsLabel.Text = newBest ? $"Last run: {rates}  New best!" : $"Last run: {rates}";
+        _statsLabel.AddThemeColorOverride("font_color", newBest ? Palette.GoalDone : Palette.MutedText);
     }
 
     /// <summary>
@@ -228,6 +247,7 @@ public partial class CodeWindow : Window
         _speedPicker.AddItem("Fast");
         _speedPicker.Select(1);
         _tickLabel = new Label();
+        _statsLabel = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, Visible = false };
 
         HBoxContainer toolbar = new();
         toolbar.AddChild(_languagePicker);
@@ -250,6 +270,7 @@ public partial class CodeWindow : Window
         column.SetAnchorsPreset(Control.LayoutPreset.FullRect);
         column.AddChild(scriptRow);
         column.AddChild(toolbar);
+        column.AddChild(_statsLabel);
         column.AddChild(Editor);
         column.AddChild(_noticeLabel);
         column.AddChild(new Label { Text = "Messages" });
