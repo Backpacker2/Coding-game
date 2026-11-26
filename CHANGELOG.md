@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.11.2 — 2026-11-26
+
+- Script tabs: the script window has a tab per script and a + button to add one. Close a tab to remove its script (the last one stays), right-click a tab to rename it. During a run the tabs lock and the running script's tab is marked with ▶.
+
 ## 0.11.1 — 2026-11-26
 
 - Buying an unlock shows a short banner over the field with what it adds and a Show me button that opens Help. It fades out after a few seconds.
