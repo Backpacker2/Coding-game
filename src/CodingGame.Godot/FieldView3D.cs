@@ -185,6 +185,7 @@ public partial class FieldView3D : SubViewportContainer
     {
         _elapsedSeconds += (float)delta;
         UpdateDrone(delta);
+        PlaceCamera((float)delta);
         SwayRipeCrops();
         foreach (Node3D rotor in _rotors)
         {
@@ -239,10 +240,8 @@ public partial class FieldView3D : SubViewportContainer
 
         BuildWorld(width, height);
 
-        Vector3 target = new((width - 1) / 2f, 0, (height - 1) / 2f);
-        Vector3 direction = new Vector3(0, 1, 1).Normalized().Rotated(Vector3.Up, Mathf.DegToRad(35));
+        _cameraTarget = new Vector3((width - 1) / 2f, 0, (height - 1) / 2f);
         _framingDistance = Mathf.Max(width, height) * 1.8f + 2;
-        _camera.LookAtFromPosition(target + direction * _framingDistance, target, Vector3.Up);
         FrameField();
     }
 
@@ -254,7 +253,7 @@ public partial class FieldView3D : SubViewportContainer
             return;
         }
 
-        float visibleHeight = 2 * _framingDistance * Mathf.Tan(Mathf.DegToRad(_camera.Fov / 2));
+        float visibleHeight = 2 * _framingDistance * _zoomShown * Mathf.Tan(Mathf.DegToRad(_camera.Fov / 2));
         float visibleWidth = visibleHeight * Size.X / Size.Y;
         _camera.HOffset = (0.5f - FieldCentreScreenFraction) * visibleWidth;
         _camera.VOffset = FieldLowerFraction * visibleHeight;

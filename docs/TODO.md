@@ -39,7 +39,7 @@ Milestones 22 to 28 follow [`visual-plan.md`](visual-plan.md), with the research
 - [x] **24. Crops that grow.** (0.10.5) Sprout, young and ripe shapes for each crop, a gentle sway when ripe, pop-in tweens.
 - [ ] **25. Game UI theme.** One theme for every window and button, coloured Run and Stop with icons, icon buttons, item pills with crop shapes. The theme and coloured Run and Stop are done in 0.12.6; drawn icons, icon buttons and the item pills are still open.
 - [x] **26. Code and world linked.** A strong running-line highlight with a gutter arrow, the running command over the drone, a red flash on errors, a run status chip. (0.13.5) The gutter arrow was left out: the existing line highlight already marks the line.
-- [ ] **27. Camera.** Orbit, zoom and reset, with limits; the fixed angle stays the default.
+- [x] **27. Camera.** Orbit, zoom and reset, with limits; the fixed angle stays the default. (0.14.1: right-drag turns, the wheel zooms, Menu > Reset view.)
 - [ ] **28. Polish and check.** Motion pass, colour-blindness and font-size check, before and after screenshots.
 
 Milestones 29 to 35 follow [`gameplay-plan.md`](gameplay-plan.md). The view halves are built by the visuals thread; halves marked "Core: build thread" are built and ticked by the build thread.
