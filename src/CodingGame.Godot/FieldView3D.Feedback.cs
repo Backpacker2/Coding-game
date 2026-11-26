@@ -25,7 +25,10 @@ public partial class FieldView3D
     {
         if (view.ShownCrop is { Stage: GrowthStage.Ripe } harvested && (tile.Crop is null || tile.CropAgeTicks == 0))
         {
-            SpawnBurst(position, Palette.CropColor(harvested.Crop, crops), 16, 1.5f, 2.5f);
+            // The player had none of this crop's item, so this is the first harvest of a new crop (or a fresh start):
+            // it gets a bigger burst. Read from the shown items, so nothing extra is saved.
+            bool first = _shownItems.GetValueOrDefault(harvested.Crop.Name) == 0;
+            SpawnBurst(position, Palette.CropColor(harvested.Crop, crops), first ? 48 : 16, 1.5f, first ? 4f : 2.5f);
         }
         else if (view.ShownCrop is null && tile.Crop is not null)
         {

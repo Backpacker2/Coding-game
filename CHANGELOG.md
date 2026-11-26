@@ -2,6 +2,11 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.11.1 — 2026-11-26
+
+- Buying an unlock shows a short banner over the field with what it adds and a Show me button that opens Help. It fades out after a few seconds.
+- The first harvest of a crop, when the player has none of its item yet, gets a bigger burst.
+
 ## 0.11.0 — 2026-11-26
 
 - Several scripts (Core): the game keeps a list of named scripts, each with a Python and a JavaScript text, and saves them (save format version 3; older saves load as one script named main). The tabs to switch between them come next. Design: decision 0013.
