@@ -19,6 +19,8 @@ public partial class Main : Control
     private DroneApi _api = null!;
     private FieldView3D _fieldView = null!;
     private ResourceBar _resourceBar = null!;
+    private GoalBar _goalBar = null!;
+    private Button _unlocksButton = null!;
     private CodeWindow _codeWindow = null!;
     private UnlockPanel _unlockPanel = null!;
     private HelpPanel _helpPanel = null!;
@@ -68,6 +70,8 @@ public partial class Main : Control
 
         _resourceBar = new ResourceBar { Position = new Vector2(16, 12) };
         AddChild(_resourceBar);
+        _goalBar = new GoalBar { Position = new Vector2(16, 56) };
+        AddChild(_goalBar);
 
         _unlockPanel = new UnlockPanel { SizeFlagsHorizontal = SizeFlags.ExpandFill };
         _unlockPanel.Show(_progress);
@@ -95,9 +99,9 @@ public partial class Main : Control
         Button codeButton = new() { Text = "Code" };
         ApplyRoundStyle(codeButton);
         codeButton.Pressed += () => ToggleWindow(_codeWindow);
-        Button unlocksButton = new() { Text = "Unlocks" };
-        ApplyRoundStyle(unlocksButton);
-        unlocksButton.Pressed += () => ToggleWindow(unlocksWindow);
+        _unlocksButton = new() { Text = "Unlocks" };
+        ApplyRoundStyle(_unlocksButton);
+        _unlocksButton.Pressed += () => ToggleWindow(unlocksWindow);
         Button helpButton = new() { Text = "Help" };
         ApplyRoundStyle(helpButton);
         helpButton.Pressed += () => ToggleWindow(helpWindow);
@@ -117,7 +121,7 @@ public partial class Main : Control
         roundButtons.OffsetRight = -16;
         roundButtons.AddThemeConstantOverride("separation", 8);
         roundButtons.AddChild(codeButton);
-        roundButtons.AddChild(unlocksButton);
+        roundButtons.AddChild(_unlocksButton);
         roundButtons.AddChild(helpButton);
         roundButtons.AddChild(_menuButton);
         AddChild(roundButtons);
@@ -319,6 +323,10 @@ public partial class Main : Control
         Field field = _progress.Field;
         _fieldView.ShowField(field, _rules.Crops);
         _resourceBar.ShowItems(field.Items, _rules.Crops);
+        _goalBar.ShowNextGoal(_progress);
+        bool canBuyAny = _progress.Rules.Unlocks.Any(_progress.CanBuy);
+        // A slow pulse draws the eye to Unlocks without blinking.
+        _unlocksButton.Modulate = canBuyAny ? Colors.White.Lerp(Palette.UnlockGlow, 0.5f + 0.5f * Mathf.Sin(Time.GetTicksMsec() / 300f)) : Colors.White;
         _codeWindow.Refresh(session);
 
         bool running = session?.Status == StepStatus.Running;

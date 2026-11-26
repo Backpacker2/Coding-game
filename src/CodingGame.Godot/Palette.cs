@@ -116,6 +116,12 @@ public static class Palette
     /// <summary>Background of the line the run is on.</summary>
     public static readonly Color RunningLineHighlight = new(1f, 1f, 0f, 0.25f);
 
+    /// <summary>Background of the goal bar under the item bar.</summary>
+    public static readonly Color GoalBarBackground = new(0f, 0f, 0f, 0.25f);
+
+    /// <summary>Pulse on the Unlocks button when an unlock can be bought.</summary>
+    public static readonly Color UnlockGlow = new(1.0f, 0.92f, 0.55f);
+
     // Placeholder art: the colours only tell the crops apart until real art exists.
     // The order follows the crops in data/crops.json: clover, radish, potato.
     private static readonly Color[] _cropColors = [new(0.14f, 0.40f, 0.20f), new(0.85f, 0.28f, 0.35f), new(0.82f, 0.66f, 0.38f)];
