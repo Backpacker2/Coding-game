@@ -43,7 +43,7 @@ Milestones 22 to 28 follow [`visual-plan.md`](visual-plan.md), with the research
 Milestones 29 to 35 follow [`gameplay-plan.md`](gameplay-plan.md). The view halves are built by the visuals thread; halves marked "Core: build thread" are built and ticked by the build thread.
 
 - [x] **29. Next goal on screen.** (0.10.7) The cheapest unlock not yet affordable, with a progress bar; the Unlocks button glows when one is affordable.
-- [ ] **30. Moments.** A banner for a bought unlock with a link to its help, and a bigger burst for a first harvest.
+- [x] **30. Moments.** A banner for a bought unlock with a link to its help, and a bigger burst for a first harvest. (0.11.1)
 - [ ] **31. First steps.** Goals in `data/goals.json` checked from the game state and saved (Core: build thread, done in 0.12.0). A goal card under the item bar (view).
 - [ ] **32. Hints when stuck.** A hint after the same error three times, counted in the session, from `data/hints.json` (Core: build thread). The hint line in Messages (view).
 - [ ] **33. Script stats.** Items per 1,000 ticks and a best per crop in the save (Core: build thread). A stats line and a "New best" moment (view).

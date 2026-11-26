@@ -18,7 +18,7 @@ public partial class FieldView3D : SubViewportContainer
     private const float MaxLeanRadians = 0.35f;
 
     // The script window starts at 55% of the screen width (Main), so the field is centred in the left 55%.
-    private const float FieldCentreScreenFraction = 0.275f;
+    internal const float FieldCentreScreenFraction = 0.275f;
 
     // Leaves room for the item bar at the top.
     private const float FieldLowerFraction = 0.04f;

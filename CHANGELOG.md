@@ -6,6 +6,11 @@ Every version of Coding Game, newest first. Version numbers follow the rules in 
 
 - First-steps goals (Core): four first goals in `data/goals.json` (run the script, have 3 clover, visit every tile, buy an unlock), checked when a run ends and after a buy, and saved (save format version 4). The goal card comes next.
 
+## 0.11.1 — 2026-11-26
+
+- Buying an unlock shows a short banner over the field with what it adds and a Show me button that opens Help. It fades out after a few seconds.
+- The first harvest of a crop, when the player has none of its item yet, gets a bigger burst.
+
 ## 0.11.0 — 2026-11-26
 
 - Several scripts (Core): the game keeps a list of named scripts, each with a Python and a JavaScript text, and saves them (save format version 3; older saves load as one script named main). The tabs to switch between them come next. Design: decision 0013.
