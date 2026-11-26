@@ -1,6 +1,6 @@
 # Architecture
 
-This is the technical overview of the prototype (version 0.7.0). The rules for writing code are in [`../CLAUDE.md`](../CLAUDE.md). The reasons behind the big choices are in the decision records listed at the end of this document.
+This is the technical overview of the prototype (version 0.9.1). The rules for writing code are in [`../CLAUDE.md`](../CLAUDE.md). The reasons behind the big choices are in the decision records listed at the end of this document.
 
 ## Projects and folders
 
