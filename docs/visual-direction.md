@@ -22,3 +22,4 @@ The owner's target look for the screen. Each step below is one milestone in [`TO
 - 19. The farm is the scene: floating Script window, item bar, round buttons with overlays (0.8.0, done).
 - 20. 3D field: a low-poly field from an angle, growing crops, a hovering drone (0.9.0, done; decision 0011).
 - 21. Feedback: smooth drone movement, harvest particles, "+N" popups, light (0.9.1, done).
+- 22 to 28: see [`visual-plan.md`](visual-plan.md), with the research behind them.

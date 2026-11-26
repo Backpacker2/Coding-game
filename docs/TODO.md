@@ -29,6 +29,16 @@ The prototype is done when a player can write a Python or JavaScript script in t
 - [x] **20. 3D field.** (0.9.0) A low-poly 3D field seen from an angle, made from Godot primitives, with growing crops and a hovering drone. Design: [`docs/decisions/0011-3d-field.md`](decisions/0011-3d-field.md).
 - [x] **21. Feedback.** (0.9.1) Smooth drone movement, harvest particles, "+N" popups, light.
 
+Milestones 22 to 28 follow [`visual-plan.md`](visual-plan.md), with the research behind them. A second orchestrator thread builds them and owns the view files.
+
+- [ ] **22. Palette, sky and light.** One palette, calmer colours, clover that looks like clover, a sky gradient, fog, tone mapping and a warmer sun.
+- [ ] **23. The field in its world.** An island around the field with trees and rocks, layered tiles, furrows, a ring under the drone.
+- [ ] **24. Crops that grow.** Sprout, young and ripe shapes for each crop, a gentle sway when ripe, pop-in tweens.
+- [ ] **25. Game UI theme.** One theme for every window and button, coloured Run and Stop with icons, icon buttons, item pills with crop shapes.
+- [ ] **26. Code and world linked.** A strong running-line highlight with a gutter arrow, the running command over the drone, a red flash on errors, a run status chip.
+- [ ] **27. Camera.** Orbit, zoom and reset, with limits; the fixed angle stays the default.
+- [ ] **28. Polish and check.** Motion pass, colour-blindness and font-size check, before and after screenshots.
+
 ## Waiting on the owner
 
 - Answers to the open questions in `docs/game-design.md`, after the play-test.

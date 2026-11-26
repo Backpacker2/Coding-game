@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.9.2 — 2026-11-26
+
+- Add the visual plan (`docs/visual-plan.md`): research on how a farm-automation coding game should look and feel, and milestones 22 to 28 for palette and light, the field's surroundings, crop growth stages, a game UI theme, linking the running code to the drone, the camera and a polish pass.
+
 ## 0.9.1 — 2026-11-26
 
 - The drone glides between tiles and leans as it flies. Harvesting bursts the crop into particles and shows the items gained above the drone; planting kicks up a little soil.
