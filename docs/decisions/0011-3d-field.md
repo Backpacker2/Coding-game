@@ -67,3 +67,9 @@ Option A. `FieldView3D` replaces `FarmView`. The crop colours move to `FieldView
 - The field stands on an island three tiles wider on every side, built in `FieldView3D.World.cs`. Trees and rocks stand on the island at least two tiles from the field, so they never cover the field or the drone.
 - Decoration and the slight per-tile shade come from a hash of the grid position, not from randomness, so the view is the same on every start.
 - The ring under the drone has its own transparent, unshaded material, because the material cache is keyed by colour only.
+
+### Update 2026-11-26 (0.10.5): crops that grow
+
+- A crop's shape follows its growth stage (sprout below a third of its grow time, young, ripe), in `FieldView3D.Crops.cs`. The shape is rebuilt only when the stage changes; within a stage the crop scales from 70% to full size.
+- A new stage pops in with a tween on the shape node, not on the tile's crop slot, because the slot's scale is set every frame from the growth.
+- Ripe crops sway, with a phase from the tile's position hash so the field does not move in step.

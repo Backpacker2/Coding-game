@@ -23,7 +23,7 @@ public partial class FieldView3D
 
     private void ShowTileFeedback(TileView view, Tile tile, Vector3 position, IReadOnlyList<Crop> crops)
     {
-        if (view.ShownCrop is { Ripe: true } harvested && (tile.Crop is null || tile.CropAgeTicks == 0))
+        if (view.ShownCrop is { Stage: GrowthStage.Ripe } harvested && (tile.Crop is null || tile.CropAgeTicks == 0))
         {
             SpawnBurst(position, Palette.CropColor(harvested.Crop, crops), 16, 1.5f, 2.5f);
         }

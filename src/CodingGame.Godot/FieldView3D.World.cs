@@ -115,6 +115,8 @@ public partial class FieldView3D
 
         Node3D cropSlot = new() { Position = new Vector3(x, 0, y), Visible = false };
         _tiles.AddChild(cropSlot);
-        return new TileView(top, cropSlot, furrows, shade);
+        // The phase comes from the position, so tiles do not sway in sync.
+        float swayPhaseRadians = (CellHash(x, y) % 628) / 100f;
+        return new TileView(top, cropSlot, furrows, shade, swayPhaseRadians);
     }
 }

@@ -44,6 +44,15 @@ public static class Palette
     /// <summary>Leaves of the crops.</summary>
     public static readonly Color Leaf = new(0.30f, 0.50f, 0.24f);
 
+    /// <summary>Leaves of a sprout, lighter than a grown plant.</summary>
+    public static readonly Color SproutLeaf = new(0.45f, 0.65f, 0.30f);
+
+    /// <summary>Flower ball of a ripe clover.</summary>
+    public static readonly Color CloverFlower = new(0.98f, 0.85f, 0.88f);
+
+    /// <summary>Flowers of a ripe potato bush.</summary>
+    public static readonly Color PotatoFlower = new(0.97f, 0.96f, 0.92f);
+
     /// <summary>Body and arms of the drone.</summary>
     public static readonly Color DroneBody = new(0.82f, 0.84f, 0.86f);
 
