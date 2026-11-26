@@ -97,6 +97,10 @@ public partial class Main : Control
         _helpPanel = new HelpPanel();
         Window helpWindow = OverlayWindow("Help", new Vector2I(560, 520));
         FillWindow(helpWindow, _helpPanel);
+        foreach (Window window in new[] { _codeWindow, unlocksWindow, helpWindow })
+        {
+            _fieldView.FollowMouseAround(window);
+        }
 
         _unlockBanner = new UnlockBanner();
         // Centred over the field, which sits left of the script window, not over the whole screen.
@@ -133,11 +137,22 @@ public partial class Main : Control
         _menuButton = new MenuButton { Text = "Menu", Flat = false };
         ApplyRoundStyle(_menuButton);
         PopupMenu menu = _menuButton.GetPopup();
-        menu.AddItem("New game");
+        menu.AddItem("New game", 0);
+        menu.AddItem("Reset view", 1);
 
         // The editor's embedded game view hides the window title, so the menu shows the version too.
         menu.AddSeparator(versionText);
-        menu.IdPressed += _ => _newGameDialog.PopupCentered();
+        menu.IdPressed += id =>
+        {
+            if (id == 0)
+            {
+                _newGameDialog.PopupCentered();
+            }
+            else
+            {
+                _fieldView.ResetCamera();
+            }
+        };
 
         HBoxContainer roundButtons = new() { GrowHorizontal = GrowDirection.Begin };
         roundButtons.SetAnchorsPreset(LayoutPreset.TopRight);
