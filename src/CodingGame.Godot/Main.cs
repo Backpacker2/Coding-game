@@ -20,7 +20,7 @@ public partial class Main : Control
     private GameProgress _progress = null!;
     private Field _idleField = null!;
     private DroneApi _api = null!;
-    private FarmView _farm = null!;
+    private FieldView3D _fieldView = null!;
     private ResourceBar _resourceBar = null!;
     private CodeWindow _codeWindow = null!;
     private UnlockPanel _unlockPanel = null!;
@@ -66,16 +66,16 @@ public partial class Main : Control
         background.SetAnchorsPreset(LayoutPreset.FullRect);
         AddChild(background);
 
-        _farm = new FarmView();
-        _farm.SetAnchorsPreset(LayoutPreset.FullRect);
+        _fieldView = new FieldView3D();
+        _fieldView.SetAnchorsPreset(LayoutPreset.FullRect);
 
         // The script window starts on the right part of the screen, so the farm is centred in the rest.
-        _farm.AnchorRight = 0.55f;
-        _farm.OffsetTop = 64;
-        _farm.OffsetLeft = 24;
-        _farm.OffsetRight = -24;
-        _farm.OffsetBottom = -24;
-        AddChild(_farm);
+        _fieldView.AnchorRight = 0.55f;
+        _fieldView.OffsetTop = 64;
+        _fieldView.OffsetLeft = 24;
+        _fieldView.OffsetRight = -24;
+        _fieldView.OffsetBottom = -24;
+        AddChild(_fieldView);
 
         _resourceBar = new ResourceBar { Position = new Vector2(16, 12) };
         AddChild(_resourceBar);
@@ -328,7 +328,7 @@ public partial class Main : Control
     {
         RunSession? session = _session;
         Field field = session?.Field ?? _idleField;
-        _farm.ShowField(field, _rules.Crops);
+        _fieldView.ShowField(field, _rules.Crops);
         _resourceBar.ShowItems(field.Items, _rules.Crops);
         _codeWindow.Refresh(session);
 
