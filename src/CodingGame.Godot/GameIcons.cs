@@ -3,7 +3,7 @@ using Godot;
 namespace CodingGame.Godot;
 
 /// <summary>
-/// The small line icons of the game UI, drawn in white so a button's font colour can tint them.
+/// The small line icons of the game UI, drawn in white so the theme's icon colours can tint them.
 /// They are made from SVG text at start-up, so no image files need importing.
 /// </summary>
 public static class GameIcons
