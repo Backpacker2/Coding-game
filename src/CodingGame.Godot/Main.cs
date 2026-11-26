@@ -21,6 +21,7 @@ public partial class Main : Control
     private FieldView3D _fieldView = null!;
     private ResourceBar _resourceBar = null!;
     private GoalBar _goalBar = null!;
+    private UnlockBanner _unlockBanner = null!;
     private Button _unlocksButton = null!;
     private CodeWindow _codeWindow = null!;
     private UnlockPanel _unlockPanel = null!;
@@ -85,6 +86,19 @@ public partial class Main : Control
         Window helpWindow = OverlayWindow("Help", new Vector2I(560, 520));
         helpWindow.AddChild(_helpPanel);
         _helpPanel.SetAnchorsPreset(LayoutPreset.FullRect);
+
+        _unlockBanner = new UnlockBanner();
+        // Centred over the field, which sits left of the script window, not over the whole screen.
+        _unlockBanner.AnchorLeft = FieldView3D.FieldCentreScreenFraction;
+        _unlockBanner.AnchorRight = FieldView3D.FieldCentreScreenFraction;
+        _unlockBanner.GrowHorizontal = GrowDirection.Both;
+        _unlockBanner.OffsetTop = 72;
+        _unlockBanner.ShowMePressed += () =>
+        {
+            helpWindow.Show();
+            helpWindow.GrabFocus();
+        };
+        AddChild(_unlockBanner);
 
         _newGameDialog = new ConfirmationDialog
         {
@@ -265,8 +279,9 @@ public partial class Main : Control
         _playing = false;
     }
 
-    private void OnBought()
+    private void OnBought(Unlock unlock)
     {
+        _unlockBanner.ShowUnlock(unlock);
         RefreshHelp();
         Save();
     }

@@ -119,6 +119,9 @@ public static class Palette
     /// <summary>Background of the goal bar under the item bar.</summary>
     public static readonly Color GoalBarBackground = new(0f, 0f, 0f, 0.25f);
 
+    /// <summary>Background of the banner for a bought unlock, dark so its text reads over the bright field.</summary>
+    public static readonly Color BannerBackground = new(0.10f, 0.13f, 0.10f, 0.85f);
+
     /// <summary>Pulse on the Unlocks button when an unlock can be bought.</summary>
     public static readonly Color UnlockGlow = new(1.0f, 0.92f, 0.55f);
 

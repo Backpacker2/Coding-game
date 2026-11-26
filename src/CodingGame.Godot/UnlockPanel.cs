@@ -12,8 +12,8 @@ public partial class UnlockPanel : VBoxContainer
     private readonly List<UnlockRow> _rows = [];
     private GameProgress _progress = null!;
 
-    /// <summary>Raised after an unlock was bought.</summary>
-    public event Action? Bought;
+    /// <summary>Raised after an unlock was bought, with that unlock.</summary>
+    public event Action<Unlock>? Bought;
 
     /// <summary>
     /// Builds one row per unlock of the rules: the title, the price and a Buy button.
@@ -72,7 +72,7 @@ public partial class UnlockPanel : VBoxContainer
     private void OnBuy(Unlock unlock)
     {
         _progress.Buy(unlock);
-        Bought?.Invoke();
+        Bought?.Invoke(unlock);
     }
 
     private sealed record UnlockRow(Unlock Unlock, Button BuyButton);
