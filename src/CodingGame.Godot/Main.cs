@@ -27,6 +27,10 @@ public partial class Main : Control
     private Label _itemsLabel = null!;
     private Label _errorLabel = null!;
     private UnlockPanel _unlockPanel = null!;
+    private HelpPanel _helpPanel = null!;
+    private HelpBook _help = null!;
+    private Button _newGameButton = null!;
+    private ConfirmationDialog _newGameDialog = null!;
     private Label _noticeLabel = null!;
 
     private RunSession? _session;
@@ -48,6 +52,7 @@ public partial class Main : Control
         _scriptTexts[ScriptLanguage.Python] = saved.Scripts.Python ?? StarterText(ScriptLanguage.Python);
         _scriptTexts[ScriptLanguage.JavaScript] = saved.Scripts.JavaScript ?? StarterText(ScriptLanguage.JavaScript);
         _idleField = _progress.NewField();
+        _help = HelpBook.Load(DataFolder, new DroneApi(_rules, _idleField));
 
         _languagePicker = new OptionButton();
         _languagePicker.AddItem("Python");
@@ -67,6 +72,18 @@ public partial class Main : Control
         _speedPicker.AddItem("Fast");
         _speedPicker.Select(1);
         _tickLabel = new Label();
+        Button helpButton = new() { Text = "Help", ToggleMode = true, ButtonPressed = true };
+        helpButton.Toggled += pressed => _helpPanel.Visible = pressed;
+        _newGameButton = new Button { Text = "New game" };
+        _newGameButton.Pressed += () => _newGameDialog.PopupCentered();
+        _newGameDialog = new ConfirmationDialog
+        {
+            DialogText = "Start a new game? Your items, unlocks and scripts are erased.",
+            OkButtonText = "Erase and start over",
+            CancelButtonText = "Keep playing",
+        };
+        _newGameDialog.Confirmed += OnNewGameConfirmed;
+        AddChild(_newGameDialog);
 
         HBoxContainer toolbar = new();
         toolbar.AddChild(_languagePicker);
@@ -75,6 +92,8 @@ public partial class Main : Control
         toolbar.AddChild(_stopButton);
         toolbar.AddChild(_speedPicker);
         toolbar.AddChild(_tickLabel);
+        toolbar.AddChild(helpButton);
+        toolbar.AddChild(_newGameButton);
 
         _editor = new ScriptEditor { Text = _scriptTexts[_language] };
 
@@ -94,17 +113,20 @@ public partial class Main : Control
         _unlockPanel = new UnlockPanel();
         _unlockPanel.Show(_progress);
         _unlockPanel.Bought += OnBought;
+        _helpPanel = new HelpPanel();
 
         VBoxContainer right = new() { SizeFlagsHorizontal = SizeFlags.ExpandFill };
         right.AddChild(_farm);
         right.AddChild(_itemsLabel);
         right.AddChild(_unlockPanel);
+        right.AddChild(_helpPanel);
 
         HSplitContainer split = new();
         split.SetAnchorsPreset(LayoutPreset.FullRect);
         split.AddChild(left);
         split.AddChild(right);
         AddChild(split);
+        RefreshHelp();
     }
 
     /// <inheritdoc/>
@@ -219,6 +241,7 @@ public partial class Main : Control
     private void OnBought()
     {
         _idleField = _progress.NewField();
+        RefreshHelp();
         Save();
     }
 
@@ -228,6 +251,29 @@ public partial class Main : Control
         _scriptTexts[_language] = _editor.Text;
         _language = next;
         _editor.Text = _scriptTexts[next];
+        RefreshHelp();
+    }
+
+    private void OnNewGameConfirmed()
+    {
+        _progress.Reset();
+        _scriptTexts[ScriptLanguage.Python] = StarterText(ScriptLanguage.Python);
+        _scriptTexts[ScriptLanguage.JavaScript] = StarterText(ScriptLanguage.JavaScript);
+        _language = ScriptLanguage.Python;
+        _languagePicker.Select((int)_language);
+        _editor.Text = _scriptTexts[_language];
+        _session = null;
+        _playing = false;
+        _tickBudget = 0;
+        _noticeLabel.Text = "";
+        _idleField = _progress.NewField();
+        RefreshHelp();
+        Save();
+    }
+
+    private void RefreshHelp()
+    {
+        _helpPanel.ShowEntries(_help.EntriesFor(_progress, _language));
     }
 
     private void Refresh()
@@ -252,6 +298,7 @@ public partial class Main : Control
         _editor.Editable = !running;
         _stopButton.Disabled = session is null;
         _languagePicker.Disabled = running;
+        _newGameButton.Disabled = running;
         _unlockPanel.Refresh(running);
 
         int line = session?.Error?.Line ?? session?.CurrentLine ?? 0;
