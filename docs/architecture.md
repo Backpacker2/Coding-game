@@ -12,7 +12,7 @@ This is the technical overview of the prototype (version 0.10.0). The rules for 
 | `src/CodingGame.Core/Interpreter/` | The shared syntax tree, the `Evaluator`, the `DroneApi`, `UnlockCheck`, `HelpBook` and the script errors. |
 | `src/CodingGame.Core/Interpreter/Python/` | The Python front end: tokenizer and parser. |
 | `src/CodingGame.Core/Interpreter/JavaScript/` | The JavaScript front end: tokenizer and parser. |
-| `src/CodingGame.Core/Session/` | `GameProgress`, `RunSession`, `SaveFile` and the types around them. |
+| `src/CodingGame.Core/Session/` | `GameProgress`, `ScriptBook` (the named scripts and the selected one), `RunSession`, `SaveFile` and the types around them. |
 | `src/CodingGame.Godot/` | The Godot 4.7 project (C#): `Main.cs` (the screen), `CodeWindow.cs`, `ResourceBar.cs`, `FieldView3D.cs`, `ScriptEditor.cs`, `UnlockPanel.cs`, `HelpPanel.cs`, `main.tscn` and `project.godot`. |
 | `src/CodingGame.Godot/CodeWindow.cs` | The floating Script window: toolbar, editor, notice and Messages box. It shows the run and reports Run, Step, Stop and the language to `Main`. |
 | `src/CodingGame.Godot/ResourceBar.cs` | The item bar at the top left: one pill per item with its crop colour and count. |
@@ -30,7 +30,7 @@ data/*.json ──► GameRules.Load ──► GameRules
 save.json ──► SaveFile.Load ──► GameProgress (items, bought unlocks, field)
                                        │ Field
                                        ▼
-script text + language ──► RunSession.Start
+ScriptBook (selected script) + language ──► RunSession.Start
                                        │
                  front end (Python or JavaScript)
                                        │ ParseResult: a syntax tree or an error
@@ -46,8 +46,8 @@ data/help.json ──► HelpBook.Load (checked against DroneApi) ──► Help
                                                        HelpPanel (Godot, only shows)
 ```
 
-- `GameRules.Load` reads the four files, turns them into precise types and checks them. A broken file throws `GameRulesException`.
-- `SaveFile.Load` reads `save.json`, checks it the same way and returns a `SavedGame`. A missing file gives a new game.
+- `GameRules.Load` reads the four JSON files and the two starter scripts, turns them into precise types and checks them. A broken or missing file throws `GameRulesException`.
+- `SaveFile.Load` reads `save.json`, checks it the same way and returns a `SavedGame`: the progress, the language and the `ScriptBook` with the named scripts. A missing file gives a new game.
 - `RunSession.Start` parses the script. A parse error or a locked feature gives a session that has failed at once. Otherwise it creates an `Evaluator` with a `DroneApi` bound to the field of the progress.
 - Each step of the evaluator runs one tick. The `DroneApi` table gives the command names and their costs, and the field holds the state.
 - The items and the field live in `GameProgress`. The field keeps a reference to the same item store, so a harvest adds to the player's bank at once. A run changes the field of the progress, so crops and the drone stay as the run left them.
@@ -99,8 +99,8 @@ The drone API is the same set of commands in every language (`CLAUDE.md`, Game-s
 A new language is a larger change, so it starts with a decision record that sketches two designs (`CLAUDE.md`, Design). After that, it needs:
 
 - a front end in its own folder under `Interpreter/`, whose `Parse` method returns a `ParseResult` with the shared syntax tree,
-- a new value in `ScriptLanguage`, and a case for it in `RunSession.Start`, `ScriptError.ToMessage`, `UnlockCheck` the picker in `CodeWindow.cs` and the starter text in `Main.cs`,
-- a starter script in `data/`, and example folders in `tests/examples/`,
+- a new value in `ScriptLanguage`, and a case for it in `RunSession.Start`, `ScriptError.ToMessage`, `UnlockCheck` and the picker in `CodeWindow.cs`,
+- a starter script in `data/` (read by `GameRules.Load`), and example folders in `tests/examples/`,
 - an example for the new language in every entry of `data/help.json`.
 
 ## Testing
@@ -126,3 +126,4 @@ A new language is a larger change, so it starts with a decision record that sket
 | [0010](decisions/0010-in-game-help.md) | accepted, built in 0.7.0 | Help texts live in `data/help.json`, checked against the drone API, and New game resets the progress in place and saves at once. |
 | [0011](decisions/0011-3d-field.md) | accepted, built in 0.9.0 | The field is a 3D scene in a `SubViewportContainer`, built from primitive meshes; the drone's animation runs in real time and never changes the game. |
 | [0012](decisions/0012-persistent-field.md) | accepted, built in 0.10.0 | `GameProgress` owns one field for the whole game, so crops and the drone stay between runs. The field is part of save format version 2. |
+| [0013](decisions/0013-several-scripts.md) | accepted, Core built in 0.11.0 | `ScriptBook` holds named scripts in tab order, each with one text per language. The save format is version 3; the tabs UI comes with the visuals milestone. |

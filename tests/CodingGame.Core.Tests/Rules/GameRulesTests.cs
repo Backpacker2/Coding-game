@@ -1,3 +1,4 @@
+using CodingGame.Core.Interpreter;
 using CodingGame.Core.Rules;
 using Xunit;
 
@@ -12,6 +13,10 @@ public class GameRulesTests
     private const string ValidFieldJson = """{"width":3,"height":3}""";
 
     private const string ValidUnlocksJson = "[]";
+
+    private const string ValidPythonStarter = "harvest()\n";
+
+    private const string ValidJavaScriptStarter = "harvest();\n";
 
     [Fact]
     public void LoadsThreeCropsFromDataFolder()
@@ -195,7 +200,55 @@ public class GameRulesTests
         Assert.Contains(expectedText, exception.Message);
     }
 
-    private static GameRules LoadWith(string? cropsJson, string? ticksJson, string? fieldJson = ValidFieldJson, string? unlocksJson = ValidUnlocksJson)
+    [Fact]
+    public void StarterTextsComeFromDataFolder()
+    {
+        GameRules rules = GameRules.Load(Path.Combine(AppContext.BaseDirectory, "data"));
+
+        Assert.Equal(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "data", "starter.py")), rules.StarterText(ScriptLanguage.Python));
+        Assert.Equal(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "data", "starter.js")), rules.StarterText(ScriptLanguage.JavaScript));
+    }
+
+    [Fact]
+    public void StarterTextIsTheTextOfTheStarterFile()
+    {
+        GameRules rules = LoadWith(ValidCropsJson, ValidTicksJson, ValidFieldJson, ValidUnlocksJson, "say(1)\n", "say(2);\n");
+
+        Assert.Equal("say(1)\n", rules.StarterText(ScriptLanguage.Python));
+        Assert.Equal("say(2);\n", rules.StarterText(ScriptLanguage.JavaScript));
+    }
+
+    [Fact]
+    public void UnknownLanguageHasNoStarterText()
+    {
+        GameRules rules = GameRules.Load(Path.Combine(AppContext.BaseDirectory, "data"));
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => rules.StarterText((ScriptLanguage)99));
+    }
+
+    [Fact]
+    public void MissingPythonStarterFileIsReported()
+    {
+        GameRulesException exception = Assert.Throws<GameRulesException>(() => LoadWith(ValidCropsJson, ValidTicksJson, pythonStarter: null));
+
+        Assert.Equal("starter.py: file not found", exception.Message);
+    }
+
+    [Fact]
+    public void MissingJavaScriptStarterFileIsReported()
+    {
+        GameRulesException exception = Assert.Throws<GameRulesException>(() => LoadWith(ValidCropsJson, ValidTicksJson, javaScriptStarter: null));
+
+        Assert.Equal("starter.js: file not found", exception.Message);
+    }
+
+    private static GameRules LoadWith(
+        string? cropsJson,
+        string? ticksJson,
+        string? fieldJson = ValidFieldJson,
+        string? unlocksJson = ValidUnlocksJson,
+        string? pythonStarter = ValidPythonStarter,
+        string? javaScriptStarter = ValidJavaScriptStarter)
     {
         string folder = Directory.CreateTempSubdirectory().FullName;
         try
@@ -218,6 +271,16 @@ public class GameRulesTests
             if (unlocksJson is not null)
             {
                 File.WriteAllText(Path.Combine(folder, "unlocks.json"), unlocksJson);
+            }
+
+            if (pythonStarter is not null)
+            {
+                File.WriteAllText(Path.Combine(folder, "starter.py"), pythonStarter);
+            }
+
+            if (javaScriptStarter is not null)
+            {
+                File.WriteAllText(Path.Combine(folder, "starter.js"), javaScriptStarter);
             }
 
             return GameRules.Load(folder);

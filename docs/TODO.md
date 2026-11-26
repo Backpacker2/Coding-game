@@ -47,7 +47,7 @@ Milestones 29 to 35 follow [`gameplay-plan.md`](gameplay-plan.md). The view halv
 - [ ] **31. First steps.** Goals in `data/goals.json` checked from the game state and saved (Core: build thread). A goal card under the item bar (view).
 - [ ] **32. Hints when stuck.** A hint after the same error three times, counted in the session, from `data/hints.json` (Core: build thread). The hint line in Messages (view).
 - [ ] **33. Script stats.** Items per 1,000 ticks and a best per crop in the save (Core: build thread). A stats line and a "New best" moment (view).
-- [ ] **34. Several scripts.** Named scripts, one runs, save format 3 (Core: build thread; the owner agreed on 2026-11-26). Tabs in the script window (view).
+- [ ] **34. Several scripts.** Named scripts, one runs, save format 3 (Core: build thread, done in 0.11.0, decision [0013](decisions/0013-several-scripts.md); the owner agreed on 2026-11-26). Tabs in the script window (view).
 - [ ] **35. A playful command.** `spin()` in every language (Core: build thread). The spin animation (view).
 
 ## Waiting on the owner

@@ -58,3 +58,7 @@ Option A, format version 1.
 ## Update 2026-11-26: version 2 adds the field
 
 Since 0.10.0 the save format is version 2. It adds a `field`: the drone's tile and every tile with its crop and age, row by row. Version 1 files still load, and get a fresh start field. The field is part of the progress, see [`0012`](0012-persistent-field.md). The rules above stay as they are.
+
+## Update 2026-11-26: version 3 holds several scripts
+
+Since 0.11.0 the save format is version 3. `scripts` is a list of `{ name, python, javaScript }` in tab order, and `selectedScript` names the one the editor shows. Versions 1 and 2 still load, and their one script text per language becomes one script named `main`. See [`0013`](0013-several-scripts.md).

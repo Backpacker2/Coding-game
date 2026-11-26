@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.11.0 — 2026-11-26
+
+- Several scripts (Core): the game keeps a list of named scripts, each with a Python and a JavaScript text, and saves them (save format version 3; older saves load as one script named main). The tabs to switch between them come next. Design: decision 0013.
+
 ## 0.10.7 — 2026-11-26
 
 - Show the next goal under the item bar: the next unlock, its price and a bar with how much of the price item the player has. When an unlock can be bought, the goal says so and the Unlocks button pulses softly.
