@@ -418,6 +418,7 @@ public partial class Main : Control
         // A slow pulse draws the eye to Unlocks without blinking.
         _unlocksButton.Modulate = canBuyAny ? Colors.White.Lerp(Palette.UnlockGlow, 0.5f + 0.5f * Mathf.Sin(Time.GetTicksMsec() / 300f)) : Colors.White;
         _codeWindow.Refresh(session);
+        _codeWindow.ShowStats(_lastRunStats, _progress.BestRates);
 
         bool running = session?.Status == StepStatus.Running;
         _menuButton.GetPopup().SetItemDisabled(0, running);

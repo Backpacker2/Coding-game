@@ -39,6 +39,7 @@ The field starts 3x3. This is for testing only, so that nested loops can be trie
    - Later, once you have radish to buy `if / else and ripe()` and `while loop`, write a JavaScript loop that never ends: `while (ripe()) {}`. Press Run, watch the tick counter, then press Stop. Press Step on it too: it stops after a fixed number of ticks.
    - Buy something, edit the script in both languages, close the window, and start the game again. Your items, your unlocks, both scripts and the language should all be back.
    - Your progress is in the file `save.json`, in Godot's user data folder for the project "Coding Game" (Godot menu Project, Open User Data Folder). The New game item in the Menu resets it (step 9). Deleting `save.json` also starts over.
+   - After a run that harvests something, a stats line under the toolbar shows what the run gained, its rate per 1,000 ticks and the best rate so far. Make the script faster (fewer moves for the same harvest) and run it again: the line turns green and says New best!
    - Open `save.json` in a text editor, replace its whole content with the word `garbage`, and start the game. A red notice explains that the save could not be read. The old file is kept as `save.json.broken` in the same folder, and the game starts as a new game.
 
 8. Help and Unlocks windows:

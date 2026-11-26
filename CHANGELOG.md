@@ -2,9 +2,13 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
-## 0.13.3 — 2026-11-26
+## 0.13.4 — 2026-11-26
 
 - Docs: the play-test guide covers script tabs, goals, the unlock banner, hints and spin().
+
+## 0.13.3 — 2026-11-26
+
+- After a run, a stats line under the toolbar shows per item what it gained, its rate per 1,000 ticks and the best rate so far. A new best turns the line green with "New best!".
 
 ## 0.13.2 — 2026-11-26
 
