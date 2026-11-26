@@ -38,6 +38,10 @@ public partial class Main : Control
     /// <inheritdoc/>
     public override void _Ready()
     {
+        // The version lives only in Directory.Build.props; the title shows it so a tester can see which build runs.
+        Version version = typeof(Main).Assembly.GetName().Version ?? throw new InvalidOperationException("the game assembly has no version");
+        string versionText = $"Coding Game {version.ToString(3)}";
+        GetWindow().Title = versionText;
         _rules = GameRules.Load(DataFolder);
         _codeWindow = new CodeWindow();
         AddChild(_codeWindow);
@@ -115,6 +119,9 @@ public partial class Main : Control
         ApplyRoundStyle(_menuButton);
         PopupMenu menu = _menuButton.GetPopup();
         menu.AddItem("New game");
+
+        // The editor's embedded game view hides the window title, so the menu shows the version too.
+        menu.AddSeparator(versionText);
         menu.IdPressed += _ => _newGameDialog.PopupCentered();
 
         HBoxContainer roundButtons = new() { GrowHorizontal = GrowDirection.Begin };
