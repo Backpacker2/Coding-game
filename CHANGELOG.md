@@ -2,6 +2,11 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.10.6 — 2026-11-26
+
+- Add the gameplay plan (`docs/gameplay-plan.md`): research on how farm-automation coding games play and feel, and milestones 29 to 35 (next goal, moments, first steps, hints, script stats, several scripts, a playful command), split between the view and the core.
+- Add research on ready-made 3D models to the visual plan: sources, licences, the drone the owner shared, and how models would be imported.
+
 ## 0.10.5 — 2026-11-26
 
 - Crops grow in three stages with their own shapes: a sprout, a young plant and a ripe crop. Ripe clover gets a flower, a ripe radish shows its red root, and a ripe potato bush flowers with potatoes at its base.
