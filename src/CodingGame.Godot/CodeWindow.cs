@@ -80,7 +80,7 @@ public partial class CodeWindow : Window
 
         string? error = session?.ErrorMessage;
         _errorLabel.Text = error ?? "Errors in your script appear here, with the line number.";
-        _errorLabel.AddThemeColorOverride("font_color", error is null ? new Color(0.6f, 0.6f, 0.6f) : Colors.Red);
+        _errorLabel.AddThemeColorOverride("font_color", error is null ? Palette.MutedText : Palette.ErrorText);
         bool running = session?.Status == StepStatus.Running;
         Editor.Editable = !running;
         _stopButton.Disabled = session is null;
@@ -94,8 +94,8 @@ public partial class CodeWindow : Window
         }
 
         Color color = session.Status == StepStatus.Failed
-            ? new Color(1, 0, 0, 0.35f)
-            : new Color(1, 1, 0, 0.25f);
+            ? Palette.ErrorLineHighlight
+            : Palette.RunningLineHighlight;
         Editor.HighlightLine(line, color);
     }
 
@@ -105,7 +105,7 @@ public partial class CodeWindow : Window
         CloseRequested += Hide;
 
         _noticeLabel = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart };
-        _noticeLabel.AddThemeColorOverride("font_color", Colors.Red);
+        _noticeLabel.AddThemeColorOverride("font_color", Palette.ErrorText);
 
         _languagePicker = new OptionButton();
         _languagePicker.AddItem("Python");

@@ -11,15 +11,6 @@ namespace CodingGame.Godot;
 /// </summary>
 public partial class ScriptEditor : CodeEdit
 {
-    // Bright enough to read on the dark editor background.
-    private static readonly Color _keywordColor = new(0.8f, 0.47f, 0.87f);
-    private static readonly Color _commandColor = new(0.4f, 0.73f, 1f);
-    private static readonly Color _constantColor = new(0.95f, 0.75f, 0.35f);
-    private static readonly Color _numberColor = new(0.6f, 0.85f, 0.55f);
-    private static readonly Color _stringColor = new(0.85f, 0.6f, 0.45f);
-    private static readonly Color _commentColor = new(0.55f, 0.58f, 0.62f);
-    private static readonly Color _symbolColor = new(0.85f, 0.85f, 0.85f);
-
     /// <summary>Creates an editor that shows line numbers and grows to fill its parent vertically.</summary>
     public ScriptEditor()
     {
@@ -44,35 +35,35 @@ public partial class ScriptEditor : CodeEdit
         // Symbols need their own colour: the highlighter's default is black, which hides brackets on the dark background.
         CodeHighlighter highlighter = new()
         {
-            NumberColor = _numberColor,
-            FunctionColor = _commandColor,
-            SymbolColor = _symbolColor,
+            NumberColor = Palette.SyntaxNumber,
+            FunctionColor = Palette.SyntaxCommand,
+            SymbolColor = Palette.SyntaxSymbol,
         };
         foreach (string keyword in keywords)
         {
-            highlighter.AddKeywordColor(keyword, _keywordColor);
+            highlighter.AddKeywordColor(keyword, Palette.SyntaxKeyword);
         }
 
         foreach (string command in api.Commands.Keys)
         {
-            highlighter.AddKeywordColor(command, _commandColor);
+            highlighter.AddKeywordColor(command, Palette.SyntaxCommand);
         }
 
         foreach (string constant in api.Constants.Keys)
         {
-            highlighter.AddKeywordColor(constant, _constantColor);
+            highlighter.AddKeywordColor(constant, Palette.SyntaxConstant);
         }
 
-        highlighter.AddColorRegion("\"", "\"", _stringColor);
-        highlighter.AddColorRegion("'", "'", _stringColor);
+        highlighter.AddColorRegion("\"", "\"", Palette.SyntaxString);
+        highlighter.AddColorRegion("'", "'", Palette.SyntaxString);
         if (language == ScriptLanguage.Python)
         {
-            highlighter.AddColorRegion("#", "", _commentColor, true);
+            highlighter.AddColorRegion("#", "", Palette.SyntaxComment, true);
         }
         else
         {
-            highlighter.AddColorRegion("//", "", _commentColor, true);
-            highlighter.AddColorRegion("/*", "*/", _commentColor);
+            highlighter.AddColorRegion("//", "", Palette.SyntaxComment, true);
+            highlighter.AddColorRegion("/*", "*/", Palette.SyntaxComment);
         }
 
         SyntaxHighlighter = highlighter;
