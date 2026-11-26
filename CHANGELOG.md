@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.10.0 — 2026-11-26
+
+- Crops stay on the field: what you plant keeps growing in later runs, the drone stays where it stopped, and the field is saved. Save files move to version 2; version 1 saves still load, with a fresh field. Design: decision 0012.
+
 ## 0.9.2 — 2026-11-26
 
 - Add the visual plan (`docs/visual-plan.md`): research on how a farm-automation coding game should look and feel, and milestones 22 to 28 for palette and light, the field's surroundings, crop growth stages, a game UI theme, linking the running code to the drone, the camera and a polish pass.

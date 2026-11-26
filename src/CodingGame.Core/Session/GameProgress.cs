@@ -4,7 +4,7 @@ using CodingGame.Core.Simulation;
 namespace CodingGame.Core.Session;
 
 /// <summary>
-/// What the player owns: the items from harvests and the unlocks the player has bought.
+/// What the player owns: the items from harvests, the unlocks the player has bought and the field with its crops.
 /// It is saved to the save file with <see cref="SaveFile"/> and loaded again when the game starts.
 /// </summary>
 public sealed class GameProgress
@@ -13,29 +13,53 @@ public sealed class GameProgress
     private readonly HashSet<string> _boughtIds = [];
 
     /// <summary>
-    /// Creates the progress of a new player: no items and nothing bought.
+    /// Creates the progress of a new player: no items, nothing bought and the start field.
     /// </summary>
     /// <param name="rules">The game rules, with the unlocks, the crops and the starting field.</param>
     public GameProgress(GameRules rules)
+        : this(rules, new Dictionary<string, int>(), new HashSet<string>(), null, default)
     {
-        Rules = rules;
     }
 
     /// <summary>
-    /// Creates progress with items and bought unlocks that were checked by the caller (the save loader).
+    /// Creates progress with items, bought unlocks and a field that were checked by the caller (the save loader).
+    /// The field keeps its items in this progress.
     /// </summary>
     /// <param name="rules">The game rules, with the unlocks, the crops and the starting field.</param>
     /// <param name="items">Item name to count. The caller guarantees every name is a crop and every count is at least 1.</param>
     /// <param name="boughtUnlockIds">Ids of bought unlocks. The caller guarantees each id is in <paramref name="rules"/>.Unlocks.</param>
-    public GameProgress(GameRules rules, IReadOnlyDictionary<string, int> items, IReadOnlySet<string> boughtUnlockIds)
-        : this(rules)
+    /// <param name="tiles">The tiles of the field, in the size that the bought unlocks give. Null gives a fresh field of that size.</param>
+    /// <param name="dronePosition">The tile the drone stands on. Not used when <paramref name="tiles"/> is null.</param>
+    /// <exception cref="ArgumentException">The size of <paramref name="tiles"/> is not the size of the field that the bought unlocks give.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The drone is outside the field.</exception>
+    public GameProgress(
+        GameRules rules,
+        IReadOnlyDictionary<string, int> items,
+        IReadOnlySet<string> boughtUnlockIds,
+        Tile[,]? tiles,
+        TilePosition dronePosition)
     {
+        Rules = rules;
         foreach (KeyValuePair<string, int> item in items)
         {
             _items[item.Key] = item.Value;
         }
 
         _boughtIds.UnionWith(boughtUnlockIds);
+        if (tiles is null)
+        {
+            Field = CreateFreshField();
+        }
+        else
+        {
+            FieldSize size = FieldSize;
+            if (tiles.GetLength(0) != size.Width || tiles.GetLength(1) != size.Height)
+            {
+                throw new ArgumentException($"the tiles are {tiles.GetLength(0)}x{tiles.GetLength(1)}, the field is {size.Width}x{size.Height}", nameof(tiles));
+            }
+
+            Field = new Field(tiles, dronePosition, _items);
+        }
     }
 
     /// <summary>
@@ -48,6 +72,11 @@ public sealed class GameProgress
     /// has none of is not listed.
     /// </summary>
     public IReadOnlyDictionary<string, int> Items => _items;
+
+    /// <summary>
+    /// Gets the field the player works on. It lasts from run to run and is changed by the runs and by buying a bigger field.
+    /// </summary>
+    public Field Field { get; private set; }
 
     /// <summary>
     /// Gets the features that are still locked: the features of every unlock that is not bought yet.
@@ -88,6 +117,8 @@ public sealed class GameProgress
         }
     }
 
+    private Crop WildCrop => Rules.Crops.First(crop => crop.Seed is null);
+
     /// <summary>
     /// Checks whether the player has bought an unlock.
     /// </summary>
@@ -110,7 +141,8 @@ public sealed class GameProgress
     }
 
     /// <summary>
-    /// Pays the price of an unlock from the items and marks the unlock as bought.
+    /// Pays the price of an unlock from the items and marks the unlock as bought. A bought field size grows
+    /// the field in place: its tiles and the drone stay as they are.
     /// </summary>
     /// <param name="unlock">The unlock to buy.</param>
     /// <exception cref="InvalidOperationException">The unlock is already bought, or the player has too few of the price item.</exception>
@@ -126,6 +158,7 @@ public sealed class GameProgress
             throw new InvalidOperationException($"not enough {unlock.Price.Item} to buy unlock {unlock.Id}");
         }
 
+        FieldSize sizeBefore = FieldSize;
         int itemsLeft = _items[unlock.Price.Item] - unlock.Price.Count;
         if (itemsLeft == 0)
         {
@@ -137,6 +170,11 @@ public sealed class GameProgress
         }
 
         _boughtIds.Add(unlock.Id);
+        FieldSize sizeAfter = FieldSize;
+        if (sizeAfter != sizeBefore)
+        {
+            Field = Field.Grown(sizeAfter.Width, sizeAfter.Height, WildCrop);
+        }
     }
 
     /// <summary>
@@ -152,25 +190,19 @@ public sealed class GameProgress
     }
 
     /// <summary>
-    /// Puts the progress back to the state of a new player: no items and nothing bought. The item store is
-    /// emptied in place, so a field that shares it sees the change.
+    /// Puts the progress back to the state of a new player: no items, nothing bought and a fresh start field.
+    /// The item store is emptied in place.
     /// </summary>
     public void Reset()
     {
         _items.Clear();
         _boughtIds.Clear();
+        Field = CreateFreshField();
     }
 
-    /// <summary>
-    /// Creates a field for a new run: the field size of this progress, with the wild crop ripe on every
-    /// tile and the drone at (0, 0). The field keeps its items in this progress, so harvests and seed
-    /// payments change the bank.
-    /// </summary>
-    /// <returns>The new field.</returns>
-    public Field NewField()
+    private Field CreateFreshField()
     {
-        Crop wildCrop = Rules.Crops.First(crop => crop.Seed is null);
         FieldSize size = FieldSize;
-        return new Field(size.Width, size.Height, wildCrop, _items);
+        return new Field(size.Width, size.Height, WildCrop, _items);
     }
 }

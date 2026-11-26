@@ -10,6 +10,8 @@ namespace CodingGame.Core.Tests.Session;
 public class SaveFileLoadTests : IDisposable
 {
     private const string MinimalSave = """{"version":1,"items":{},"boughtUnlocks":[],"language":"python","scripts":{"python":null,"javaScript":null}}""";
+    private const string GrassTile = """{"ground":"GRASS","crop":null,"ageTicks":0}""";
+    private const string DroneAtOrigin = """{"x":0,"y":0}""";
 
     private static readonly GameRules _rules = EvaluatorTestSupport.Rules();
     private readonly string _folder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
@@ -87,7 +89,7 @@ public class SaveFileLoadTests : IDisposable
     }
 
     [Theory]
-    [InlineData("""{"version":2,"items":{},"boughtUnlocks":[],"language":"python","scripts":{"python":null,"javaScript":null}}""", "save.json: version 2 is not supported, this game reads version 1")]
+    [InlineData("""{"version":3,"items":{},"boughtUnlocks":[],"language":"python","scripts":{"python":null,"javaScript":null}}""", "save.json: version 3 is not supported, this game reads versions 1 and 2")]
     [InlineData("""{"items":{}}""", "save.json: version is missing")]
     [InlineData("", "save.json: file is not a JSON object")]
     [InlineData("[]", "save.json: file is not a JSON object")]
@@ -133,6 +135,121 @@ public class SaveFileLoadTests : IDisposable
         Assert.Throws<SaveException>(() => SaveFile.Load(path, _rules));
 
         Assert.Equal("garbage", File.ReadAllText(path));
+    }
+
+    [Fact]
+    public void VersionOneFileLoadsWithAFreshField()
+    {
+        SavedGame saved = SaveFile.Load(WriteSave(MinimalSave), _rules);
+
+        Assert.Equal(new TilePosition(0, 0), saved.Progress.Field.DronePosition);
+        Assert.Equal(new Tile(Ground.Grass, CloverCrop(), 200), saved.Progress.Field.GetTile(2, 2));
+    }
+
+    [Fact]
+    public void SavedFieldRoundTripsPlantedTileAndDrone()
+    {
+        string path = Path.Combine(_folder, "save.json");
+        var progress = new GameProgress(_rules);
+        progress.AddItems("CLOVER", 2);
+        progress.Field.Till();
+        progress.Field.Till();
+        progress.Field.Plant(RadishCrop());
+        progress.Field.Advance(50);
+        progress.Field.Move(Direction.East);
+        SaveFile.Save(path, new SavedGame(progress, ScriptLanguage.Python, new SavedScripts(null, null)));
+
+        SavedGame loaded = SaveFile.Load(path, _rules);
+
+        Assert.Equal(new Tile(Ground.Grass, RadishCrop(), 50), loaded.Progress.Field.GetTile(0, 0));
+        Assert.Equal(new TilePosition(1, 0), loaded.Progress.Field.DronePosition);
+    }
+
+    [Theory]
+    [MemberData(nameof(BadFieldCases))]
+    public void BadFieldThrowsWithTheExactMessage(string text, string expectedMessage)
+    {
+        string path = WriteSave(text);
+
+        SaveException exception = Assert.Throws<SaveException>(() => SaveFile.Load(path, _rules));
+
+        Assert.Equal(expectedMessage, exception.Message);
+    }
+
+    [Fact]
+    public void UnknownGroundThrowsSaveException()
+    {
+        string path = WriteSave(VersionTwoSave(FieldJson(DroneAtOrigin, TilesWithFirst("""{"ground":"LAVA","crop":null,"ageTicks":0}"""))));
+
+        SaveException exception = Assert.Throws<SaveException>(() => SaveFile.Load(path, _rules));
+
+        Assert.StartsWith("save.json: ", exception.Message, StringComparison.Ordinal);
+    }
+
+    public static TheoryData<string, string> BadFieldCases => new()
+    {
+        {
+            """{"version":2,"items":{},"boughtUnlocks":[],"language":"python","scripts":{"python":null,"javaScript":null}}""",
+            "save.json: field is missing"
+        },
+        {
+            VersionTwoSave(FieldJson(DroneAtOrigin, Tiles(8, GrassTile))),
+            "save.json: field has 8 tiles, expected 9 for a 3x3 field"
+        },
+        {
+            VersionTwoSave(FieldJson(DroneAtOrigin, TilesWithFirst("""{"ground":"GRASS","crop":"TURNIP","ageTicks":0}"""))),
+            "save.json: tile (0, 0): unknown crop TURNIP"
+        },
+        {
+            VersionTwoSave(FieldJson(DroneAtOrigin, TilesWithFirst("""{"ground":"GRASS","crop":"CLOVER","ageTicks":-1}"""))),
+            "save.json: tile (0, 0): age must be from 0 to 200, was -1"
+        },
+        {
+            VersionTwoSave(FieldJson(DroneAtOrigin, TilesWithFirst("""{"ground":"GRASS","crop":"CLOVER","ageTicks":201}"""))),
+            "save.json: tile (0, 0): age must be from 0 to 200, was 201"
+        },
+        {
+            VersionTwoSave(FieldJson(DroneAtOrigin, TilesWithFirst("""{"ground":"GRASS","crop":null,"ageTicks":5}"""))),
+            "save.json: tile (0, 0): an empty tile has age 0, was 5"
+        },
+        {
+            VersionTwoSave(FieldJson(DroneAtOrigin, TilesWithFirst("""{"ground":"SOIL","crop":"CLOVER","ageTicks":0}"""))),
+            "save.json: tile (0, 0): CLOVER grows on Grass, not Soil"
+        },
+        {
+            VersionTwoSave(FieldJson("""{"x":3,"y":0}""", Tiles(9, GrassTile))),
+            "save.json: drone (3, 0) is outside the 3x3 field"
+        },
+    };
+
+    private static string VersionTwoSave(string fieldJson)
+    {
+        return $$"""{"version":2,"items":{},"boughtUnlocks":[],"language":"python","scripts":{"python":null,"javaScript":null},"field":{{fieldJson}}}""";
+    }
+
+    private static string FieldJson(string drone, string tiles)
+    {
+        return $$"""{"drone":{{drone}},"tiles":[{{tiles}}]}""";
+    }
+
+    private static string Tiles(int count, string tile)
+    {
+        return string.Join(",", Enumerable.Repeat(tile, count));
+    }
+
+    private static string TilesWithFirst(string firstTile)
+    {
+        return string.Join(",", Enumerable.Repeat(GrassTile, 8).Prepend(firstTile));
+    }
+
+    private static Crop CloverCrop()
+    {
+        return _rules.Crops.Single(crop => crop.Name == "CLOVER");
+    }
+
+    private static Crop RadishCrop()
+    {
+        return _rules.Crops.Single(crop => crop.Name == "RADISH");
     }
 
     private string WriteSave(string text)

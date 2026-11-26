@@ -34,20 +34,33 @@ public sealed class Field
     /// <param name="items">The item store the field reads and writes. Every count must be at least 1.</param>
     /// <exception cref="ArgumentOutOfRangeException">The width or the height is less than 1.</exception>
     public Field(int width, int height, Crop wildCrop, Dictionary<string, int> items)
+        : this(CreateWildTiles(width, height, wildCrop), new TilePosition(0, 0), items)
     {
+    }
+
+    /// <summary>
+    /// Restores a field from saved tiles. The array is copied, so later changes to it do not change the field.
+    /// The field keeps its items in <paramref name="items"/>.
+    /// </summary>
+    /// <param name="tiles">The tiles, indexed by column and row. Its width and height are the size of the field, and must be at least 1 x 1.</param>
+    /// <param name="dronePosition">The tile the drone stands on. Must be on the field.</param>
+    /// <param name="items">The item store the field reads and writes. Every count must be at least 1.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The size of <paramref name="tiles"/> is less than 1 in either direction, or the drone is outside the field.</exception>
+    public Field(Tile[,] tiles, TilePosition dronePosition, Dictionary<string, int> items)
+    {
+        int width = tiles.GetLength(0);
+        int height = tiles.GetLength(1);
         ArgumentOutOfRangeException.ThrowIfLessThan(width, 1);
         ArgumentOutOfRangeException.ThrowIfLessThan(height, 1);
+        ArgumentOutOfRangeException.ThrowIfNegative(dronePosition.X);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(dronePosition.X, width);
+        ArgumentOutOfRangeException.ThrowIfNegative(dronePosition.Y);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(dronePosition.Y, height);
         Width = width;
         Height = height;
+        DronePosition = dronePosition;
         _items = items;
-        _tiles = new Tile[width, height];
-        for (int x = 0; x < width; x++)
-        {
-            for (int y = 0; y < height; y++)
-            {
-                _tiles[x, y] = new Tile(Ground.Grass, wildCrop, wildCrop.GrowTimeTicks);
-            }
-        }
+        _tiles = (Tile[,])tiles.Clone();
     }
 
     /// <summary>
@@ -230,6 +243,47 @@ public sealed class Field
 
         DroneTile = new Tile(tile.Ground, crop, 0);
         return PlantResult.Planted;
+    }
+
+    /// <summary>
+    /// Returns a larger field with this field's tiles in its top-left corner and ripe wild crop on every other tile.
+    /// The drone keeps its position, and the new field shares this field's item store.
+    /// </summary>
+    /// <param name="width">The new number of columns. Must not be smaller than the current width.</param>
+    /// <param name="height">The new number of rows. Must not be smaller than the current height.</param>
+    /// <param name="wildCrop">The crop that grows wild, ripe, on every new tile.</param>
+    /// <returns>The new, larger field.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The new width or height is smaller than the current one.</exception>
+    public Field Grown(int width, int height, Crop wildCrop)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(width, Width);
+        ArgumentOutOfRangeException.ThrowIfLessThan(height, Height);
+        Tile[,] tiles = CreateWildTiles(width, height, wildCrop);
+        for (int x = 0; x < Width; x++)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                tiles[x, y] = _tiles[x, y];
+            }
+        }
+
+        return new Field(tiles, DronePosition, _items);
+    }
+
+    private static Tile[,] CreateWildTiles(int width, int height, Crop wildCrop)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(width, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(height, 1);
+        var tiles = new Tile[width, height];
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                tiles[x, y] = new Tile(Ground.Grass, wildCrop, wildCrop.GrowTimeTicks);
+            }
+        }
+
+        return tiles;
     }
 
     private static int WrapIndex(int index, int size)
