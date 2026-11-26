@@ -22,6 +22,23 @@ public sealed class GameProgress
     }
 
     /// <summary>
+    /// Creates progress with items and bought unlocks that were checked by the caller (the save loader).
+    /// </summary>
+    /// <param name="rules">The game rules, with the unlocks, the crops and the starting field.</param>
+    /// <param name="items">Item name to count. The caller guarantees every name is a crop and every count is at least 1.</param>
+    /// <param name="boughtUnlockIds">Ids of bought unlocks. The caller guarantees each id is in <paramref name="rules"/>.Unlocks.</param>
+    public GameProgress(GameRules rules, IReadOnlyDictionary<string, int> items, IReadOnlySet<string> boughtUnlockIds)
+        : this(rules)
+    {
+        foreach (KeyValuePair<string, int> item in items)
+        {
+            _items[item.Key] = item.Value;
+        }
+
+        _boughtIds.UnionWith(boughtUnlockIds);
+    }
+
+    /// <summary>
     /// Gets the game rules, with the unlocks, the crops and the starting field.
     /// </summary>
     public GameRules Rules { get; }
