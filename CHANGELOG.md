@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.10.7 — 2026-11-26
+
+- Show the next goal under the item bar: the next unlock, its price and a bar with how much of the price item the player has. When an unlock can be bought, the goal says so and the Unlocks button pulses softly.
+
 ## 0.10.6 — 2026-11-26
 
 - Add the gameplay plan (`docs/gameplay-plan.md`): research on how farm-automation coding games play and feel, and milestones 29 to 35 (next goal, moments, first steps, hints, script stats, several scripts, a playful command), split between the view and the core.
