@@ -6,6 +6,14 @@ Every version of Coding Game, newest first. Version numbers follow the rules in 
 
 - Play-test fixes for beginners: Python accepts tabs for indentation (one kind per script); a locked feature names the unlock and its price; syntax the game does not have says so instead of "not unlocked"; Help starts with short lessons for the selected language and shows what the next unlock teaches.
 
+## 0.13.7 — 2026-11-26
+
+- Fix: the Unlocks and Help windows were empty. Their content was 0 pixels high, because anchors do not size a control inside a window; it now follows the window's size.
+
+## 0.13.6 — 2026-11-26
+
+- Fix: when several first-steps goals get done in the same run, the goal card now ticks all of them, not only one.
+
 ## 0.13.5 — 2026-11-26
 
 - Code and world linked: while a script runs, the running line floats over the drone (for example `move(EAST)`). When a run stops with an error, the drone shakes once and gives off a red burst. A status chip next to the tick count says Ready, Running, Finished or Error in its own colour.

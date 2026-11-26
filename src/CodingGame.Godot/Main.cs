@@ -92,13 +92,11 @@ public partial class Main : Control
         ScrollContainer unlockScroll = new() { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
         unlockScroll.AddChild(_unlockPanel);
         Window unlocksWindow = OverlayWindow("Unlocks", new Vector2I(520, 480));
-        unlocksWindow.AddChild(unlockScroll);
-        unlockScroll.SetAnchorsPreset(LayoutPreset.FullRect);
+        FillWindow(unlocksWindow, unlockScroll);
 
         _helpPanel = new HelpPanel();
         Window helpWindow = OverlayWindow("Help", new Vector2I(560, 520));
-        helpWindow.AddChild(_helpPanel);
-        _helpPanel.SetAnchorsPreset(LayoutPreset.FullRect);
+        FillWindow(helpWindow, _helpPanel);
 
         _unlockBanner = new UnlockBanner();
         // Centred over the field, which sits left of the script window, not over the whole screen.
@@ -218,6 +216,15 @@ public partial class Main : Control
 
         window.Show();
         window.GrabFocus();
+    }
+
+    // Anchors do not size a control inside a Window (it stayed 0 pixels high, so Unlocks and Help looked empty),
+    // so the content follows the window's size by hand.
+    private static void FillWindow(Window window, Control content)
+    {
+        window.AddChild(content);
+        content.Size = window.Size;
+        window.SizeChanged += () => content.Size = window.Size;
     }
 
     private Window OverlayWindow(string title, Vector2I size)

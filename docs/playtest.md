@@ -139,7 +139,6 @@ The field starts 3x3. This is for testing only, so that nested loops can be trie
 
 - Progress and all your scripts (every tab, in both languages) are saved when you close the game, after each buy, when a run starts or ends, and after you add, close or rename a tab. Items from a run that is cut off by a crash are lost.
 - JavaScript is not an unlock yet: both languages are open from the start.
-- When two goals become done in the same run, the goal card shows the tick for only one of them.
 - The art is placeholder: simple coloured shapes built in code for the crops, and a grey drone with four rotors and a blue eye.
 
 ## Update to the newest version

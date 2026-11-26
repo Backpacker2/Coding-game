@@ -20,6 +20,7 @@ The prototype is done when a player can write a Python or JavaScript script in t
 - [x] **11. Save and load.** (0.6.0) Progress (items and bought unlocks) and the player's script survive closing the game. A versioned save file, checked at the edge like the data files. Design: [`docs/decisions/0009-save-format.md`](decisions/0009-save-format.md).
 - [x] **12. Run speed.** (0.6.1) A speed control in the window (slow, normal, fast) so long scripts do not take minutes; ticks stay deterministic.
 - [ ] **13. Play-test round 1.** Fix what the owner finds in the play-test of 0.4.0 and 0.5.0.
+  - [x] The Unlocks and Help windows were empty (0.13.7)
   - [x] Radish could not be planted (0.10.2)
   - [x] Beginner errors and Help lessons (0.14.0)
 - [x] **14. Documentation of what was built.** (0.6.2) README status, player guide, architecture overview.
