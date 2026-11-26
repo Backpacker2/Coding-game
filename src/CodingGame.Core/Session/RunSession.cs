@@ -20,6 +20,8 @@ public sealed class RunSession
 
     private readonly ScriptLanguage _language;
     private readonly Evaluator? _evaluator;
+    private readonly bool[] _visitedTiles;
+    private int _unvisitedTileCount;
 
     private RunSession(ScriptLanguage language, Field field, Evaluator? evaluator, StepStatus status, ScriptError? error)
     {
@@ -28,12 +30,20 @@ public sealed class RunSession
         _evaluator = evaluator;
         Status = status;
         Error = error;
+        _visitedTiles = new bool[field.Width * field.Height];
+        _unvisitedTileCount = _visitedTiles.Length;
+        MarkDroneTileVisited();
     }
 
     /// <summary>
     /// Gets the field the script runs on. It is changed only by the steps of this session.
     /// </summary>
     public Field Field { get; }
+
+    /// <summary>
+    /// Gets whether the drone has stood on every tile of the field during this run. The tile the drone starts on counts.
+    /// </summary>
+    public bool VisitedAllTiles => _unvisitedTileCount == 0;
 
     /// <summary>
     /// Gets whether the script is still running, has finished, or has failed on a parse or runtime error.
@@ -107,6 +117,7 @@ public sealed class RunSession
         StepResult result = _evaluator.Step();
         Status = result.Status;
         Error = result.Error;
+        MarkDroneTileVisited();
     }
 
     /// <summary>
@@ -120,6 +131,17 @@ public sealed class RunSession
         for (int ticks = 0; ticks < MaxTicksPerLineStep && Status == StepStatus.Running && CurrentLine == startLine; ticks++)
         {
             StepTick();
+        }
+    }
+
+    // A move is always followed by a tick, so checking the drone after each tick sees every tile it lands on.
+    private void MarkDroneTileVisited()
+    {
+        int index = Field.DronePosition.Y * Field.Width + Field.DronePosition.X;
+        if (!_visitedTiles[index])
+        {
+            _visitedTiles[index] = true;
+            _unvisitedTileCount--;
         }
     }
 }

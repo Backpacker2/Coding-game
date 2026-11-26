@@ -7,7 +7,7 @@ This is the technical overview of the prototype (version 0.10.0). The rules for 
 | Path | What it is |
 | --- | --- |
 | `src/CodingGame.Core/` | A class library with all the game logic. It does not use Godot, so the tests run without it. |
-| `src/CodingGame.Core/Rules/` | `GameRules` reads and checks the files in `data/`. It also holds the types `Crop`, `TickCosts`, `FieldSize` and `Unlock`. |
+| `src/CodingGame.Core/Rules/` | `GameRules` reads and checks the files in `data/`. It also holds the types `Crop`, `TickCosts`, `FieldSize`, `Unlock` and `Goal` (with `GoalKind`). |
 | `src/CodingGame.Core/Simulation/` | `Field`: the tiles, the drone and the items. Also `Tile`, `Direction` and `PlantResult`. |
 | `src/CodingGame.Core/Interpreter/` | The shared syntax tree, the `Evaluator`, the `DroneApi`, `UnlockCheck`, `HelpBook` and the script errors. |
 | `src/CodingGame.Core/Interpreter/Python/` | The Python front end: tokenizer and parser. |
@@ -17,7 +17,7 @@ This is the technical overview of the prototype (version 0.10.0). The rules for 
 | `src/CodingGame.Godot/CodeWindow.cs` | The floating Script window: toolbar, editor, notice and Messages box. It shows the run and reports Run, Step, Stop and the language to `Main`. |
 | `src/CodingGame.Godot/ResourceBar.cs` | The item bar at the top left: one pill per item with its crop colour and count. |
 | `src/CodingGame.Godot/data/` | A copy of the top-level `data/` folder, made by the build and not in the repository. |
-| `data/` | The game rules, the help texts and the starter scripts: `crops.json`, `ticks.json`, `field.json`, `unlocks.json`, `help.json`, `starter.py` and `starter.js`. |
+| `data/` | The game rules, the help texts and the starter scripts: `crops.json`, `ticks.json`, `field.json`, `unlocks.json`, `goals.json`, `help.json`, `starter.py` and `starter.js`. |
 | `tests/CodingGame.Core.Tests/` | The xUnit tests of Core. |
 | `tests/examples/` | Example scripts, one folder per example. |
 | `docs/` | The design documents, the decision records and the player guide. |
@@ -27,7 +27,7 @@ This is the technical overview of the prototype (version 0.10.0). The rules for 
 ```
 data/*.json ──► GameRules.Load ──► GameRules
                                        │
-save.json ──► SaveFile.Load ──► GameProgress (items, bought unlocks, field)
+save.json ──► SaveFile.Load ──► GameProgress (items, bought unlocks, done goals, field)
                                        │ Field
                                        ▼
 ScriptBook (selected script) + language ──► RunSession.Start
@@ -46,7 +46,7 @@ data/help.json ──► HelpBook.Load (checked against DroneApi) ──► Help
                                                        HelpPanel (Godot, only shows)
 ```
 
-- `GameRules.Load` reads the four JSON files and the two starter scripts, turns them into precise types and checks them. A broken or missing file throws `GameRulesException`.
+- `GameRules.Load` reads the JSON files and the two starter scripts, turns them into precise types and checks them. A broken or missing file throws `GameRulesException`.
 - `SaveFile.Load` reads `save.json`, checks it the same way and returns a `SavedGame`: the progress, the language and the `ScriptBook` with the named scripts. A missing file gives a new game.
 - `RunSession.Start` parses the script. A parse error or a locked feature gives a session that has failed at once. Otherwise it creates an `Evaluator` with a `DroneApi` bound to the field of the progress.
 - Each step of the evaluator runs one tick. The `DroneApi` table gives the command names and their costs, and the field holds the state.
@@ -55,7 +55,7 @@ data/help.json ──► HelpBook.Load (checked against DroneApi) ──► Help
 
 ### Who reads and who changes
 
-The Godot project never changes the field or the rules itself. It changes the game only through `GameProgress.Buy` (the Buy button in `UnlockPanel`), `GameProgress.Reset` (the New game item of the Menu in `Main`) and through `RunSession.Start`, `StepTick` and `StepLine` (the Run and Step buttons of `CodeWindow`, handled in `Main`). Everything else is read:
+The Godot project never changes the field or the rules itself. It changes the game only through `GameProgress.Buy` (the Buy button in `UnlockPanel`), `GameProgress.Reset` (the New game item of the Menu in `Main`) and through `RunSession.Start`, `StepTick` and `StepLine` (the Run and Step buttons of `CodeWindow`, handled in `Main`). `GameProgress.CheckGoals` marks the goals done when `Main` ends a run or stops it. Everything else is read:
 
 - `Main` reads the session status, the tick count, the error and the current line, and calls `SaveFile.Save` at the save points.
 - `FieldView3D` reads the `Field` and builds its 3D scene from it.

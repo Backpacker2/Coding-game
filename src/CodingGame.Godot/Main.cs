@@ -142,9 +142,9 @@ public partial class Main : Control
         }
 
         bool running = _session?.Status == StepStatus.Running;
-        if (_wasRunning && !running)
+        if (_wasRunning && !running && _session is { } endedRun)
         {
-            Save();
+            EndRun(endedRun);
         }
 
         _wasRunning = running;
@@ -252,17 +252,30 @@ public partial class Main : Control
         _playing = false;
         session.StepLine();
 
-        // A step can start and end a run within one frame, which the save check in _Process never sees.
+        // A step can start and end a run within one frame, which the run check in _Process never sees.
         if (session.Status != StepStatus.Running)
         {
-            Save();
+            // Clears the flag so _Process does not end this run a second time.
+            _wasRunning = false;
+            EndRun(session);
         }
     }
 
     private void OnStop()
     {
+        if (_session is { Status: StepStatus.Running } stopped)
+        {
+            EndRun(stopped);
+        }
+
         _session = null;
         _playing = false;
+    }
+
+    private void EndRun(RunSession session)
+    {
+        _progress.CheckGoals(session);
+        Save();
     }
 
     private void OnBought()

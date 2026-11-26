@@ -11,6 +11,7 @@ public class RunSessionTests
 {
     private const string PythonThreeLines = "harvest()\nmove(EAST)\nharvest()";
     private const string JavaScriptThreeLines = "harvest();\nmove(EAST);\nharvest();";
+    private const string SnakeScript = "move(EAST)\nmove(EAST)\nmove(SOUTH)\nmove(WEST)\nmove(WEST)\nmove(SOUTH)\nmove(EAST)\nmove(EAST)";
     private const int MaxStepsInTest = 1000;
 
     private static readonly GameRules _rules = EvaluatorTestSupport.Rules();
@@ -248,6 +249,46 @@ public class RunSessionTests
                 Assert.Equal(first.Field.GetTile(x, y), second.Field.GetTile(x, y));
             }
         }
+    }
+
+    [Fact]
+    public void VisitedAllTilesIsFalseAtTheStartOfAThreeByThreeField()
+    {
+        RunSession session = RunSession.Start(PythonThreeLines, ScriptLanguage.Python, new GameProgress(_rules));
+
+        Assert.False(session.VisitedAllTiles);
+    }
+
+    [Fact]
+    public void VisitedAllTilesWhenTheDroneWentOverEveryTile()
+    {
+        RunSession session = RunSession.Start(SnakeScript, ScriptLanguage.Python, new GameProgress(_rules));
+
+        RunToEnd(session);
+
+        Assert.True(session.VisitedAllTiles);
+    }
+
+    [Fact]
+    public void VisitedAllTilesIsFalseWhenOneTileWasSkipped()
+    {
+        const string snakeWithoutLastMove = "move(EAST)\nmove(EAST)\nmove(SOUTH)\nmove(WEST)\nmove(WEST)\nmove(SOUTH)\nmove(EAST)";
+        RunSession session = RunSession.Start(snakeWithoutLastMove, ScriptLanguage.Python, new GameProgress(_rules));
+
+        RunToEnd(session);
+
+        Assert.False(session.VisitedAllTiles);
+    }
+
+    [Fact]
+    public void VisitedAllTilesStartsAgainInEachRun()
+    {
+        GameProgress progress = new GameProgress(_rules);
+        RunToEnd(RunSession.Start(SnakeScript, ScriptLanguage.Python, progress));
+
+        RunSession second = RunSession.Start("harvest()", ScriptLanguage.Python, progress);
+
+        Assert.False(second.VisitedAllTiles);
     }
 
     private static GameProgress ProgressWithTwoClover()

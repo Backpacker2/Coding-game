@@ -1,0 +1,6 @@
+[
+  { "id": "FINISH_RUN", "text": "Run the starter script to the end.", "hint": "Press Run.", "kind": "finishRun" },
+  { "id": "HAVE_CLOVER", "text": "Have 3 clover.", "hint": "harvest() picks the crop under the drone.", "kind": "haveItems", "item": "CLOVER", "count": 3 },
+  { "id": "VISIT_ALL_TILES", "text": "Fly the drone over every tile in one run.", "hint": "move() in a loop.", "kind": "visitAllTiles" },
+  { "id": "BUY_UNLOCK", "text": "Buy your first unlock.", "hint": "Press Unlocks.", "kind": "buyUnlock" }
+]

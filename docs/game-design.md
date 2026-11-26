@@ -13,6 +13,8 @@ By minute 30 a new player has written a script that farms a mixed 3×3 field for
 
 Each concept is unlocked at the moment the player feels the pain it solves. The game never asks for a concept before the player wants it.
 
+The first goals the player is shown are listed in `data/goals.json`, in the order they are shown.
+
 ## Core loop
 
 1. The player writes a script and presses Run.

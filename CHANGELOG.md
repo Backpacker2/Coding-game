@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.12.0 — 2026-11-26
+
+- First-steps goals (Core): four first goals in `data/goals.json` (run the script, have 3 clover, visit every tile, buy an unlock), checked when a run ends and after a buy, and saved (save format version 4). The goal card comes next.
+
 ## 0.11.0 — 2026-11-26
 
 - Several scripts (Core): the game keeps a list of named scripts, each with a Python and a JavaScript text, and saves them (save format version 3; older saves load as one script named main). The tabs to switch between them come next. Design: decision 0013.
