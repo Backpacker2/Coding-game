@@ -2,9 +2,13 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
-## 0.14.2 — 2026-11-26
+## 0.14.3 — 2026-11-26
 
 - Fix: the Tab key in the script editor types four spaces instead of a tab character, so indents match the examples and lessons.
+
+## 0.14.2 — 2026-11-26
+
+- Docs: the player guide, the play-test guide and the first Help lesson explain the camera (right-drag turns, the wheel zooms, Menu > Reset view).
 
 ## 0.14.1 — 2026-11-26
 
