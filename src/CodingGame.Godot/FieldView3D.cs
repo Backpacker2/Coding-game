@@ -23,11 +23,15 @@ public partial class FieldView3D : SubViewportContainer
     // Leaves room for the item bar at the top.
     private const float FieldLowerFraction = 0.04f;
 
-    private sealed class TileView(MeshInstance3D tileMesh, Node3D cropSlot)
+    private sealed class TileView(MeshInstance3D tileMesh, Node3D cropSlot, Node3D furrows, int shade)
     {
         public MeshInstance3D TileMesh { get; } = tileMesh;
 
         public Node3D CropSlot { get; } = cropSlot;
+
+        public Node3D Furrows { get; } = furrows;
+
+        public int Shade { get; } = shade;
 
         public Ground? ShownGround { get; set; }
 
@@ -36,11 +40,11 @@ public partial class FieldView3D : SubViewportContainer
 
     private readonly record struct ShownCrop(Crop Crop, bool Ripe);
 
-    private readonly BoxMesh _tileMesh = new() { Size = new Vector3(0.94f, 0.3f, 0.94f) };
     private readonly Dictionary<(Color Color, bool Glow), StandardMaterial3D> _materials = [];
     private readonly List<Node3D> _rotors = [];
     private Node3D _tiles = null!;
     private Node3D _drone = null!;
+    private MeshInstance3D _droneRing = null!;
     private Camera3D _camera = null!;
     private TileView[,] _tileViews = new TileView[0, 0];
     private float _elapsedSeconds;
@@ -108,6 +112,7 @@ public partial class FieldView3D : SubViewportContainer
         _tiles = new Node3D();
         _effects = new Node3D();
         _drone = BuildDrone();
+        _droneRing = BuildDroneRing();
         _camera = new Camera3D { Fov = 40 };
         DirectionalLight3D light = new()
         {
@@ -141,7 +146,7 @@ public partial class FieldView3D : SubViewportContainer
                 TonemapExposure = 1.0f,
                 FogEnabled = true,
                 FogLightColor = Palette.Fog,
-                FogDensity = 0.004f,
+                FogDensity = 0.010f,
                 FogSkyAffect = 0f,
                 GlowEnabled = true,
                 GlowIntensity = 0.5f,
@@ -152,6 +157,7 @@ public partial class FieldView3D : SubViewportContainer
         viewport.AddChild(_tiles);
         viewport.AddChild(_effects);
         viewport.AddChild(_drone);
+        viewport.AddChild(_droneRing);
         viewport.AddChild(_camera);
         viewport.AddChild(light);
         viewport.AddChild(worldEnvironment);
@@ -179,6 +185,7 @@ public partial class FieldView3D : SubViewportContainer
         Vector2 lean = velocity.Normalized() * Mathf.Min(velocity.Length() * LeanRadiansPerTilePerSecond, MaxLeanRadians);
         float hover = 0.9f + 0.05f * Mathf.Sin(_elapsedSeconds * 2);
         _drone.Position = new Vector3(_droneShown.X, hover, _droneShown.Y);
+        _droneRing.Position = new Vector3(_droneShown.X, 0.02f, _droneShown.Y);
         _drone.Rotation = new Vector3(lean.Y, 0, -lean.X);
     }
 
@@ -208,20 +215,11 @@ public partial class FieldView3D : SubViewportContainer
         {
             for (int y = 0; y < height; y++)
             {
-                MeshInstance3D tileMesh = new() { Mesh = _tileMesh, Position = new Vector3(x, -0.15f, y) };
-                Node3D cropSlot = new() { Position = new Vector3(x, 0, y), Visible = false };
-                _tiles.AddChild(tileMesh);
-                _tiles.AddChild(cropSlot);
-                _tileViews[x, y] = new TileView(tileMesh, cropSlot);
+                _tileViews[x, y] = BuildTileView(x, y);
             }
         }
 
-        _tiles.AddChild(new MeshInstance3D
-        {
-            Mesh = new BoxMesh { Size = new Vector3(width + 0.2f, 0.2f, height + 0.2f) },
-            MaterialOverride = MaterialFor(Palette.FieldBase, false),
-            Position = new Vector3((width - 1) / 2f, -0.4f, (height - 1) / 2f),
-        });
+        BuildWorld(width, height);
 
         Vector3 target = new((width - 1) / 2f, 0, (height - 1) / 2f);
         Vector3 direction = new Vector3(0, 1, 1).Normalized().Rotated(Vector3.Up, Mathf.DegToRad(35));
@@ -248,7 +246,8 @@ public partial class FieldView3D : SubViewportContainer
     {
         if (view.ShownGround != tile.Ground)
         {
-            view.TileMesh.MaterialOverride = MaterialFor(tile.Ground == Ground.Grass ? Palette.Grass : Palette.Soil, false);
+            view.TileMesh.MaterialOverride = MaterialFor(Palette.Shaded(tile.Ground == Ground.Grass ? Palette.Grass : Palette.Soil, view.Shade), false);
+            view.Furrows.Visible = tile.Ground == Ground.Soil;
             view.ShownGround = tile.Ground;
         }
 
