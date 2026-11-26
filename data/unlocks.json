@@ -1,0 +1,9 @@
+[
+  { "id": "FOR_LOOP", "title": "for loop", "price": { "item": "CLOVER", "count": 10 }, "features": ["for"], "fieldSize": null },
+  { "id": "BIGGER_FIELD", "title": "Bigger field", "price": { "item": "CLOVER", "count": 30 }, "features": [], "fieldSize": { "width": 5, "height": 5 } },
+  { "id": "RADISH", "title": "Radish and plant()", "price": { "item": "CLOVER", "count": 40 }, "features": ["plant", "RADISH"], "fieldSize": null },
+  { "id": "CONDITIONS", "title": "if / else and ripe()", "price": { "item": "RADISH", "count": 20 }, "features": ["if", "ripe"], "fieldSize": null },
+  { "id": "WHILE_LOOP", "title": "while loop", "price": { "item": "RADISH", "count": 40 }, "features": ["while"], "fieldSize": null },
+  { "id": "POTATO", "title": "Potato, till() and ground()", "price": { "item": "RADISH", "count": 60 }, "features": ["till", "ground", "POTATO", "SOIL", "GRASS", "=="], "fieldSize": null },
+  { "id": "FUNCTIONS", "title": "Functions", "price": { "item": "POTATO", "count": 30 }, "features": ["def"], "fieldSize": null }
+]
