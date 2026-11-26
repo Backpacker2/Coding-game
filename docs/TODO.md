@@ -33,7 +33,7 @@ The prototype is done when a player can write a Python or JavaScript script in t
 Milestones 22 to 28 follow [`visual-plan.md`](visual-plan.md), with the research behind them. A second orchestrator thread builds them and owns the view files.
 
 - [x] **22. Palette, sky and light.** (0.10.1) One palette, calmer colours, clover that looks like clover, a sky gradient, fog, tone mapping and a warmer sun.
-- [x] **23. The field in its world.** (0.10.3) An island around the field with trees and rocks, layered tiles, furrows, a ring under the drone.
+- [x] **23. The field in its world.** (0.10.4) An island around the field with trees and rocks, layered tiles, furrows, a ring under the drone.
 - [ ] **24. Crops that grow.** Sprout, young and ripe shapes for each crop, a gentle sway when ripe, pop-in tweens.
 - [ ] **25. Game UI theme.** One theme for every window and button, coloured Run and Stop with icons, icon buttons, item pills with crop shapes.
 - [ ] **26. Code and world linked.** A strong running-line highlight with a gutter arrow, the running command over the drone, a red flash on errors, a run status chip.

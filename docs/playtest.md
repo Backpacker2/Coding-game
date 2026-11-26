@@ -95,5 +95,6 @@ The editor's built-in game view keeps the game at the size of that view. To see 
 
 - **Godot cannot find the .NET SDK:** install the SDK from step 1, then restart Godot.
 - **NU1201 error when building:** a `net8.0` line was added to `src/CodingGame.Godot/CodingGame.Godot.csproj`. Remove the `net8.0` line. The `net10.0` line must stay.
+- **NU1900 error "Error occurred while getting package vulnerability data":** fixed in 0.10.3. Update to the newest version (above). It means the NuGet vulnerability check could not reach the internet.
 - **The game still looks like an older version:** follow "Update to the newest version" above.
 - **Empty window and a `GameRulesException` in Godot's output:** the `data` folder was not copied. Run `dotnet build src/CodingGame.Godot` in the code folder, then restart the game.

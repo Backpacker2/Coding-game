@@ -62,7 +62,7 @@ Option A. `FieldView3D` replaces `FarmView`. The crop colours move to `FieldView
 - The viewport is no longer transparent: it draws a procedural sky, so `Main` has no background colour any more. The field view fills the screen, and the camera is offset so the field sits in the part left of the script window.
 - The environment uses filmic tone mapping, light depth fog and glow, which the compatibility renderer supports. Denser fog washed the field out, so the fog stays light until the field has surroundings (milestone 23).
 
-### Update 2026-11-26 (0.10.3): the field in its world
+### Update 2026-11-26 (0.10.4): the field in its world
 
 - The field stands on an island three tiles wider on every side, built in `FieldView3D.World.cs`. Trees and rocks stand on the island at least two tiles from the field, so they never cover the field or the drone.
 - Decoration and the slight per-tile shade come from a hash of the grid position, not from randomness, so the view is the same on every start.
