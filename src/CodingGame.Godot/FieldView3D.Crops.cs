@@ -6,12 +6,24 @@ namespace CodingGame.Godot;
 /// <summary>How far a crop has grown. It picks the crop's shape.</summary>
 internal enum GrowthStage { Sprout, Young, Ripe }
 
+/// <summary>The look of a crop, on the field and on its item pill: three leaves, a bulb under leaves, or a bush over tubers.</summary>
+internal enum CropShape { Leaves, Bulb, Tubers }
+
 public partial class FieldView3D
 {
     private const float SwayAmplitudeRadians = 4f * Mathf.Pi / 180f;
     private const float SwayPeriodSeconds = 1.5f;
     private const float PopInStartScale = 0.6f;
     private const float PopInSeconds = 0.25f;
+
+    /// <summary>Gets the shape a crop is drawn with. Crops take the shapes in turn, in the order of the game rules.</summary>
+    /// <param name="crop">The crop. It must be one of <paramref name="crops"/>.</param>
+    /// <param name="crops">The crops of the game rules.</param>
+    /// <returns>The crop's shape.</returns>
+    internal static CropShape ShapeOf(Crop crop, IReadOnlyList<Crop> crops)
+    {
+        return (CropShape)(CropIndex(crop, crops) % 3);
+    }
 
     private static GrowthStage StageOf(int ageTicks, int growTimeTicks)
     {
@@ -68,9 +80,9 @@ public partial class FieldView3D
             return shape;
         }
 
-        switch (CropIndex(crop, crops) % 3)
+        switch (ShapeOf(crop, crops))
         {
-            case 0:
+            case CropShape.Leaves:
                 SphereMesh cloverLeafMesh = stage == GrowthStage.Ripe ? LowPolySphere(0.13f, 0.05f) : LowPolySphere(0.09f, 0.04f);
                 float cloverLeafDistance = stage == GrowthStage.Ripe ? 0.12f : 0.08f;
                 foreach (float angleDegrees in new[] { 90f, 210f, 330f })
@@ -86,7 +98,7 @@ public partial class FieldView3D
                 }
 
                 break;
-            case 1:
+            case CropShape.Bulb:
                 if (stage == GrowthStage.Ripe)
                 {
                     shape.AddChild(Part(LowPolySphere(0.16f, 0.28f), color, glow, new Vector3(0, 0.06f, 0)));
@@ -98,7 +110,7 @@ public partial class FieldView3D
                 }
 
                 break;
-            default:
+            case CropShape.Tubers:
                 if (stage == GrowthStage.Ripe)
                 {
                     shape.AddChild(Part(LowPolySphere(0.28f, 0.36f), Palette.Leaf, false, new Vector3(0, 0.18f, 0)));
