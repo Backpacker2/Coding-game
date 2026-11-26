@@ -70,7 +70,7 @@ The build thread owns the game rules and the core library (`src/CodingGame.Core`
 
 ### 32. Hints when stuck
 
-- Core: when the same script error happens three times in a row (counted in the session, not in the save, so runs stay deterministic), the error gets an extra hint line from `data/hints.json` (for example for a harvest of an unripe radish: "Check `ripe()` before you harvest").
+- Core: when the same script error happens three times in a row (counted in the session, not in the save, so runs stay deterministic), the error gets an extra hint line from `data/hints.json` (for example for planting without enough seed items: "Planting costs items. Harvest more first.").
 - View: the hint shows under the error in the Messages box, in a calmer colour, folded open on request.
 
 ### 33. Script stats and personal bests

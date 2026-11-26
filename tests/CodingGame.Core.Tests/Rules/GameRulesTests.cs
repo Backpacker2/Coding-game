@@ -16,6 +16,8 @@ public class GameRulesTests
 
     private const string ValidGoalsJson = "[]";
 
+    private const string ValidHintsJson = "[]";
+
     private const string ValidPythonStarter = "harvest()\n";
 
     private const string ValidJavaScriptStarter = "harvest();\n";
@@ -251,7 +253,8 @@ public class GameRulesTests
         string? unlocksJson = ValidUnlocksJson,
         string? pythonStarter = ValidPythonStarter,
         string? javaScriptStarter = ValidJavaScriptStarter,
-        string? goalsJson = ValidGoalsJson)
+        string? goalsJson = ValidGoalsJson,
+        string? hintsJson = ValidHintsJson)
     {
         string folder = Directory.CreateTempSubdirectory().FullName;
         try
@@ -289,6 +292,11 @@ public class GameRulesTests
             if (goalsJson is not null)
             {
                 File.WriteAllText(Path.Combine(folder, "goals.json"), goalsJson);
+            }
+
+            if (hintsJson is not null)
+            {
+                File.WriteAllText(Path.Combine(folder, "hints.json"), hintsJson);
             }
 
             return GameRules.Load(folder);

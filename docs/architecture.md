@@ -7,17 +7,17 @@ This is the technical overview of the prototype (version 0.10.0). The rules for 
 | Path | What it is |
 | --- | --- |
 | `src/CodingGame.Core/` | A class library with all the game logic. It does not use Godot, so the tests run without it. |
-| `src/CodingGame.Core/Rules/` | `GameRules` reads and checks the files in `data/`. It also holds the types `Crop`, `TickCosts`, `FieldSize`, `Unlock` and `Goal` (with `GoalKind`). |
+| `src/CodingGame.Core/Rules/` | `GameRules` reads and checks the files in `data/`. It also holds the types `Crop`, `TickCosts`, `FieldSize`, `Unlock`, `Goal` (with `GoalKind`) and `Hint`. |
 | `src/CodingGame.Core/Simulation/` | `Field`: the tiles, the drone and the items. Also `Tile`, `Direction` and `PlantResult`. |
 | `src/CodingGame.Core/Interpreter/` | The shared syntax tree, the `Evaluator`, the `DroneApi`, `UnlockCheck`, `HelpBook` and the script errors. |
 | `src/CodingGame.Core/Interpreter/Python/` | The Python front end: tokenizer and parser. |
 | `src/CodingGame.Core/Interpreter/JavaScript/` | The JavaScript front end: tokenizer and parser. |
-| `src/CodingGame.Core/Session/` | `GameProgress`, `ScriptBook` (the named scripts and the selected one), `RunSession`, `SaveFile` and the types around them. |
+| `src/CodingGame.Core/Session/` | `GameProgress`, `ScriptBook` (the named scripts and the selected one), `RunSession`, `HintTracker` (the count of the same error in a row), `SaveFile` and the types around them. |
 | `src/CodingGame.Godot/` | The Godot 4.7 project (C#): `Main.cs` (the screen), `CodeWindow.cs`, `ResourceBar.cs`, `FieldView3D.cs`, `ScriptEditor.cs`, `UnlockPanel.cs`, `HelpPanel.cs`, `main.tscn` and `project.godot`. |
 | `src/CodingGame.Godot/CodeWindow.cs` | The floating Script window: toolbar, editor, notice and Messages box. It shows the run and reports Run, Step, Stop and the language to `Main`. |
 | `src/CodingGame.Godot/ResourceBar.cs` | The item bar at the top left: one pill per item with its crop colour and count. |
 | `src/CodingGame.Godot/data/` | A copy of the top-level `data/` folder, made by the build and not in the repository. |
-| `data/` | The game rules, the help texts and the starter scripts: `crops.json`, `ticks.json`, `field.json`, `unlocks.json`, `goals.json`, `help.json`, `starter.py` and `starter.js`. |
+| `data/` | The game rules, the help texts and the starter scripts: `crops.json`, `ticks.json`, `field.json`, `unlocks.json`, `goals.json`, `hints.json`, `help.json`, `starter.py` and `starter.js`. |
 | `tests/CodingGame.Core.Tests/` | The xUnit tests of Core. |
 | `tests/examples/` | Example scripts, one folder per example. |
 | `docs/` | The design documents, the decision records and the player guide. |

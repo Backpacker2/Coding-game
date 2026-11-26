@@ -1,0 +1,10 @@
+[
+  { "kind": "commandFailed", "detailContains": "not enough seed items", "text": "Planting costs items. Harvest more first." },
+  { "kind": "commandFailed", "detailContains": "the tile already has a crop", "text": "Harvest the crop on this tile before you plant." },
+  { "kind": "commandFailed", "text": "Read the message after the colon: it says which rule stopped the command." },
+  { "kind": "notUnlocked", "text": "Open Unlocks to see what this costs." },
+  { "kind": "undefinedName", "text": "Check the spelling. Help lists every name you can use." },
+  { "kind": "syntaxError", "text": "Compare the line with the example in Help." },
+  { "kind": "indentationError", "text": "Lines in one block need the same indent." },
+  { "kind": "tooDeep", "text": "A function that calls itself needs a way to stop." }
+]
