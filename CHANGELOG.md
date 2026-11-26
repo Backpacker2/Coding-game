@@ -2,6 +2,11 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.10.5 — 2026-11-26
+
+- Crops grow in three stages with their own shapes: a sprout, a young plant and a ripe crop. Ripe clover gets a flower, a ripe radish shows its red root, and a ripe potato bush flowers with potatoes at its base.
+- Ripe crops sway gently, each tile out of step with the others, and every new stage pops in with a short bounce.
+
 ## 0.10.4 — 2026-11-26
 
 - The field sits on a small grass island with low-poly trees and rocks around it, placed from their position so the view is the same every time.
