@@ -33,13 +33,22 @@ The prototype is done when a player can write a Python or JavaScript script in t
 Milestones 22 to 28 follow [`visual-plan.md`](visual-plan.md), with the research behind them. A second orchestrator thread builds them and owns the view files.
 
 - [x] **22. Palette, sky and light.** (0.10.1) One palette, calmer colours, clover that looks like clover, a sky gradient, fog, tone mapping and a warmer sun.
-- [ ] **23. The field in its world.** An island around the field with trees and rocks, layered tiles, furrows, a ring under the drone.
-- [ ] **24. Crops that grow.** Sprout, young and ripe shapes for each crop, a gentle sway when ripe, pop-in tweens.
+- [x] **23. The field in its world.** (0.10.4) An island around the field with trees and rocks, layered tiles, furrows, a ring under the drone.
+- [x] **24. Crops that grow.** (0.10.5) Sprout, young and ripe shapes for each crop, a gentle sway when ripe, pop-in tweens.
 - [ ] **25. Game UI theme.** One theme for every window and button, coloured Run and Stop with icons, icon buttons, item pills with crop shapes.
 - [ ] **26. Code and world linked.** A strong running-line highlight with a gutter arrow, the running command over the drone, a red flash on errors, a run status chip.
 - [ ] **27. Camera.** Orbit, zoom and reset, with limits; the fixed angle stays the default.
 - [ ] **28. Polish and check.** Motion pass, colour-blindness and font-size check, before and after screenshots.
-- [ ] **34. Several scripts.** Named script tabs, one runs. Core done in 0.11.0 (decision 0013); tabs UI: visuals thread.
+
+Milestones 29 to 35 follow [`gameplay-plan.md`](gameplay-plan.md). The view halves are built by the visuals thread; halves marked "Core: build thread" are built and ticked by the build thread.
+
+- [x] **29. Next goal on screen.** (0.10.7) The cheapest unlock not yet affordable, with a progress bar; the Unlocks button glows when one is affordable.
+- [ ] **30. Moments.** A banner for a bought unlock with a link to its help, and a bigger burst for a first harvest.
+- [ ] **31. First steps.** Goals in `data/goals.json` checked from the game state and saved (Core: build thread). A goal card under the item bar (view).
+- [ ] **32. Hints when stuck.** A hint after the same error three times, counted in the session, from `data/hints.json` (Core: build thread). The hint line in Messages (view).
+- [ ] **33. Script stats.** Items per 1,000 ticks and a best per crop in the save (Core: build thread). A stats line and a "New best" moment (view).
+- [ ] **34. Several scripts.** Named scripts, one runs, save format 3 (Core: build thread, done in 0.11.0, decision [0013](decisions/0013-several-scripts.md); the owner agreed on 2026-11-26). Tabs in the script window (view).
+- [ ] **35. A playful command.** `spin()` in every language (Core: build thread). The spin animation (view).
 
 ## Waiting on the owner
 

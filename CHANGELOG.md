@@ -6,6 +6,27 @@ Every version of Coding Game, newest first. Version numbers follow the rules in 
 
 - Several scripts (Core): the game keeps a list of named scripts, each with a Python and a JavaScript text, and saves them (save format version 3; older saves load as one script named main). The tabs to switch between them come next. Design: decision 0013.
 
+## 0.10.7 — 2026-11-26
+
+- Show the next goal under the item bar: the next unlock, its price and a bar with how much of the price item the player has. When an unlock can be bought, the goal says so and the Unlocks button pulses softly.
+
+## 0.10.6 — 2026-11-26
+
+- Add the gameplay plan (`docs/gameplay-plan.md`): research on how farm-automation coding games play and feel, and milestones 29 to 35 (next goal, moments, first steps, hints, script stats, several scripts, a playful command), split between the view and the core.
+- Add research on ready-made 3D models to the visual plan: sources, licences, the drone the owner shared, and how models would be imported.
+
+## 0.10.5 — 2026-11-26
+
+- Crops grow in three stages with their own shapes: a sprout, a young plant and a ripe crop. Ripe clover gets a flower, a ripe radish shows its red root, and a ripe potato bush flowers with potatoes at its base.
+- Ripe crops sway gently, each tile out of step with the others, and every new stage pops in with a short bounce.
+
+## 0.10.4 — 2026-11-26
+
+- The field sits on a small grass island with low-poly trees and rocks around it, placed from their position so the view is the same every time.
+- Tiles have a soil body and a thin top layer with a slight shade per tile; tilled soil shows furrows.
+- A soft blue ring on the ground shows the tile the drone is over.
+- Tuned greens so the field stands out from the island, darker clover, and a little more fog.
+
 ## 0.10.3 — 2026-11-26
 
 - Fix: the build failed with NU1900 ("Error occurred while getting package vulnerability data") when the NuGet feed could not be reached. That warning no longer stops the build.

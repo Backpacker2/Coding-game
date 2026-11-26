@@ -108,13 +108,50 @@ Each milestone is one pull request and one version.
 - Readability check with a colour-blindness simulation of a screenshot, and font sizes at 1280 × 720.
 - Before and after screenshots of 0.9.1 and the result in `docs/`, and `visual-direction.md` updated.
 
+## Research: real 3D models
+
+The owner asked to look into ready-made 3D models, for example animated drones on Sketchfab. Findings (checked 2026-11-26):
+
+### Sources and licences
+
+| Source | Licence | Fit for this public repository |
+| --- | --- | --- |
+| Kenney (kenney.nl) | CC0, no credit required | Yes. Low-poly kits in one consistent style. |
+| Quaternius (quaternius.com) | Quaternius Asset License: free use in games, no credit, but the assets may not be redistributed as assets | Doubtful. A public repository hands out the raw model files, which may count as redistribution. Ask the author or keep them out of the repository. |
+| Sketchfab | Per model. Many downloadable models are CC BY (credit the author), some CC BY-NC or BY-SA, and some are not downloadable | Only CC0 or CC BY, with the author credited. Not NC (non-commercial) or ND, and nothing marked as not for AI use. |
+| Poly Pizza | Mix of CC0 and CC BY | Same rule as Sketchfab. |
+
+Downloading from Sketchfab needs an account, so the owner downloads a chosen model; Claude cannot.
+
+### The drone the owner shared
+
+"Dragon Flycore – Robot Dragonfly Drone, Animated" by robotanimator on Sketchfab: CC BY 4.0 (credit required, commercial use allowed), downloadable, with 7 animations. It has about 720,000 triangles and realistic PBR materials. That is roughly a thousand times our whole drone and far from the flat low-poly look, so it would need heavy simplification and would clash with the field. Not a good fit as it is.
+
+Better fits found in the same search, all CC BY and downloadable: "Military Drone Low-Poly" (344 triangles, 2 animations), "Gungnir Class Riot Drone" (263 triangles, 1 animation), "Sci-Fi Camera Drone" (about 5,400 triangles, 1 animation). Their style still needs checking next to the field.
+
+### How models would come in
+
+- Format: glTF 2.0 binary (`.glb`), which Godot imports directly, with its animations (for example spinning rotors) as an `AnimationPlayer`.
+- Budget: a few thousand triangles for the drone, a few hundred for a crop or tree, so a 10×10 field stays fast on the compatibility renderer.
+- Style: flat colours, no realistic textures, so models match the primitive field. Recolour them to the `Palette` where needed.
+- Where: `src/CodingGame.Godot/models/`, with `models/CREDITS.md` listing each model, its author, source link and licence.
+- Code: `FieldView3D` keeps its interface. A model replaces a primitive shape behind it (decision 0011, option C), one shape at a time, starting with the drone.
+
+### Decision needed from the owner
+
+Using models is a new asset dependency (`CLAUDE.md`). Proposal: allow CC0 and CC BY models with a credits file, start with a CC0 low-poly kit (Kenney) for trees, rocks and crops, and pick one low-poly CC BY drone together with the owner. Until the owner agrees, the art stays primitive.
+
 ## Later, needs the owner
 
 - **Sound.** Harvest pops, a soft drone hum and UI clicks make a big difference to feel. Generated sounds are possible without assets, but real sound effects are an asset dependency.
-- **Imported models or a font.** A custom font and hand-made models would lift the look further. Both are new assets, so they wait for the owner (decision 0011, option C).
+- **A custom font.** A new asset, so it waits for the owner. Models: see the research section above.
 - **Several code windows.** Open question from the owner; it is a gameplay change, not only a visual one.
 
 ## Sources
+
+- Sketchfab model data for the shared drone and a search for downloadable low-poly drones, through Sketchfab's public API. <https://sketchfab.com/3d-models/dragon-flycore-robot-dragonfly-drone-animated-1e8cd639f2914163bb77cdc952ab4937>
+- Quaternius Asset License. <https://quaternius.com/license.html>
+- Kenney asset licence (CC0). <https://kenney.nl/assets>
 
 - Shedworks on the readability of Sable's art: lighting, shadows, distance fog, fading outlines. <https://www.gamedeveloper.com/marketing/how-shedworks-refined-the-art-of-sable-in-pursuit-of-readability>
 - "In love with polygons": vertex-coloured flat low-poly with one hard-shadowed sun. <https://gamedeveloper.com/design/in-love-with-polygons>

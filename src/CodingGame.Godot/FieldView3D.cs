@@ -23,24 +23,30 @@ public partial class FieldView3D : SubViewportContainer
     // Leaves room for the item bar at the top.
     private const float FieldLowerFraction = 0.04f;
 
-    private sealed class TileView(MeshInstance3D tileMesh, Node3D cropSlot)
+    private sealed class TileView(MeshInstance3D tileMesh, Node3D cropSlot, Node3D furrows, int shade, float swayPhaseRadians)
     {
         public MeshInstance3D TileMesh { get; } = tileMesh;
 
         public Node3D CropSlot { get; } = cropSlot;
+
+        public Node3D Furrows { get; } = furrows;
+
+        public int Shade { get; } = shade;
+
+        public float SwayPhaseRadians { get; } = swayPhaseRadians;
 
         public Ground? ShownGround { get; set; }
 
         public ShownCrop? ShownCrop { get; set; }
     }
 
-    private readonly record struct ShownCrop(Crop Crop, bool Ripe);
+    private readonly record struct ShownCrop(Crop Crop, GrowthStage Stage);
 
-    private readonly BoxMesh _tileMesh = new() { Size = new Vector3(0.94f, 0.3f, 0.94f) };
     private readonly Dictionary<(Color Color, bool Glow), StandardMaterial3D> _materials = [];
     private readonly List<Node3D> _rotors = [];
     private Node3D _tiles = null!;
     private Node3D _drone = null!;
+    private MeshInstance3D _droneRing = null!;
     private Camera3D _camera = null!;
     private TileView[,] _tileViews = new TileView[0, 0];
     private float _elapsedSeconds;
@@ -108,6 +114,7 @@ public partial class FieldView3D : SubViewportContainer
         _tiles = new Node3D();
         _effects = new Node3D();
         _drone = BuildDrone();
+        _droneRing = BuildDroneRing();
         _camera = new Camera3D { Fov = 40 };
         DirectionalLight3D light = new()
         {
@@ -141,7 +148,7 @@ public partial class FieldView3D : SubViewportContainer
                 TonemapExposure = 1.0f,
                 FogEnabled = true,
                 FogLightColor = Palette.Fog,
-                FogDensity = 0.004f,
+                FogDensity = 0.010f,
                 FogSkyAffect = 0f,
                 GlowEnabled = true,
                 GlowIntensity = 0.5f,
@@ -152,6 +159,7 @@ public partial class FieldView3D : SubViewportContainer
         viewport.AddChild(_tiles);
         viewport.AddChild(_effects);
         viewport.AddChild(_drone);
+        viewport.AddChild(_droneRing);
         viewport.AddChild(_camera);
         viewport.AddChild(light);
         viewport.AddChild(worldEnvironment);
@@ -163,6 +171,7 @@ public partial class FieldView3D : SubViewportContainer
     {
         _elapsedSeconds += (float)delta;
         UpdateDrone(delta);
+        SwayRipeCrops();
         foreach (Node3D rotor in _rotors)
         {
             rotor.RotateY(RotorSpeedRadiansPerSecond * (float)delta);
@@ -179,6 +188,7 @@ public partial class FieldView3D : SubViewportContainer
         Vector2 lean = velocity.Normalized() * Mathf.Min(velocity.Length() * LeanRadiansPerTilePerSecond, MaxLeanRadians);
         float hover = 0.9f + 0.05f * Mathf.Sin(_elapsedSeconds * 2);
         _drone.Position = new Vector3(_droneShown.X, hover, _droneShown.Y);
+        _droneRing.Position = new Vector3(_droneShown.X, 0.02f, _droneShown.Y);
         _drone.Rotation = new Vector3(lean.Y, 0, -lean.X);
     }
 
@@ -208,20 +218,11 @@ public partial class FieldView3D : SubViewportContainer
         {
             for (int y = 0; y < height; y++)
             {
-                MeshInstance3D tileMesh = new() { Mesh = _tileMesh, Position = new Vector3(x, -0.15f, y) };
-                Node3D cropSlot = new() { Position = new Vector3(x, 0, y), Visible = false };
-                _tiles.AddChild(tileMesh);
-                _tiles.AddChild(cropSlot);
-                _tileViews[x, y] = new TileView(tileMesh, cropSlot);
+                _tileViews[x, y] = BuildTileView(x, y);
             }
         }
 
-        _tiles.AddChild(new MeshInstance3D
-        {
-            Mesh = new BoxMesh { Size = new Vector3(width + 0.2f, 0.2f, height + 0.2f) },
-            MaterialOverride = MaterialFor(Palette.FieldBase, false),
-            Position = new Vector3((width - 1) / 2f, -0.4f, (height - 1) / 2f),
-        });
+        BuildWorld(width, height);
 
         Vector3 target = new((width - 1) / 2f, 0, (height - 1) / 2f);
         Vector3 direction = new Vector3(0, 1, 1).Normalized().Rotated(Vector3.Up, Mathf.DegToRad(35));
@@ -248,7 +249,8 @@ public partial class FieldView3D : SubViewportContainer
     {
         if (view.ShownGround != tile.Ground)
         {
-            view.TileMesh.MaterialOverride = MaterialFor(tile.Ground == Ground.Grass ? Palette.Grass : Palette.Soil, false);
+            view.TileMesh.MaterialOverride = MaterialFor(Palette.Shaded(tile.Ground == Ground.Grass ? Palette.Grass : Palette.Soil, view.Shade), false);
+            view.Furrows.Visible = tile.Ground == Ground.Soil;
             view.ShownGround = tile.Ground;
         }
 
@@ -259,18 +261,23 @@ public partial class FieldView3D : SubViewportContainer
             return;
         }
 
-        bool ripe = tile.CropAgeTicks >= tile.Crop.GrowTimeTicks;
-        ShownCrop shown = new(tile.Crop, ripe);
+        GrowthStage stage = StageOf(tile.CropAgeTicks, tile.Crop.GrowTimeTicks);
+        ShownCrop shown = new(tile.Crop, stage);
         if (view.ShownCrop != shown)
         {
             FreeChildren(view.CropSlot);
-            view.CropSlot.AddChild(BuildCropShape(tile.Crop, ripe, crops));
+            // The tween runs on the shape, not the slot, because ShowTile sets the slot's scale every frame.
+            Node3D shape = BuildCropShape(tile.Crop, stage, crops);
+            view.CropSlot.AddChild(shape);
+            shape.Scale = Vector3.One * PopInStartScale;
+            shape.CreateTween().TweenProperty(shape, "scale", Vector3.One, PopInSeconds)
+                .SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.Out);
+            view.CropSlot.Rotation = Vector3.Zero;
             view.ShownCrop = shown;
         }
 
-        float growth = Mathf.Min(1f, (float)tile.CropAgeTicks / tile.Crop.GrowTimeTicks);
         view.CropSlot.Visible = true;
-        view.CropSlot.Scale = Vector3.One * (0.3f + 0.7f * growth);
+        view.CropSlot.Scale = Vector3.One * GrowthScale(stage, tile.CropAgeTicks, tile.Crop.GrowTimeTicks);
     }
 
     private StandardMaterial3D MaterialFor(Color color, bool glow)
@@ -294,45 +301,6 @@ public partial class FieldView3D : SubViewportContainer
     private MeshInstance3D Part(Mesh mesh, Color color, bool glow, Vector3 position)
     {
         return new MeshInstance3D { Mesh = mesh, MaterialOverride = MaterialFor(color, glow), Position = position };
-    }
-
-    private Node3D BuildCropShape(Crop crop, bool ripe, IReadOnlyList<Crop> crops)
-    {
-        Color color = Palette.CropColor(crop, crops);
-        Node3D shape = new();
-        switch (CropIndex(crop, crops) % 3)
-        {
-            case 0:
-                SphereMesh leafMesh = new() { Radius = 0.13f, Height = 0.05f };
-                foreach (float angleDegrees in new[] { 90f, 210f, 330f })
-                {
-                    float angle = Mathf.DegToRad(angleDegrees);
-                    shape.AddChild(Part(leafMesh, color, ripe, new Vector3(Mathf.Cos(angle) * 0.12f, 0.04f, Mathf.Sin(angle) * 0.12f)));
-                }
-
-                break;
-            case 1:
-                shape.AddChild(Part(new SphereMesh { Radius = 0.18f, Height = 0.36f }, color, ripe, new Vector3(0, 0.12f, 0)));
-                PrismMesh leaf = new() { Size = new Vector3(0.08f, 0.2f, 0.02f) };
-                MeshInstance3D leftLeaf = Part(leaf, Palette.Leaf, false, new Vector3(-0.08f, 0.34f, 0));
-                leftLeaf.RotationDegrees = new Vector3(0, 0, 30);
-                MeshInstance3D rightLeaf = Part(leaf, Palette.Leaf, false, new Vector3(0.08f, 0.34f, 0));
-                rightLeaf.RotationDegrees = new Vector3(0, 0, -30);
-                shape.AddChild(leftLeaf);
-                shape.AddChild(rightLeaf);
-                break;
-            default:
-                shape.AddChild(Part(new SphereMesh { Radius = 0.28f, Height = 0.36f }, Palette.Leaf, false, new Vector3(0, 0.18f, 0)));
-                SphereMesh fruit = new() { Radius = 0.07f, Height = 0.14f };
-                foreach (Vector3 position in new[] { new Vector3(0.2f, 0.07f, 0), new Vector3(-0.1f, 0.07f, 0.17f), new Vector3(-0.1f, 0.07f, -0.17f) })
-                {
-                    shape.AddChild(Part(fruit, color, ripe, position));
-                }
-
-                break;
-        }
-
-        return shape;
     }
 
     private Node3D BuildDrone()
