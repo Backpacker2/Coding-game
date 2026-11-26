@@ -96,7 +96,7 @@ public sealed partial class JavaScriptFrontEnd
         Advance();
         Expect(")");
         List<Statement> body = ParseBlock();
-        return new Repeat(keyword.Line, count, body);
+        return new Repeat(keyword.Line, count, body, null);
     }
 
     private FunctionDefinition ParseFunctionDefinition()

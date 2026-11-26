@@ -31,7 +31,8 @@ public class TreeDumpTests
                     2,
                     new Literal(2, Value.FromBoolean(true)),
                     [new ExpressionStatement(3, new Call(3, "f", [new Literal(3, Value.FromNumber(1)), new Name(3, "A")]))]),
-            ]);
+            ],
+            null);
         var program = new ScriptProgram([loop], ScriptLanguage.Python);
 
         Assert.Equal("1: repeat 2\n  2: while true\n    3: f(1, A)", TreeDump.Of(program));

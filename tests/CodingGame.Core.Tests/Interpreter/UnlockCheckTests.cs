@@ -161,6 +161,39 @@ public class UnlockCheckTests
         Assert.Null(UnlockCheck.FindLocked(PythonProgram(source), Locked("plant", "ripe", "==")));
     }
 
+    [Fact]
+    public void ReadingOrChangingAVariableNeedsTheVariablesFeature()
+    {
+        var locked = Locked("variables");
+        Assert.Equal(
+            new ScriptError(ScriptErrorKind.NotUnlocked, 1, "variables", locked["variables"]),
+            UnlockCheck.FindLocked(PythonProgram("count = 1"), locked));
+        Assert.Equal(
+            new ScriptError(ScriptErrorKind.NotUnlocked, 2, "variables", locked["variables"]),
+            UnlockCheck.FindLocked(PythonProgram("for i in range(2):\n    move(i)"), locked));
+    }
+
+    [Fact]
+    public void LoopCounterThatIsNeverReadNeedsOnlyTheForFeature()
+    {
+        Assert.Null(UnlockCheck.FindLocked(PythonProgram("for i in range(2):\n    harvest()"), Locked("variables")));
+    }
+
+    [Theory]
+    [InlineData("x = 1 + 2", "+")]
+    [InlineData("x = 1 - 2", "-")]
+    [InlineData("x = 1 * 2", "*")]
+    [InlineData("x = -2", "-")]
+    [InlineData("if 1 < 2:\n    pass", "<")]
+    [InlineData("if 1 >= 2:\n    pass", ">=")]
+    public void ArithmeticAndOrderingNeedTheirOwnSymbolAsFeature(string source, string feature)
+    {
+        var locked = Locked(feature);
+        Assert.Equal(
+            new ScriptError(ScriptErrorKind.NotUnlocked, 1, feature, locked[feature]),
+            UnlockCheck.FindLocked(PythonProgram(source), locked));
+    }
+
     private static Dictionary<string, Unlock> Locked(params string[] features)
     {
         return features.ToDictionary(

@@ -33,10 +33,19 @@ public sealed partial class PythonFrontEnd
         return new While(keyword.Line, condition, body);
     }
 
+    private Assign ParseAssignment()
+    {
+        Token name = Advance();
+        ExpectOperator("=");
+        Expression value = ParseExpression();
+        Expect(TokenKind.Newline, string.Empty);
+        return new Assign(name.Line, name.Text, value);
+    }
+
     private Repeat ParseFor()
     {
         Token keyword = Advance();
-        ExpectName();
+        Token counter = ExpectName();
         Expect(TokenKind.Keyword, "in");
 
         Token range = Current;
@@ -60,7 +69,7 @@ public sealed partial class PythonFrontEnd
 
         Expect(TokenKind.Operator, ")");
         IReadOnlyList<Statement> body = ParseBlock("'for' statement", keyword.Line);
-        return new Repeat(keyword.Line, count, body);
+        return new Repeat(keyword.Line, count, body, counter.Text);
     }
 
     private FunctionDefinition ParseFunctionDefinition()

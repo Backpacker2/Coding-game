@@ -84,7 +84,7 @@ public class EvaluatorFunctionTests
         Evaluator evaluator = NewEvaluator(
             NewField(),
             new FunctionDefinition(1, "f", [CallStatement(2, "move", Constant(2, "EAST"))]),
-            new Repeat(4, new Literal(4, Value.FromNumber(2)), [CallStatement(5, "f")]));
+            new Repeat(4, new Literal(4, Value.FromNumber(2)), [CallStatement(5, "f")], null));
 
         Assert.Equal(StepStatus.Finished, RunToEnd(evaluator).Status);
         Assert.Equal(44, evaluator.TicksUsed);

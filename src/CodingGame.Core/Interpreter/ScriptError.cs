@@ -22,6 +22,9 @@ public enum ScriptErrorKind
     /// <summary>A name that is neither a constant nor a command.</summary>
     UndefinedName,
 
+    /// <summary>A name the game knows but that cannot be used at this point, such as a loop counter outside its loop.</summary>
+    NameOutOfScope,
+
     /// <summary>A value of the wrong kind, a wrong number of arguments or a wrong condition.</summary>
     WrongArgument,
 
@@ -71,6 +74,8 @@ public sealed record ScriptError(ScriptErrorKind Kind, int Line, string Detail, 
         {
             (ScriptErrorKind.UndefinedName, ScriptLanguage.Python) => $"NameError on line {Line}: name '{Detail}' is not defined",
             (ScriptErrorKind.UndefinedName, ScriptLanguage.JavaScript) => $"ReferenceError on line {Line}: {Detail} is not defined",
+            (ScriptErrorKind.NameOutOfScope, ScriptLanguage.Python) => $"NameError on line {Line}: {Detail}",
+            (ScriptErrorKind.NameOutOfScope, ScriptLanguage.JavaScript) => $"ReferenceError on line {Line}: {Detail}",
             (ScriptErrorKind.WrongArgument, ScriptLanguage.Python) => $"TypeError on line {Line}: {Detail}",
             (ScriptErrorKind.WrongArgument, ScriptLanguage.JavaScript) => $"TypeError on line {Line}: {Detail}",
             (ScriptErrorKind.NotInGame, _) => $"Error on line {Line}: '{Detail}' is not part of this game yet",

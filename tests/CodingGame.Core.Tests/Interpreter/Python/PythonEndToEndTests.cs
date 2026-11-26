@@ -91,16 +91,16 @@ public class PythonEndToEndTests
     }
 
     [Fact]
-    public void LoopVariableIsNotDefined()
+    public void LoopCounterIsANumberInsideItsLoop()
     {
         Field field = NewField(_rules);
 
         (StepResult result, _) = Run("for i in range(2):\n    move(i)", field);
 
         Assert.Equal(StepStatus.Failed, result.Status);
-        Assert.Equal(new ScriptError(ScriptErrorKind.UndefinedName, 2, "i"), result.Error);
+        Assert.Equal(new ScriptError(ScriptErrorKind.WrongArgument, 2, "move expects direction, got number"), result.Error);
         Assert.Equal(
-            "NameError on line 2: name 'i' is not defined",
+            "TypeError on line 2: move expects direction, got number",
             result.Error!.ToMessage(ScriptLanguage.Python));
     }
 

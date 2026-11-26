@@ -16,6 +16,7 @@ public sealed partial class Evaluator
     private readonly DroneApi _api;
     private readonly Stack<Frame> _frames = new();
     private readonly Dictionary<string, FunctionDefinition> _functions = new();
+    private readonly Dictionary<string, Value> _variables = new();
     private int _callDepth;
     private int _pendingTicks;
     private int _waitTicks;
@@ -118,6 +119,9 @@ public sealed partial class Evaluator
             case FunctionDefinition definition:
                 _functions[definition.Name] = definition;
                 break;
+            case Assign assignment:
+                ExecuteAssign(assignment);
+                break;
             default:
                 throw new InvalidOperationException($"unknown statement type {statement.GetType().Name}");
         }
@@ -162,6 +166,15 @@ public sealed partial class Evaluator
         }
     }
 
+    private void ExecuteAssign(Assign assignment)
+    {
+        if (TryEvaluate(assignment.Value, out Value value))
+        {
+            _variables[assignment.Name] = value;
+            _pendingTicks += _api.AssignTicks;
+        }
+    }
+
     private void ExecuteRepeat(Repeat repeat)
     {
         if (!TryEvaluate(repeat.Count, out Value count))
@@ -192,6 +205,7 @@ public sealed partial class Evaluator
         {
             case Repeat repeat when frame.RepeatsLeft > 0:
                 frame.RepeatsLeft--;
+                frame.Iteration++;
                 frame.Index = 0;
                 CurrentLine = repeat.Line;
                 _pendingTicks += _api.LoopIterationTicks;
@@ -269,6 +283,8 @@ public sealed partial class Evaluator
         public Statement? Loop { get; init; }
 
         public int RepeatsLeft { get; set; }
+
+        public int Iteration { get; set; }
 
         public bool IsFunctionCall { get; init; }
     }

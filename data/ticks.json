@@ -7,5 +7,6 @@
   "groundTicks": 1,
   "loopIterationTicks": 1,
   "functionCallTicks": 1,
-  "spinTicks": 10
+  "spinTicks": 10,
+  "assignTicks": 1
 }
