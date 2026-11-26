@@ -4,7 +4,7 @@ using Xunit;
 
 namespace CodingGame.Core.Tests.Interpreter.JavaScript;
 
-public class JavaScriptFrontEndNotUnlockedTests
+public class JavaScriptFrontEndNotInGameTests
 {
     [Theory]
     [InlineData("import x;", 1, "import")]
@@ -35,11 +35,11 @@ public class JavaScriptFrontEndNotUnlockedTests
     [InlineData("new A();", 1, "new")]
     [InlineData("this;", 1, "this")]
     [InlineData("harvest();\nimport x;", 2, "import")]
-    public void ReportsAFeatureThatIsNotUnlockedYet(string source, int line, string feature)
+    public void ReportsSyntaxThatIsNotInTheGameYet(string source, int line, string feature)
     {
         ParseResult result = JavaScriptFrontEnd.Parse(source);
 
-        Assert.Equal(new ScriptError(ScriptErrorKind.NotUnlocked, line, feature), result.Error);
+        Assert.Equal(new ScriptError(ScriptErrorKind.NotInGame, line, feature), result.Error);
     }
 
     [Theory]
@@ -56,7 +56,7 @@ public class JavaScriptFrontEndNotUnlockedTests
     }
 
     [Theory]
-    [InlineData("import x;", "Error on line 1: 'import' is not unlocked yet")]
+    [InlineData("import x;", "Error on line 1: 'import' is not part of this game yet")]
     [InlineData("a == b;", "SyntaxError on line 1: '==' is not allowed, use '===': '==' converts types before it compares")]
     [InlineData(");", "SyntaxError on line 1: Unexpected token ')'")]
     [InlineData("harvest()", "SyntaxError on line 1: expected ';'")]
@@ -71,7 +71,7 @@ public class JavaScriptFrontEndNotUnlockedTests
     [Theory]
     [InlineData("move(EAST) harvest();\nmove(#);", ScriptErrorKind.SyntaxError, 1, "Unexpected identifier 'harvest'")]
     [InlineData("harvest();\nmove(#);", ScriptErrorKind.SyntaxError, 2, "invalid character '#'")]
-    [InlineData("harvest();\nx = `a`;", ScriptErrorKind.NotUnlocked, 2, "=")]
+    [InlineData("harvest();\nx = `a`;", ScriptErrorKind.NotInGame, 2, "=")]
     public void ReportsTheFirstErrorInSourceOrder(string source, ScriptErrorKind kind, int line, string detail)
     {
         ParseResult result = JavaScriptFrontEnd.Parse(source);

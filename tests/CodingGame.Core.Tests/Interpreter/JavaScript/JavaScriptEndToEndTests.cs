@@ -157,12 +157,12 @@ public class JavaScriptEndToEndTests
     }
 
     [Fact]
-    public void ImportIsNotUnlockedYet()
+    public void ImportIsNotInGame()
     {
         ParseResult result = JavaScriptFrontEnd.Parse("import os;");
 
         Assert.Equal(
-            "Error on line 1: 'import' is not unlocked yet",
+            "Error on line 1: 'import' is not part of this game yet",
             result.Error!.ToMessage(ScriptLanguage.JavaScript));
     }
 

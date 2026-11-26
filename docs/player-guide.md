@@ -91,13 +91,16 @@ Errors name the line they happened on. Python errors look like Python errors, an
 - `ReferenceError on line 3: mvoe is not defined` (JavaScript)
 - `SyntaxError on line 1: expected ';'` (JavaScript)
 - `SyntaxError on line 1: '==' is not allowed, use '===': '==' converts types before it compares` (JavaScript)
-- `Error on line 1: 'plant' is not unlocked yet` (a feature you have not bought yet, in either language)
+- `Error on line 1: 'plant' is not unlocked yet. Buy "Radish and plant()" in Unlocks for 40 CLOVER.` (a feature you have not bought yet, in either language)
+- `Error on line 3: 'break' is not part of this game yet` (syntax the game does not have, in either language)
 - `RuntimeError on line 2: cannot plant RADISH: not enough seed items` (Python; JavaScript says `Error on line 2:` instead)
 - `TypeError on line 1: move expects direction, got number` (a command with the wrong kind of argument)
 
 When the same error happens in three runs in a row, a Show hint button appears under the Messages box; it opens a short hint on what to check.
 
 An unlocked feature is checked before the run starts, so the drone does not move at all. A misspelt command is found only when its line runs, so the drone may have moved before the error.
+
+In Python, tabs or spaces both work for indenting, but one script uses one kind. The first indented line decides which kind the script uses. A line that uses the other kind gives `IndentationError on line 3: this line is indented with tabs, earlier lines use spaces; use one kind`.
 
 ## Tips
 
@@ -111,7 +114,9 @@ An unlocked feature is checked before the run starts, so the drone does not move
 
 ## Help and New game
 
-The Help window shows the commands, constants and language words you can use now. Locked ones are left out until you buy the unlock that opens them. Each entry has an example in the language you selected.
+The Help window starts with short lessons that teach the language, with an example in the language you selected. Lessons 1 to 3 are always there. A lesson about a feature you have not bought yet is left out; the first of those is shown under NEXT, with the unlock that teaches it.
+
+After the lessons, Help shows the commands, constants and language words you can use now. Locked ones are left out until you buy the unlock that opens them. Each entry has an example in the language you selected.
 
 New game is in the Menu. It erases everything: your items, your unlocks, the farm (the field goes back to its starting size, with ripe clover on every tile, and the drone to the top-left tile), both scripts and the language, which goes back to Python. It asks first, and there is no undo. Choose Keep playing in the question to cancel.
 

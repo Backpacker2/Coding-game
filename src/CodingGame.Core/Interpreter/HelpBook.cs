@@ -16,19 +16,26 @@ public enum HelpKind
 
     /// <summary>A language keyword, such as for or ==.</summary>
     Keyword,
+
+    /// <summary>A short lesson about the language.</summary>
+    Lesson,
+
+    /// <summary>The first lesson the player has not unlocked yet.</summary>
+    NextLesson,
 }
 
 /// <summary>One line of help for the player.</summary>
-/// <param name="Name">The name as in data/unlocks.json: a command, a constant or a keyword such as for or ==.</param>
+/// <param name="Name">The name as in data/unlocks.json: a command, a constant or a keyword such as for or ==. For a lesson, its title.</param>
 /// <param name="Kind">What the name is.</param>
 /// <param name="Summary">One sentence about what it does.</param>
 /// <param name="Example">A short example in the language that was asked for. It may span several lines, separated by \n.</param>
 public sealed record HelpEntry(string Name, HelpKind Kind, string Summary, string Example);
 
-/// <summary>The help texts of the game, read from help.json and checked against the drone API.</summary>
+/// <summary>The help texts of the game, read from help.json and lessons.json, and checked against the drone API.</summary>
 public sealed class HelpBook
 {
     private const string FileName = "help.json";
+    private const string LessonsFileName = "lessons.json";
 
     // These have no table of their own; they are the same names as in data/unlocks.json.
     private static readonly string[] _keywords = ["for", "while", "if", "def", "=="];
@@ -42,42 +49,24 @@ public sealed class HelpBook
     };
 
     private readonly List<HelpText> _texts;
+    private readonly List<LessonDto> _lessons;
 
-    private HelpBook(List<HelpText> texts)
+    private HelpBook(List<HelpText> texts, List<LessonDto> lessons)
     {
         _texts = texts;
+        _lessons = lessons;
     }
 
     /// <summary>
-    /// Reads and checks help.json from a data folder. Every command, constant and keyword must have exactly one entry.
+    /// Reads and checks help.json and lessons.json from a data folder. Every command, constant and keyword must have exactly one entry.
     /// </summary>
-    /// <param name="dataFolderPath">The folder that contains help.json.</param>
+    /// <param name="dataFolderPath">The folder that contains help.json and lessons.json.</param>
     /// <param name="api">The drone API whose commands and constants the entries must cover.</param>
-    /// <returns>The validated help texts.</returns>
-    /// <exception cref="GameRulesException">The file is missing or not valid JSON, an entry names something unknown or is repeated, an entry has an empty text, or a command, constant or keyword has no entry.</exception>
+    /// <returns>The validated help texts and lessons.</returns>
+    /// <exception cref="GameRulesException">A file is missing, empty or not valid JSON, an entry names something unknown or is repeated, an entry or lesson has an empty text, a lesson names an unknown feature, or a command, constant or keyword has no entry.</exception>
     public static HelpBook Load(string dataFolderPath, DroneApi api)
     {
-        string path = Path.Combine(dataFolderPath, FileName);
-        if (!File.Exists(path))
-        {
-            throw new GameRulesException(FileName, "file not found");
-        }
-
-        List<HelpDto>? dtos;
-        try
-        {
-            dtos = JsonSerializer.Deserialize<List<HelpDto>>(File.ReadAllText(path), _jsonOptions);
-        }
-        catch (JsonException exception)
-        {
-            throw new GameRulesException(FileName, $"invalid JSON: {exception.Message}");
-        }
-
-        if (dtos is null)
-        {
-            throw new GameRulesException(FileName, "file is empty");
-        }
-
+        List<HelpDto> dtos = ReadJson<HelpDto>(dataFolderPath, FileName);
         var kinds = new Dictionary<string, HelpKind>();
         foreach (string name in api.Commands.Keys)
         {
@@ -124,23 +113,95 @@ public sealed class HelpBook
             }
         }
 
-        return new HelpBook(texts);
+        List<LessonDto> lessons = ReadJson<LessonDto>(dataFolderPath, LessonsFileName);
+        CheckLessons(lessons);
+        return new HelpBook(texts, lessons);
     }
 
     /// <summary>
-    /// Gets the entries the player can use now, in the order of help.json. An entry is left out while one of its
-    /// features is still locked.
+    /// Gets the entries the player can use now. First come the lessons that are shown, in the order of lessons.json.
+    /// A lesson is shown when it has no feature or its feature is unlocked. Then comes the first lesson that is still
+    /// locked, with the unlock that teaches it. Last come the commands, constants and keywords, in the order of help.json.
+    /// An entry for a command, constant or keyword is left out while one of its features is still locked.
     /// </summary>
     /// <param name="progress">The player's progress, which decides which features are locked.</param>
-    /// <param name="language">The language whose example text is returned.</param>
-    /// <returns>The entries for the unlocked names, with the example in the given language.</returns>
+    /// <param name="language">The language whose example and lesson text is returned.</param>
+    /// <returns>The entries for the player, with the example and text in the given language.</returns>
     public IReadOnlyList<HelpEntry> EntriesFor(GameProgress progress, ScriptLanguage language)
     {
-        IReadOnlySet<string> locked = progress.LockedFeatures;
-        return _texts
-            .Where(text => !locked.Contains(text.Name))
-            .Select(text => new HelpEntry(text.Name, text.Kind, text.Summary, ExampleIn(text, language)))
-            .ToList();
+        IReadOnlyDictionary<string, Unlock> locked = progress.LockedFeatures;
+        var entries = new List<HelpEntry>();
+        (LessonDto Lesson, Unlock Unlock)? upcoming = null;
+        foreach (LessonDto lesson in _lessons)
+        {
+            if (lesson.Feature is { } feature && locked.TryGetValue(feature, out Unlock? unlock))
+            {
+                upcoming ??= (lesson, unlock);
+                continue;
+            }
+
+            LessonTextDto text = TextIn(lesson, language);
+            entries.Add(new HelpEntry(lesson.Title, HelpKind.Lesson, text.Text, text.Example));
+        }
+
+        if (upcoming is { } next)
+        {
+            LessonTextDto text = TextIn(next.Lesson, language);
+            entries.Add(new HelpEntry(
+                next.Lesson.Title,
+                HelpKind.NextLesson,
+                $"Next: unlock \"{next.Unlock.Title}\" to learn this. {text.Text}",
+                text.Example));
+        }
+
+        entries.AddRange(_texts
+            .Where(text => !locked.ContainsKey(text.Name))
+            .Select(text => new HelpEntry(text.Name, text.Kind, text.Summary, ExampleIn(text, language))));
+        return entries;
+    }
+
+    private static List<T> ReadJson<T>(string dataFolderPath, string fileName)
+    {
+        string path = Path.Combine(dataFolderPath, fileName);
+        if (!File.Exists(path))
+        {
+            throw new GameRulesException(fileName, "file not found");
+        }
+
+        List<T>? items;
+        try
+        {
+            items = JsonSerializer.Deserialize<List<T>>(File.ReadAllText(path), _jsonOptions);
+        }
+        catch (JsonException exception)
+        {
+            throw new GameRulesException(fileName, $"invalid JSON: {exception.Message}");
+        }
+
+        return items ?? throw new GameRulesException(fileName, "file is empty");
+    }
+
+    private static void CheckLessons(List<LessonDto> lessons)
+    {
+        var ids = new HashSet<string>();
+        foreach (LessonDto lesson in lessons)
+        {
+            if (!ids.Add(lesson.Id))
+            {
+                throw new GameRulesException(LessonsFileName, $"duplicate id '{lesson.Id}'");
+            }
+
+            if (lesson.Feature is { } feature && !_keywords.Contains(feature))
+            {
+                throw new GameRulesException(LessonsFileName, $"lesson '{lesson.Id}': unknown feature '{feature}'");
+            }
+
+            if (string.IsNullOrWhiteSpace(lesson.Title) || string.IsNullOrWhiteSpace(lesson.Python.Text) || string.IsNullOrWhiteSpace(lesson.Python.Example)
+                || string.IsNullOrWhiteSpace(lesson.JavaScript.Text) || string.IsNullOrWhiteSpace(lesson.JavaScript.Example))
+            {
+                throw new GameRulesException(LessonsFileName, $"lesson '{lesson.Id}': title, python and javascript text and example must not be empty");
+            }
+        }
     }
 
     private static string ExampleIn(HelpText text, ScriptLanguage language)
@@ -153,7 +214,21 @@ public sealed class HelpBook
         };
     }
 
+    private static LessonTextDto TextIn(LessonDto lesson, ScriptLanguage language)
+    {
+        return language switch
+        {
+            ScriptLanguage.Python => lesson.Python,
+            ScriptLanguage.JavaScript => lesson.JavaScript,
+            _ => throw new InvalidOperationException("unknown script language"),
+        };
+    }
+
     private sealed record HelpDto(string Name, string Summary, string Python, [property: JsonPropertyName("javascript")] string JavaScript);
 
     private sealed record HelpText(string Name, HelpKind Kind, string Summary, string Python, string JavaScript);
+
+    private sealed record LessonDto(string Id, string Title, string? Feature, LessonTextDto Python, [property: JsonPropertyName("javascript")] LessonTextDto JavaScript);
+
+    private sealed record LessonTextDto(string Text, string Example);
 }

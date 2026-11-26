@@ -32,8 +32,8 @@ public class RunSessionTests
         RunSession session = RunSession.Start("for i in range(2):\n    harvest()", ScriptLanguage.Python, new GameProgress(_rules));
 
         Assert.Equal(StepStatus.Failed, session.Status);
-        Assert.Equal(new ScriptError(ScriptErrorKind.NotUnlocked, 1, "for"), session.Error);
-        Assert.Equal("Error on line 1: 'for' is not unlocked yet", session.ErrorMessage);
+        Assert.Equal(new ScriptError(ScriptErrorKind.NotUnlocked, 1, "for", _rules.Unlocks.Single(unlock => unlock.Id == "FOR_LOOP")), session.Error);
+        Assert.Equal("Error on line 1: 'for' is not unlocked yet. Buy \"for loop\" in Unlocks for 10 CLOVER.", session.ErrorMessage);
         Assert.Equal(0, session.TicksUsed);
         Assert.Equal(0, session.CurrentLine);
     }
@@ -43,7 +43,7 @@ public class RunSessionTests
     {
         RunSession session = RunSession.Start("function f() {}", ScriptLanguage.JavaScript, new GameProgress(_rules));
 
-        Assert.Equal("Error on line 1: 'function' is not unlocked yet", session.ErrorMessage);
+        Assert.Equal("Error on line 1: 'function' is not unlocked yet. Buy \"Functions\" in Unlocks for 30 POTATO.", session.ErrorMessage);
     }
 
     [Fact]
@@ -52,7 +52,37 @@ public class RunSessionTests
         RunSession session = RunSession.Start("plant(RADISH)", ScriptLanguage.Python, new GameProgress(_rules));
 
         Assert.Equal(StepStatus.Failed, session.Status);
-        Assert.Equal("Error on line 1: 'plant' is not unlocked yet", session.ErrorMessage);
+        Assert.Equal("Error on line 1: 'plant' is not unlocked yet. Buy \"Radish and plant()\" in Unlocks for 40 CLOVER.", session.ErrorMessage);
+    }
+
+    [Fact]
+    public void OwnerScriptWithNothingBoughtNamesTheForLoopUnlock()
+    {
+        const string source = """
+            # harvest the whole field, row by row
+            for y in range(3):
+                for x in range(3):
+                    harvest()
+                    move(EAST)
+                move(SOUTH)
+            """;
+
+        RunSession session = RunSession.Start(source, ScriptLanguage.Python, new GameProgress(_rules));
+
+        Assert.Equal(StepStatus.Failed, session.Status);
+        Assert.Equal(
+            "Error on line 2: 'for' is not unlocked yet. Buy \"for loop\" in Unlocks for 10 CLOVER.",
+            session.ErrorMessage);
+    }
+
+    [Fact]
+    public void BreakIsNotInTheGameEvenWhenEverythingIsUnlocked()
+    {
+        RunSession session = RunSession.Start("harvest()\nbreak", ScriptLanguage.Python, EvaluatorTestSupport.AllUnlocked(_rules));
+
+        Assert.Equal(StepStatus.Failed, session.Status);
+        Assert.Equal(new ScriptError(ScriptErrorKind.NotInGame, 2, "break"), session.Error);
+        Assert.Equal("Error on line 2: 'break' is not part of this game yet", session.ErrorMessage);
     }
 
     [Fact]

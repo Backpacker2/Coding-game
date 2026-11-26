@@ -7,13 +7,14 @@ namespace CodingGame.Core.Tests.Interpreter.Python;
 public class PythonTokenizerErrorTests
 {
     [Theory]
-    [InlineData("if x:\n\tharvest()", ScriptErrorKind.IndentationError, 2, "tabs are not allowed in indentation, use spaces")]
-    [InlineData("if x:\n \tharvest()", ScriptErrorKind.IndentationError, 2, "tabs are not allowed in indentation, use spaces")]
+    [InlineData("if x:\n    a()\n\tb()", ScriptErrorKind.IndentationError, 3, "this line is indented with tabs, earlier lines use spaces; use one kind")]
+    [InlineData("if x:\n\ta()\n    b()", ScriptErrorKind.IndentationError, 3, "this line is indented with spaces, earlier lines use tabs; use one kind")]
+    [InlineData("if x:\n \ta()", ScriptErrorKind.IndentationError, 2, "indentation mixes tabs and spaces; use one kind")]
     [InlineData("if x:\n        a()\n    b()", ScriptErrorKind.IndentationError, 3, "unindent does not match any outer indentation level")]
-    [InlineData("x = 'hi'", ScriptErrorKind.NotUnlocked, 1, "strings")]
-    [InlineData("x = \"hi\"", ScriptErrorKind.NotUnlocked, 1, "strings")]
-    [InlineData("a = 1.5", ScriptErrorKind.NotUnlocked, 1, "decimal numbers")]
-    [InlineData("a = 1.", ScriptErrorKind.NotUnlocked, 1, "decimal numbers")]
+    [InlineData("x = 'hi'", ScriptErrorKind.NotInGame, 1, "strings")]
+    [InlineData("x = \"hi\"", ScriptErrorKind.NotInGame, 1, "strings")]
+    [InlineData("a = 1.5", ScriptErrorKind.NotInGame, 1, "decimal numbers")]
+    [InlineData("a = 1.", ScriptErrorKind.NotInGame, 1, "decimal numbers")]
     [InlineData("12abc", ScriptErrorKind.SyntaxError, 1, "invalid decimal literal")]
     [InlineData("0x1F", ScriptErrorKind.SyntaxError, 1, "invalid decimal literal")]
     [InlineData("007", ScriptErrorKind.SyntaxError, 1, "leading zeros in decimal integer literals are not permitted")]
@@ -40,6 +41,17 @@ public class PythonTokenizerErrorTests
 
         Assert.Null(result.Error);
         Assert.Equal(expected, Render(result.Tokens));
+    }
+
+    [Theory]
+    [InlineData("if x:\n\ta()")]
+    [InlineData("if x:\n\tif y:\n\t\ta()\n\tb()")]
+    [InlineData("if x:\n    a()\n    if y:\n        b()")]
+    public void AcceptsIndentationWithOneKind(string source)
+    {
+        var result = PythonTokenizer.Tokenize(source);
+
+        Assert.Null(result.Error);
     }
 
     [Fact]

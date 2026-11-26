@@ -2,9 +2,13 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
-## 0.13.8 — 2026-11-26
+## 0.14.1 — 2026-11-26
 
 - Camera: right-drag over the field turns the view and the mouse wheel zooms, both smoothly and within limits so the field stays readable. Menu > Reset view brings back the default angle. This also works while the script window has focus.
+
+## 0.14.0 — 2026-11-26
+
+- Play-test fixes for beginners: Python accepts tabs for indentation (one kind per script); a locked feature names the unlock and its price; syntax the game does not have says so instead of "not unlocked"; Help starts with short lessons for the selected language and shows what the next unlock teaches.
 
 ## 0.13.7 — 2026-11-26
 

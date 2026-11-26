@@ -56,3 +56,5 @@ Progress is in memory only at this version. Progress is saved since 0.6.0, see [
 - The start field stays 3x3 for testing, so the bigger-field unlock grows it to 5x5, not to 3x3 as in the design table.
 - Progress is saved since 0.6.0, see [`0009`](0009-save-format.md).
 - Items now persist across runs and across Stop, and since 0.6.0 across restarts.
+
+Update 2026-11-26 (0.14.0): the front ends' own rejections of syntax that no unlock gives (`break`, `import`, strings and similar) are now `NotInGame`, with the message `'x' is not part of this game yet`. So the sentence "Both use the same message on purpose" above no longer holds. A `NotUnlocked` error now names its unlock and the price: `Error on line 2: 'for' is not unlocked yet. Buy "for loop" in Unlocks for 10 CLOVER.` `GameProgress.LockedFeatures` maps each locked feature to the unlock that gives it, so the message and the Help lessons use the same lookup.

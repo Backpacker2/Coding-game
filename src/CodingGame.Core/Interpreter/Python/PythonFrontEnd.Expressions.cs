@@ -16,7 +16,7 @@ public sealed partial class PythonFrontEnd
             expression = new Compare(expression.Line, expression, comparison, right);
             if (Current is { Kind: TokenKind.Operator, Text: "==" or "!=" } chained)
             {
-                throw Failure(ScriptErrorKind.NotUnlocked, chained.Line, "chained comparisons");
+                throw Failure(ScriptErrorKind.NotInGame, chained.Line, "chained comparisons");
             }
         }
 

@@ -116,17 +116,20 @@ public sealed class GameProgress
     public Field Field { get; private set; }
 
     /// <summary>
-    /// Gets the features that are still locked: the features of every unlock that is not bought yet.
-    /// Each call returns a new set.
+    /// Gets the features that are still locked, each with the unlock that gives it: the features of every unlock that is not bought yet.
+    /// Each call returns a new dictionary.
     /// </summary>
-    public IReadOnlySet<string> LockedFeatures
+    public IReadOnlyDictionary<string, Unlock> LockedFeatures
     {
         get
         {
-            var locked = new HashSet<string>();
+            var locked = new Dictionary<string, Unlock>();
             foreach (Unlock unlock in Rules.Unlocks.Where(unlock => !IsBought(unlock)))
             {
-                locked.UnionWith(unlock.Features);
+                foreach (string feature in unlock.Features)
+                {
+                    locked.TryAdd(feature, unlock);
+                }
             }
 
             return locked;

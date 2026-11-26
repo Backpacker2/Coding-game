@@ -84,7 +84,7 @@ Running:
 - `Evaluator`: `Evaluator(ScriptProgram, DroneApi)`, `StepResult Step()`, `int CurrentLine`, `int TicksUsed`. It owns the frame stack.
 - `Frame`: one block, a position in it, the loop it belongs to, and the local names of a player function call. Internal.
 - `StepResult`: `Running`, `Finished` or `Failed(ScriptError)`.
-- `ScriptError(ScriptErrorKind Kind, int Line, string Detail)`, with `ScriptErrorKind` as `UndefinedName`, `WrongArgument`, `NotUnlocked`, `CommandFailed` (a game rule was broken) and `TooDeep` (recursion). One function turns kind and language into the text (`NameError on line 3: ...` or `ReferenceError on line 3: ...`), so all wording lives in one file.
+- `ScriptError(ScriptErrorKind Kind, int Line, string Detail, Unlock? Unlock = null)`, with `ScriptErrorKind` as `UndefinedName`, `WrongArgument`, `NotUnlocked` (its message names the unlock), `NotInGame` (no unlock gives it), `CommandFailed` (a game rule was broken) and `TooDeep` (recursion). One function turns kind and language into the text (`NameError on line 3: ...` or `ReferenceError on line 3: ...`), so all wording lives in one file.
 
 Build order, each step leaving the tests green:
 
@@ -106,7 +106,7 @@ Build order, each step leaving the tests green:
 - A player function call is a statement on its own. Used inside an expression it is a `WrongArgument` error, because functions return nothing yet and expressions never pause.
 - Functions are registered when their definition runs, as in Python. JavaScript hoists functions, so its front end moves definitions to the top of their block (see [`0006`](0006-javascript-front-end.md)).
 - `Evaluator.MaxCallDepth` is 100: a runaway recursion ends as a `TooDeep` script error long before it uses up memory.
-- `NotUnlocked` has its wording and a test, but nothing produces it until unlocks exist (milestone 10).
+- `NotUnlocked` is produced by `UnlockCheck` since milestone 10 (0.5.0).
 - The analyzer rule CA1716 is off, so tree nodes can be named after what scripts write (`If`, `While`, `Call`).
 
 ## Consequences

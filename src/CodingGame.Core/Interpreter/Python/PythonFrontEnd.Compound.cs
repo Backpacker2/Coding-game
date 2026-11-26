@@ -42,20 +42,20 @@ public sealed partial class PythonFrontEnd
         Token range = Current;
         if (range is not { Kind: TokenKind.Name, Text: "range" })
         {
-            throw Failure(ScriptErrorKind.NotUnlocked, range.Line, "for without range");
+            throw Failure(ScriptErrorKind.NotInGame, range.Line, "for without range");
         }
 
         Advance();
         ExpectOperator("(");
         if (IsOperator(")"))
         {
-            throw Failure(ScriptErrorKind.NotUnlocked, Current.Line, "range with other arguments");
+            throw Failure(ScriptErrorKind.NotInGame, Current.Line, "range with other arguments");
         }
 
         Expression count = ParseExpression();
         if (IsOperator(","))
         {
-            throw Failure(ScriptErrorKind.NotUnlocked, Current.Line, "range with other arguments");
+            throw Failure(ScriptErrorKind.NotInGame, Current.Line, "range with other arguments");
         }
 
         Expect(TokenKind.Operator, ")");
@@ -70,7 +70,7 @@ public sealed partial class PythonFrontEnd
         ExpectOperator("(");
         if (Current.Kind == TokenKind.Name)
         {
-            throw Failure(ScriptErrorKind.NotUnlocked, Current.Line, "parameters");
+            throw Failure(ScriptErrorKind.NotInGame, Current.Line, "parameters");
         }
 
         Expect(TokenKind.Operator, ")");

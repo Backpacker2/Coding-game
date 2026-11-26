@@ -22,6 +22,7 @@ The prototype is done when a player can write a Python or JavaScript script in t
 - [ ] **13. Play-test round 1.** Fix what the owner finds in the play-test of 0.4.0 and 0.5.0.
   - [x] The Unlocks and Help windows were empty (0.13.7)
   - [x] Radish could not be planted (0.10.2)
+  - [x] Beginner errors and Help lessons (0.14.0)
 - [x] **14. Documentation of what was built.** (0.6.2) README status, player guide, architecture overview.
 - [x] **15. In-game help and New game.** (0.7.0) A panel listing the commands, constants and language features the player has unlocked, and a New game button that resets the progress and scripts after a confirmation. Design: [`docs/decisions/0010-in-game-help.md`](decisions/0010-in-game-help.md).
 - [x] **16. Crops stay on the field.** (0.10.0) The field belongs to the player's progress: crops keep growing in later runs, the drone stays where it stopped, and the field is saved (save format version 2). The owner chose this on 2026-11-26. Design: [`docs/decisions/0012-persistent-field.md`](decisions/0012-persistent-field.md).
@@ -38,7 +39,7 @@ Milestones 22 to 28 follow [`visual-plan.md`](visual-plan.md), with the research
 - [x] **24. Crops that grow.** (0.10.5) Sprout, young and ripe shapes for each crop, a gentle sway when ripe, pop-in tweens.
 - [ ] **25. Game UI theme.** One theme for every window and button, coloured Run and Stop with icons, icon buttons, item pills with crop shapes. The theme and coloured Run and Stop are done in 0.12.6; drawn icons, icon buttons and the item pills are still open.
 - [x] **26. Code and world linked.** A strong running-line highlight with a gutter arrow, the running command over the drone, a red flash on errors, a run status chip. (0.13.5) The gutter arrow was left out: the existing line highlight already marks the line.
-- [x] **27. Camera.** Orbit, zoom and reset, with limits; the fixed angle stays the default. (0.13.8: right-drag turns, the wheel zooms, Menu > Reset view.)
+- [x] **27. Camera.** Orbit, zoom and reset, with limits; the fixed angle stays the default. (0.14.1: right-drag turns, the wheel zooms, Menu > Reset view.)
 - [ ] **28. Polish and check.** Motion pass, colour-blindness and font-size check, before and after screenshots.
 
 Milestones 29 to 35 follow [`gameplay-plan.md`](gameplay-plan.md). The view halves are built by the visuals thread; halves marked "Core: build thread" are built and ticked by the build thread.

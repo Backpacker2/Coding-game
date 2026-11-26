@@ -1,3 +1,5 @@
+using CodingGame.Core.Rules;
+
 namespace CodingGame.Core.Interpreter;
 
 /// <summary>Finds the first use of a feature the player has not unlocked yet.</summary>
@@ -7,9 +9,9 @@ public static class UnlockCheck
     /// Walks a parsed script in source order and finds the first use of a locked feature.
     /// </summary>
     /// <param name="program">The parsed script.</param>
-    /// <param name="lockedFeatures">The feature names that are still locked, as in data/unlocks.json.</param>
-    /// <returns>A <see cref="ScriptErrorKind.NotUnlocked"/> error for the first locked use, or null when the script uses nothing locked. Null is the answer "no error", not a failure.</returns>
-    public static ScriptError? FindLocked(ScriptProgram program, IReadOnlySet<string> lockedFeatures)
+    /// <param name="lockedFeatures">The feature names that are still locked, as in data/unlocks.json, each with the unlock that gives it.</param>
+    /// <returns>A <see cref="ScriptErrorKind.NotUnlocked"/> error that names the unlock, for the first locked use, or null when the script uses nothing locked. Null is the answer "no error", not a failure.</returns>
+    public static ScriptError? FindLocked(ScriptProgram program, IReadOnlyDictionary<string, Unlock> lockedFeatures)
     {
         return FindInBlock(program.Body, program.Language, lockedFeatures);
     }
@@ -17,7 +19,7 @@ public static class UnlockCheck
     private static ScriptError? FindInBlock(
         IReadOnlyList<Statement> statements,
         ScriptLanguage language,
-        IReadOnlySet<string> lockedFeatures)
+        IReadOnlyDictionary<string, Unlock> lockedFeatures)
     {
         foreach (Statement statement in statements)
         {
@@ -34,7 +36,7 @@ public static class UnlockCheck
     private static ScriptError? FindInStatement(
         Statement statement,
         ScriptLanguage language,
-        IReadOnlySet<string> lockedFeatures)
+        IReadOnlyDictionary<string, Unlock> lockedFeatures)
     {
         return statement switch
         {
@@ -63,7 +65,7 @@ public static class UnlockCheck
     private static ScriptError? FindInExpression(
         Expression expression,
         ScriptLanguage language,
-        IReadOnlySet<string> lockedFeatures)
+        IReadOnlyDictionary<string, Unlock> lockedFeatures)
     {
         return expression switch
         {
@@ -83,7 +85,7 @@ public static class UnlockCheck
     private static ScriptError? FindInArguments(
         IReadOnlyList<Expression> arguments,
         ScriptLanguage language,
-        IReadOnlySet<string> lockedFeatures)
+        IReadOnlyDictionary<string, Unlock> lockedFeatures)
     {
         foreach (Expression argument in arguments)
         {
@@ -101,10 +103,10 @@ public static class UnlockCheck
         int line,
         string feature,
         string detail,
-        IReadOnlySet<string> lockedFeatures)
+        IReadOnlyDictionary<string, Unlock> lockedFeatures)
     {
-        return lockedFeatures.Contains(feature)
-            ? new ScriptError(ScriptErrorKind.NotUnlocked, line, detail)
+        return lockedFeatures.TryGetValue(feature, out Unlock? unlock)
+            ? new ScriptError(ScriptErrorKind.NotUnlocked, line, detail, unlock)
             : null;
     }
 

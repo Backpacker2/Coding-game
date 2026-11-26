@@ -6,5 +6,5 @@
   "dronePosition": { "x": 0, "y": 0 },
   "items": {},
   "tiles": [],
-  "error": { "kind": "NotUnlocked", "line": 1 }
+  "error": { "kind": "NotInGame", "line": 1 }
 }

@@ -197,7 +197,7 @@ An error in a script stops the drone and shows a message with the line number, i
 - Python: `NameError on line 3: name 'mvoe' is not defined`
 - JavaScript: `ReferenceError on line 3: mvoe is not defined`
 
-When the player uses something that exists in the real language but is not unlocked yet, the message says so: `'import' is not unlocked yet`. That keeps principle 2: the code is not wrong, it is just ahead of the game.
+When the player uses something that exists in the real language, the message says so, and the code is not called wrong. A feature that an unlock gives says it is not unlocked yet and names the unlock and its price, for example `'for' is not unlocked yet. Buy "for loop" in Unlocks for 10 CLOVER.` Syntax that no unlock gives says it is not part of this game yet, for example `'import' is not part of this game yet`. That keeps principle 2: the code is not wrong, it is just ahead of the game, or outside the game.
 
 A script that is not valid code gives a syntax error. Python reports its own error names for indentation as well:
 
@@ -205,7 +205,7 @@ A script that is not valid code gives a syntax error. Python reports its own err
 - Python: `IndentationError on line 2: unexpected indent`, for an indented line that does not follow a block header.
 - Python: `IndentationError on line 2: expected an indented block after 'if' statement on line 1`, for `if ripe():` with no indented line after it.
 
-In Python, the following give `'...' is not unlocked yet`:
+In Python, the following give `'...' is not part of this game yet`:
 
 - Keywords such as `import`, `from`, `return`, `and`, `or`, `not`, `None`, `class` and `try`.
 - Operators other than `( ) , : == !=`, such as `+`, `=`, `<`, `[`, `.` and `;`.
@@ -214,7 +214,7 @@ In Python, the following give `'...' is not unlocked yet`:
 
 Python errors stop at the first problem in the script, in source order, as in real Python.
 
-In JavaScript, the following give `'...' is not unlocked yet`:
+In JavaScript, the following give `'...' is not part of this game yet`:
 
 - Keywords other than `if`, `else`, `while`, `for`, `function`, `true` and `false`, such as `var`, `return`, `class` and `try`. `let` is allowed only in the header of a `for` loop.
 - Operators other than `( ) { } , ; === !==`, such as `+`, `=`, `<`, `++`, `&&`, `!`, `[` and `.`.
@@ -230,7 +230,7 @@ Some mistakes are plain JavaScript errors:
 
 ### Features that are not bought yet
 
-The game teaches some features only after the player buys the unlock that opens them. Using one of them gives `'x' is not unlocked yet`, with the line number, in the language of the script. The check runs on the whole script before it starts, so the drone does not move at all. The first locked use in source order is reported (in JavaScript, function declarations are checked first, because they are hoisted). A locked feature is refused even in a branch that would never run.
+The game teaches some features only after the player buys the unlock that opens them. Using one of them gives `'x' is not unlocked yet. Buy "Title" in Unlocks for N ITEM.`, with the line number, in the language of the script. The message names the unlock that opens the feature and its price. The check runs on the whole script before it starts, so the drone does not move at all. The first locked use in source order is reported (in JavaScript, function declarations are checked first, because they are hoisted). A locked feature is refused even in a branch that would never run.
 
 The unlocks are listed in `data/unlocks.json`. They open these features:
 
@@ -244,7 +244,7 @@ The unlocks are listed in `data/unlocks.json`. They open these features:
 | Potato, till() and ground() | 60 radish | `till`, `ground`, `POTATO`, `SOIL`, `GRASS`, `==`, `!=` |
 | Functions | 30 potato | `def` |
 
-The name in the message is the one the player wrote. Two exceptions: in JavaScript the function feature is named `function`, and the comparison is named `===` or `!==`. A JavaScript `==` is still a syntax error, as described above. For example, a Python and a JavaScript script that call `plant(RADISH)` both give `'plant' is not unlocked yet`.
+The name in the message is the one the player wrote. Two exceptions: in JavaScript the function feature is named `function`, and the comparison is named `===` or `!==`. A JavaScript `==` is still a syntax error, as described above. For example, a Python and a JavaScript script that call `plant(RADISH)` both give `'plant' is not unlocked yet. Buy "Radish and plant()" in Unlocks for 40 CLOVER.`.
 
 ## How scripts run
 
