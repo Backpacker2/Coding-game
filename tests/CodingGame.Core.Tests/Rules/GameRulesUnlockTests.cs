@@ -102,6 +102,7 @@ public class GameRulesUnlockTests
             File.WriteAllText(Path.Combine(folder, "field.json"), ValidFieldJson);
             File.WriteAllText(Path.Combine(folder, "unlocks.json"), unlocksJson);
             File.WriteAllText(Path.Combine(folder, "goals.json"), "[]");
+            File.WriteAllText(Path.Combine(folder, "hints.json"), "[]");
             File.WriteAllText(Path.Combine(folder, "starter.py"), "harvest()\n");
             File.WriteAllText(Path.Combine(folder, "starter.js"), "harvest();\n");
             return GameRules.Load(folder);

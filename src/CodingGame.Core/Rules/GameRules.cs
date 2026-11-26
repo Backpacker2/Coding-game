@@ -5,13 +5,14 @@ using CodingGame.Core.Interpreter;
 namespace CodingGame.Core.Rules;
 
 /// <summary>
-/// The game rules read from the data folder: the crops, the tick costs, the starting field, the unlocks, the goals and the starter scripts.
+/// The game rules read from the data folder: the crops, the tick costs, the starting field, the unlocks, the goals, the hints and the starter scripts.
 /// </summary>
 /// <param name="Crops">The crops, in the order they appear in crops.json.</param>
 /// <param name="TickCosts">How many ticks each drone action and script step takes.</param>
 /// <param name="StartField">The size of the field the game starts with.</param>
 /// <param name="Unlocks">The unlocks, in the order they appear in unlocks.json.</param>
 /// <param name="Goals">The first-steps goals, in the order they appear in goals.json.</param>
+/// <param name="Hints">The hints for stuck players, in the order they appear in hints.json.</param>
 /// <param name="StarterTexts">The starter script of each language, from starter.py and starter.js.</param>
 public sealed record GameRules(
     IReadOnlyList<Crop> Crops,
@@ -19,6 +20,7 @@ public sealed record GameRules(
     FieldSize StartField,
     IReadOnlyList<Unlock> Unlocks,
     IReadOnlyList<Goal> Goals,
+    IReadOnlyList<Hint> Hints,
     IReadOnlyDictionary<ScriptLanguage, string> StarterTexts)
 {
     private const string CropsFileName = "crops.json";
@@ -26,6 +28,7 @@ public sealed record GameRules(
     private const string FieldFileName = "field.json";
     private const string UnlocksFileName = "unlocks.json";
     private const string GoalsFileName = "goals.json";
+    private const string HintsFileName = "hints.json";
     private const string PythonStarterFileName = "starter.py";
     private const string JavaScriptStarterFileName = "starter.js";
 
@@ -40,6 +43,9 @@ public sealed record GameRules(
 
     // The goal kind is read as text and checked in ToGoal, so an unknown kind gets a message that names the goal.
     private sealed record GoalDto(string Id, string Text, string Hint, string Kind, string? Item = null, int? Count = null);
+
+    // The error kind is read as text and checked in ReadHints, so an unknown kind gets a message that names the entry.
+    private sealed record HintDto(string Kind, string Text, string? DetailContains = null);
 
     /// <summary>
     /// Gets the starter script for a language: the text a new player sees in the editor.
@@ -58,11 +64,11 @@ public sealed record GameRules(
     }
 
     /// <summary>
-    /// Reads and checks crops.json, ticks.json, field.json, unlocks.json, goals.json, starter.py and starter.js from a data folder.
+    /// Reads and checks crops.json, ticks.json, field.json, unlocks.json, goals.json, hints.json, starter.py and starter.js from a data folder.
     /// </summary>
     /// <param name="dataFolderPath">The folder that contains the data files.</param>
     /// <returns>The validated game rules.</returns>
-    /// <exception cref="GameRulesException">A file is missing, is not valid JSON for the rules, or breaks a rule such as a non-positive number, a duplicate crop, an unknown seed item, a missing wild crop, or a goal with an unknown kind or item.</exception>
+    /// <exception cref="GameRulesException">A file is missing, is not valid JSON for the rules, or breaks a rule such as a non-positive number, a duplicate crop, an unknown seed item, a missing wild crop, a goal with an unknown kind or item, or a hint with an unknown kind, an empty text or an empty detailContains.</exception>
     public static GameRules Load(string dataFolderPath)
     {
         List<Crop> crops = ReadFile<List<Crop>>(dataFolderPath, CropsFileName);
@@ -70,17 +76,19 @@ public sealed record GameRules(
         FieldSize startField = ReadFile<FieldSize>(dataFolderPath, FieldFileName);
         List<Unlock> unlocks = ReadFile<List<Unlock>>(dataFolderPath, UnlocksFileName);
         List<GoalDto> goalDtos = ReadFile<List<GoalDto>>(dataFolderPath, GoalsFileName);
+        List<HintDto> hintDtos = ReadFile<List<HintDto>>(dataFolderPath, HintsFileName);
         ValidateCrops(crops);
         ValidateTickCosts(tickCosts);
         ValidateStartField(startField);
         ValidateUnlocks(unlocks, crops, startField);
         List<Goal> goals = ReadGoals(goalDtos, crops);
+        List<Hint> hints = ReadHints(hintDtos);
         var starterTexts = new Dictionary<ScriptLanguage, string>
         {
             [ScriptLanguage.Python] = ReadText(dataFolderPath, PythonStarterFileName),
             [ScriptLanguage.JavaScript] = ReadText(dataFolderPath, JavaScriptStarterFileName),
         };
-        return new GameRules(crops, tickCosts, startField, unlocks, goals, starterTexts);
+        return new GameRules(crops, tickCosts, startField, unlocks, goals, hints, starterTexts);
     }
 
     private static string ReadText(string dataFolderPath, string fileName)
@@ -228,6 +236,40 @@ public sealed record GameRules(
         }
 
         return goals;
+    }
+
+    private static List<Hint> ReadHints(List<HintDto> dtos)
+    {
+        var hints = new List<Hint>();
+        for (int index = 0; index < dtos.Count; index++)
+        {
+            HintDto dto = dtos[index];
+            string entry = $"entry {index + 1}";
+            ScriptErrorKind kind = dto.Kind switch
+            {
+                "undefinedName" => ScriptErrorKind.UndefinedName,
+                "wrongArgument" => ScriptErrorKind.WrongArgument,
+                "notUnlocked" => ScriptErrorKind.NotUnlocked,
+                "commandFailed" => ScriptErrorKind.CommandFailed,
+                "tooDeep" => ScriptErrorKind.TooDeep,
+                "syntaxError" => ScriptErrorKind.SyntaxError,
+                "indentationError" => ScriptErrorKind.IndentationError,
+                _ => throw new GameRulesException(HintsFileName, $"{entry}: unknown kind {dto.Kind}"),
+            };
+            if (string.IsNullOrWhiteSpace(dto.Text))
+            {
+                throw new GameRulesException(HintsFileName, $"{entry}: text is empty");
+            }
+
+            if (dto.DetailContains is not null && dto.DetailContains.Length == 0)
+            {
+                throw new GameRulesException(HintsFileName, $"{entry}: detailContains is empty");
+            }
+
+            hints.Add(new Hint(kind, dto.DetailContains, dto.Text));
+        }
+
+        return hints;
     }
 
     private static Goal ToGoal(GoalDto dto, List<Crop> crops)
