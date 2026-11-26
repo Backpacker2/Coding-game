@@ -21,6 +21,7 @@ public partial class Main : Control
     private FieldView3D _fieldView = null!;
     private ResourceBar _resourceBar = null!;
     private GoalBar _goalBar = null!;
+    private GoalCard _goalCard = null!;
     private UnlockBanner _unlockBanner = null!;
     private Button _unlocksButton = null!;
     private CodeWindow _codeWindow = null!;
@@ -80,6 +81,8 @@ public partial class Main : Control
         AddChild(_resourceBar);
         _goalBar = new GoalBar { Position = new Vector2(16, 56) };
         AddChild(_goalBar);
+        _goalCard = new GoalCard { Position = new Vector2(16, 112) };
+        AddChild(_goalCard);
 
         _unlockPanel = new UnlockPanel { SizeFlagsHorizontal = SizeFlags.ExpandFill };
         _unlockPanel.Show(_progress);
@@ -413,6 +416,7 @@ public partial class Main : Control
         _fieldView.ShowField(field, _rules.Crops);
         _resourceBar.ShowItems(field.Items, _rules.Crops);
         _goalBar.ShowNextGoal(_progress);
+        _goalCard.ShowGoal(_progress);
         bool canBuyAny = _progress.Rules.Unlocks.Any(_progress.CanBuy);
         // A slow pulse draws the eye to Unlocks without blinking.
         _unlocksButton.Modulate = canBuyAny ? Colors.White.Lerp(Palette.UnlockGlow, 0.5f + 0.5f * Mathf.Sin(Time.GetTicksMsec() / 300f)) : Colors.White;

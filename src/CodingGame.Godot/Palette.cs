@@ -125,6 +125,12 @@ public static class Palette
     /// <summary>Pulse on the Unlocks button when an unlock can be bought.</summary>
     public static readonly Color UnlockGlow = new(1.0f, 0.92f, 0.55f);
 
+    /// <summary>Text of a first-steps goal that was just done.</summary>
+    public static readonly Color GoalDone = new(0.60f, 0.88f, 0.50f);
+
+    /// <summary>Background of the first-steps card under the goal bar.</summary>
+    public static readonly Color GoalCardBackground = new(0f, 0f, 0f, 0.35f);
+
     // Placeholder art: the colours only tell the crops apart until real art exists.
     // The order follows the crops in data/crops.json: clover, radish, potato.
     private static readonly Color[] _cropColors = [new(0.14f, 0.40f, 0.20f), new(0.85f, 0.28f, 0.35f), new(0.82f, 0.66f, 0.38f)];
