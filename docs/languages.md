@@ -230,7 +230,7 @@ Some mistakes are plain JavaScript errors:
 
 ### Features that are not bought yet
 
-The game teaches some features only after the player buys the unlock that opens them. Using one of them gives `'x' is not unlocked yet`, with the line number, in the language of the script. The check runs on the whole script before it starts, so the drone does not move at all. The first locked use in source order is reported. A locked feature is refused even in a branch that would never run.
+The game teaches some features only after the player buys the unlock that opens them. Using one of them gives `'x' is not unlocked yet`, with the line number, in the language of the script. The check runs on the whole script before it starts, so the drone does not move at all. The first locked use in source order is reported (in JavaScript, function declarations are checked first, because they are hoisted). A locked feature is refused even in a branch that would never run.
 
 The unlocks are listed in `data/unlocks.json`. They open these features:
 

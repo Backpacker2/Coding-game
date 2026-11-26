@@ -43,7 +43,7 @@ A variant was also rejected: passing a feature set into both front ends. That pu
 
 ## Decision
 
-Option A. The locked features are a set of names. The tree check returns the first locked use in source order. `RunSession.Start` runs the check after parsing.
+Option A. The locked features are a set of names. The tree check returns the first locked use in source order (in JavaScript, after hoisting, so a function declaration is checked first). `RunSession.Start` runs the check after parsing.
 
 The front ends keep their own `NotUnlocked` errors for features that are not taught in this version (strings, `+`, `return`). The new check covers features that are taught but not bought yet. Both use the same message on purpose.
 

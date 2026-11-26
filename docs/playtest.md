@@ -28,14 +28,14 @@ The field starts 3x3. This is for testing only, so that nested loops can be trie
    - Press Step several times and watch the yellow line move.
    - Press Stop. The field is reset, but your items stay.
    - Switch the language between Python and JavaScript. The starter script changes too, if you have not edited it.
-   - Cause an error. For example type `harvest(` (a syntax error), or `plant(RADISH)` on a tile with a wild crop (a runtime error). The line turns red and the message shows the line number.
-   - Write a loop that moves the drone 10 times and run it.
-   - Write a JavaScript loop that never ends: `while (ripe()) {}`. Press Run, watch the tick counter, then press Stop. Press Step on it too: it stops after a fixed number of ticks.
+   - Cause an error. For example type `harvest(` (a syntax error), or `mvoe(EAST)` (a name that is not defined, found when the line runs). The line turns red and the message shows the line number.
    - Harvest clover with the starter script and press Run several times. Watch the Items label grow. Items stay between runs and after Stop.
    - Buy `for loop` for 10 clover, then write a `for` loop and run it.
    - Buy `Bigger field` for 30 clover. The field becomes 5x5 at once.
    - Before you buy `Radish and plant()`, write `plant(RADISH)`. The error `'plant' is not unlocked yet` shows with the line number, and the line turns red. The drone does not move.
    - Buy `Radish and plant()` for 40 clover, and plant a radish.
+   - After buying `for loop`, write a loop that moves the drone 10 times and run it.
+   - Later, once you have radish to buy `if / else and ripe()` and `while loop`, write a JavaScript loop that never ends: `while (ripe()) {}`. Press Run, watch the tick counter, then press Stop. Press Step on it too: it stops after a fixed number of ticks.
 
 8. What to report:
    - Is the speed too fast or too slow? A move should take about one second.
