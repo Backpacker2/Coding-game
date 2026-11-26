@@ -21,6 +21,10 @@ public partial class FieldView3D : SubViewportContainer
     private static readonly Color _droneEyeColor = new(0.3f, 0.6f, 1f);
     private static readonly Color _rotorColor = new(0.2f, 0.2f, 0.22f);
     private const float RotorSpeedRadiansPerSecond = 20f;
+    private const float GlideRatePerSecond = 12f;
+    private const float MaxGlideDistanceTiles = 1.5f;
+    private const float LeanRadiansPerTilePerSecond = 0.15f;
+    private const float MaxLeanRadians = 0.35f;
 
     private sealed class TileView(MeshInstance3D tileMesh, Node3D cropSlot)
     {
@@ -43,6 +47,11 @@ public partial class FieldView3D : SubViewportContainer
     private Camera3D _camera = null!;
     private TileView[,] _tileViews = new TileView[0, 0];
     private float _elapsedSeconds;
+    private Node3D _effects = null!;
+    private Field? _shownField;
+    private Dictionary<string, int> _shownItems = [];
+    private Vector2 _droneTarget;
+    private Vector2 _droneShown;
 
     /// <summary>
     /// Creates the view. Its 3D scene is built when Godot readies the view.
@@ -65,15 +74,24 @@ public partial class FieldView3D : SubViewportContainer
 
     /// <summary>
     /// Shows the field and the crops on it, and moves the drone to its tile. Call it every frame.
-    /// The tiles are rebuilt only when the size of the field changes.
+    /// The tiles are rebuilt only when the size of the field changes. A harvest or a planting since the last
+    /// call shows a burst, and the items gained show as text. A new field, or a drone that jumps across the field
+    /// because it wrapped at an edge, is shown at once. It only reads the field.
     /// </summary>
     /// <param name="field">The field to show. It is only read, never changed.</param>
     /// <param name="crops">The crops of the game rules. A crop's index here picks its colour and its shape.</param>
     public void ShowField(Field field, IReadOnlyList<Crop> crops)
     {
+        bool newField = !ReferenceEquals(field, _shownField);
+        _shownField = field;
         if (_tileViews.GetLength(0) != field.Width || _tileViews.GetLength(1) != field.Height)
         {
             BuildTiles(field.Width, field.Height);
+        }
+
+        if (!newField)
+        {
+            ShowFeedback(field, crops);
         }
 
         for (int x = 0; x < field.Width; x++)
@@ -84,8 +102,14 @@ public partial class FieldView3D : SubViewportContainer
             }
         }
 
-        float hover = 0.9f + 0.05f * Mathf.Sin(_elapsedSeconds * 2);
-        _drone.Position = new Vector3(field.DronePosition.X, hover, field.DronePosition.Y);
+        _droneTarget = new Vector2(field.DronePosition.X, field.DronePosition.Y);
+        Vector2 offset = _droneTarget - _droneShown;
+        if (newField || Mathf.Abs(offset.X) > MaxGlideDistanceTiles || Mathf.Abs(offset.Y) > MaxGlideDistanceTiles)
+        {
+            _droneShown = _droneTarget;
+        }
+
+        _shownItems = new Dictionary<string, int>(field.Items);
     }
 
     /// <inheritdoc/>
@@ -95,6 +119,7 @@ public partial class FieldView3D : SubViewportContainer
         AddChild(viewport);
 
         _tiles = new Node3D();
+        _effects = new Node3D();
         _drone = BuildDrone();
         _camera = new Camera3D { Fov = 40 };
         // The compatibility renderer has no tone mapping by default, so a full-strength sun washes the grass out.
@@ -114,6 +139,7 @@ public partial class FieldView3D : SubViewportContainer
             },
         };
         viewport.AddChild(_tiles);
+        viewport.AddChild(_effects);
         viewport.AddChild(_drone);
         viewport.AddChild(_camera);
         viewport.AddChild(light);
@@ -124,10 +150,22 @@ public partial class FieldView3D : SubViewportContainer
     public override void _Process(double delta)
     {
         _elapsedSeconds += (float)delta;
+        UpdateDrone(delta);
         foreach (Node3D rotor in _rotors)
         {
             rotor.RotateY(RotorSpeedRadiansPerSecond * (float)delta);
         }
+    }
+
+    private void UpdateDrone(double delta)
+    {
+        Vector2 previous = _droneShown;
+        _droneShown = _droneShown.Lerp(_droneTarget, 1 - Mathf.Exp(-GlideRatePerSecond * (float)delta));
+        Vector2 velocity = (_droneShown - previous) / (float)delta;
+        Vector2 lean = velocity.Normalized() * Mathf.Min(velocity.Length() * LeanRadiansPerTilePerSecond, MaxLeanRadians);
+        float hover = 0.9f + 0.05f * Mathf.Sin(_elapsedSeconds * 2);
+        _drone.Position = new Vector3(_droneShown.X, hover, _droneShown.Y);
+        _drone.Rotation = new Vector3(lean.Y, 0, -lean.X);
     }
 
     private static int CropIndex(Crop crop, IReadOnlyList<Crop> crops)
