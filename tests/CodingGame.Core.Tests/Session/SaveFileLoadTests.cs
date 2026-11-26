@@ -128,6 +128,13 @@ public class SaveFileLoadTests : IDisposable
         progress.AddItems("RADISH", 3);
         progress.Buy(UnlockNamed("FOR_LOOP"));
         progress.Buy(UnlockNamed("BIGGER_FIELD"));
+        RunSession run = RunSession.Start("harvest()", ScriptLanguage.Python, progress);
+        for (int step = 0; step < 100 && run.Status == StepStatus.Running; step++)
+        {
+            run.StepTick();
+        }
+
+        progress.RecordRunStats(run);
         var scripts = new ScriptBook(_rules);
         scripts.SetText("main", ScriptLanguage.Python, "move(EAST)\n");
         SaveFile.Save(first, new SavedGame(progress, ScriptLanguage.JavaScript, scripts));
@@ -138,6 +145,7 @@ public class SaveFileLoadTests : IDisposable
         Assert.Equal(File.ReadAllBytes(first), File.ReadAllBytes(second));
         Assert.Equal(ScriptLanguage.JavaScript, loaded.Language);
         Assert.Equal(progress.Items.OrderBy(item => item.Key), loaded.Progress.Items.OrderBy(item => item.Key));
+        Assert.Equal(progress.BestRates.OrderBy(best => best.Key), loaded.Progress.BestRates.OrderBy(best => best.Key));
         Assert.Equal(BoughtIds(progress), BoughtIds(loaded.Progress));
     }
 
@@ -161,7 +169,7 @@ public class SaveFileLoadTests : IDisposable
     }
 
     [Theory]
-    [InlineData("""{"version":5,"items":{},"boughtUnlocks":[],"language":"python","scripts":{"python":null,"javaScript":null}}""", "save.json: version 5 is not supported, this game reads versions 1 to 4")]
+    [InlineData("""{"version":6,"items":{},"boughtUnlocks":[],"language":"python","scripts":{"python":null,"javaScript":null}}""", "save.json: version 6 is not supported, this game reads versions 1 to 5")]
     [InlineData("""{"items":{}}""", "save.json: version is missing")]
     [InlineData("", "save.json: file is not a JSON object")]
     [InlineData("[]", "save.json: file is not a JSON object")]

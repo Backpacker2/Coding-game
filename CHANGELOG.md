@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.13.0 — 2026-11-26
+
+- Script stats (Core): every run reports the items gained per 1,000 ticks, and the best rate per item is kept and saved (save format version 5). The stats line comes next.
+
 ## 0.12.5 — 2026-11-26
 
 - spin(): a playful command in Python and JavaScript that turns the drone once and costs 10 ticks.

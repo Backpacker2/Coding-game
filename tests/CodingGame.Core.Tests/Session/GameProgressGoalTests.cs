@@ -159,7 +159,7 @@ public class GameProgressGoalTests
     public void CurrentGoalIsNullWhenEveryGoalIsDone()
     {
         var doneIds = new HashSet<string>(_rules.Goals.Select(goal => goal.Id));
-        var progress = new GameProgress(_rules, new Dictionary<string, int>(), new HashSet<string>(), doneIds, null, default);
+        var progress = new GameProgress(_rules, new Dictionary<string, int>(), new HashSet<string>(), doneIds, new Dictionary<string, int>(), null, default);
 
         Assert.Null(progress.CurrentGoal);
     }
@@ -181,7 +181,7 @@ public class GameProgressGoalTests
     public void RestoredProgressKeepsDoneGoals()
     {
         var doneIds = new HashSet<string> { "BUY_UNLOCK" };
-        var progress = new GameProgress(_rules, new Dictionary<string, int>(), new HashSet<string>(), doneIds, null, default);
+        var progress = new GameProgress(_rules, new Dictionary<string, int>(), new HashSet<string>(), doneIds, new Dictionary<string, int>(), null, default);
 
         Assert.True(progress.IsDone(GoalNamed("BUY_UNLOCK")));
         Assert.Equal("FINISH_RUN", progress.CurrentGoal?.Id);
@@ -192,7 +192,7 @@ public class GameProgressGoalTests
     {
         var doneIds = new HashSet<string> { "NOPE" };
 
-        Assert.Throws<ArgumentException>(() => new GameProgress(_rules, new Dictionary<string, int>(), new HashSet<string>(), doneIds, null, default));
+        Assert.Throws<ArgumentException>(() => new GameProgress(_rules, new Dictionary<string, int>(), new HashSet<string>(), doneIds, new Dictionary<string, int>(), null, default));
     }
 
     private static Goal GoalNamed(string id)
