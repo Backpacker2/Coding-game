@@ -1,5 +1,6 @@
 using CodingGame.Core.Interpreter;
 using CodingGame.Core.Rules;
+using CodingGame.Core.Session;
 using CodingGame.Core.Simulation;
 
 namespace CodingGame.Core.Tests.Interpreter;
@@ -17,6 +18,18 @@ internal static class EvaluatorTestSupport
     {
         Crop clover = rules.Crops.Single(crop => crop.Name == "CLOVER");
         return new Field(3, 1, clover);
+    }
+
+    internal static GameProgress AllUnlocked(GameRules rules)
+    {
+        var progress = new GameProgress(rules);
+        foreach (Unlock unlock in rules.Unlocks)
+        {
+            progress.AddItems(unlock.Price.Item, unlock.Price.Count);
+            progress.Buy(unlock);
+        }
+
+        return progress;
     }
 
     internal static ScriptProgram PythonProgram(params Statement[] body)

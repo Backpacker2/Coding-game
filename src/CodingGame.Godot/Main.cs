@@ -15,6 +15,7 @@ public partial class Main : Control
 
     // The controls and the rules are created in _Ready, after Godot has built the object.
     private GameRules _rules = null!;
+    private GameProgress _progress = null!;
     private Field _idleField = null!;
     private FarmView _farm = null!;
     private ScriptEditor _editor = null!;
@@ -33,7 +34,8 @@ public partial class Main : Control
     public override void _Ready()
     {
         _rules = GameRules.Load(DataFolder);
-        _idleField = RunSession.NewField(_rules);
+        _progress = new GameProgress(_rules);
+        _idleField = _progress.NewField();
 
         _languagePicker = new OptionButton();
         _languagePicker.AddItem("Python");
@@ -115,7 +117,7 @@ public partial class Main : Control
     {
         if (_session is null || _session.Status != StepStatus.Running)
         {
-            _session = RunSession.Start(_editor.Text, _language, _rules);
+            _session = RunSession.Start(_editor.Text, _language, _progress);
             _tickBudget = 0;
         }
 
@@ -139,7 +141,7 @@ public partial class Main : Control
     {
         _session = null;
         _playing = false;
-        _idleField = RunSession.NewField(_rules);
+        _idleField = _progress.NewField();
     }
 
     private void OnLanguageSelected(long index)

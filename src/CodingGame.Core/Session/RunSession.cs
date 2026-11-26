@@ -1,15 +1,14 @@
 using CodingGame.Core.Interpreter;
 using CodingGame.Core.Interpreter.JavaScript;
 using CodingGame.Core.Interpreter.Python;
-using CodingGame.Core.Rules;
 using CodingGame.Core.Simulation;
 
 namespace CodingGame.Core.Session;
 
 /// <summary>
-/// A script run in progress on a fresh field. It is started from the script text and the language,
-/// then advanced one tick or one statement at a time. A script that does not parse is a session that
-/// has failed from the start.
+/// A script run in progress on a fresh field of the player's progress. It is started from the script text,
+/// the language and the progress, then advanced one tick or one statement at a time. A script that does not
+/// parse, or that uses a feature the player has not unlocked, is a session that has failed from the start.
 /// </summary>
 public sealed class RunSession
 {
@@ -62,27 +61,15 @@ public sealed class RunSession
     public int TicksUsed => _evaluator?.TicksUsed ?? 0;
 
     /// <summary>
-    /// Creates the field a script starts on: the starting size from the game rules, with the wild crop
-    /// ripe on every tile.
-    /// </summary>
-    /// <param name="rules">The game rules, with the starting field and the crops.</param>
-    /// <returns>A new field with the drone at (0, 0).</returns>
-    public static Field NewField(GameRules rules)
-    {
-        Crop wildCrop = rules.Crops.First(crop => crop.Seed is null);
-        return new Field(rules.StartField.Width, rules.StartField.Height, wildCrop);
-    }
-
-    /// <summary>
-    /// Parses a script and creates a session that has not run any tick yet, or a session that has
-    /// failed if the script does not parse.
+    /// Parses a script and checks it against the player's unlocks. Creates a session that has not run any
+    /// tick yet, or a session that has failed if the script does not parse or uses a locked feature.
     /// </summary>
     /// <param name="source">The script text.</param>
     /// <param name="language">The language the script is written in.</param>
-    /// <param name="rules">The game rules, with the starting field and the crops.</param>
+    /// <param name="progress">The player's progress: the unlocks decide what may be used, and the field and items come from it.</param>
     /// <returns>The new session.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The language is not a known language.</exception>
-    public static RunSession Start(string source, ScriptLanguage language, GameRules rules)
+    public static RunSession Start(string source, ScriptLanguage language, GameProgress progress)
     {
         ParseResult parsed = language switch
         {
@@ -90,14 +77,19 @@ public sealed class RunSession
             ScriptLanguage.JavaScript => JavaScriptFrontEnd.Parse(source),
             _ => throw new ArgumentOutOfRangeException(nameof(language), language, "unknown script language"),
         };
-        Field field = NewField(rules);
+        Field field = progress.NewField();
         if (parsed.Error is { } error)
         {
             return new RunSession(language, field, null, StepStatus.Failed, error);
         }
 
         ScriptProgram program = parsed.Program ?? throw new InvalidOperationException("a parse result has a program or an error");
-        var evaluator = new Evaluator(program, new DroneApi(rules, field));
+        if (UnlockCheck.FindLocked(program, progress.LockedFeatures) is { } lockedError)
+        {
+            return new RunSession(language, field, null, StepStatus.Failed, lockedError);
+        }
+
+        var evaluator = new Evaluator(program, new DroneApi(progress.Rules, field));
         return new RunSession(language, field, evaluator, StepStatus.Running, null);
     }
 
