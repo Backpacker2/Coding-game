@@ -20,6 +20,9 @@ The prototype is done when a player can write a Python or JavaScript script in t
 - [x] **11. Save and load.** (0.6.0) Progress (items and bought unlocks) and the player's script survive closing the game. A versioned save file, checked at the edge like the data files. Design: [`docs/decisions/0009-save-format.md`](decisions/0009-save-format.md).
 - [x] **12. Run speed.** (0.6.1) A speed control in the window (slow, normal, fast) so long scripts do not take minutes; ticks stay deterministic.
 - [ ] **13. Play-test round 1.** Fix what the owner finds in the play-test of 0.4.0 and 0.5.0.
+- [x] **14. Documentation of what was built.** (0.6.2) README status, player guide, architecture overview.
+- [ ] **15. In-game help and New game.** A panel listing the commands and constants the player has unlocked, and a New game button that clears the save after a confirmation.
+- [ ] **16. Crops stay on the field.** Today every Run starts on a fresh field, so a planted radish is gone when the run ends. Keep the field between runs so planting pays off. Needs a design decision (and the save format) and the owner's view after the play-test.
 
 ## Waiting on the owner
 
