@@ -72,7 +72,8 @@ public partial class Main : Control
         _codeWindow.ScriptRemovePressed += OnScriptRemovePressed;
         _codeWindow.ScriptRenameRequested += OnScriptRenameRequested;
         Vector2 viewport = GetViewportRect().Size;
-        _codeWindow.Position = new Vector2I((int)(viewport.X * 0.55f), 80);
+        // Low enough that its title bar stays clear of the round buttons above it.
+        _codeWindow.Position = new Vector2I((int)(viewport.X * 0.55f), 104);
         _codeWindow.Size = new Vector2I((int)(viewport.X * 0.42f), (int)(viewport.Y * 0.8f));
 
         _fieldView = new FieldView3D();
