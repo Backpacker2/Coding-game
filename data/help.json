@@ -36,6 +36,12 @@
     "javascript": "if (ground() === SOIL) {\n    harvest();\n}"
   },
   {
+    "name": "spin",
+    "summary": "Turns the drone once. Just for fun.",
+    "python": "spin()",
+    "javascript": "spin();"
+  },
+  {
     "name": "NORTH",
     "summary": "A direction for move(). EAST, SOUTH and WEST are the others.",
     "python": "move(NORTH)",

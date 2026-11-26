@@ -166,6 +166,7 @@ public sealed record GameRules(
         RequirePositive(TicksFileName, "ticks", "groundTicks", tickCosts.GroundTicks);
         RequirePositive(TicksFileName, "ticks", "loopIterationTicks", tickCosts.LoopIterationTicks);
         RequirePositive(TicksFileName, "ticks", "functionCallTicks", tickCosts.FunctionCallTicks);
+        RequirePositive(TicksFileName, "ticks", "spinTicks", tickCosts.SpinTicks);
     }
 
     private static void ValidateStartField(FieldSize startField)

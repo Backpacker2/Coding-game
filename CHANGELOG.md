@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.12.3 — 2026-11-26
+
+- spin(): a playful command in Python and JavaScript that turns the drone once and costs 10 ticks.
+
 ## 0.12.2 — 2026-11-26
 
 - Hints when stuck: when the same script error happens three times in a row, the message gets a hint from data/hints.json.

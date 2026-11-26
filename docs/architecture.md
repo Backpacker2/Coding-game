@@ -69,7 +69,7 @@ The Godot project never changes the field or the rules itself. It changes the ga
 
 | Rule | Where it is set | Read by |
 | --- | --- | --- |
-| Tick cost of `move`, `harvest`, `plant`, `ripe`, `till` and `ground` | `data/ticks.json`, record `TickCosts` | `DroneApi` |
+| Tick cost of `move`, `harvest`, `plant`, `ripe`, `till`, `ground` and `spin` | `data/ticks.json`, record `TickCosts` | `DroneApi` |
 | Tick cost of a loop iteration and of a player function call | `data/ticks.json`, record `TickCosts` | `DroneApi`, `Evaluator` |
 | Crops: ground, grow time, yield, seed cost and regrowth | `data/crops.json`, record `Crop` | `Field`, `DroneApi` (the crop constants) |
 | Starting field size | `data/field.json`, record `FieldSize` | `GameProgress.FieldSize` |

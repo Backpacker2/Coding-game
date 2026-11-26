@@ -8,7 +8,7 @@ public class GameRulesTests
 {
     private const string ValidCropsJson = """[{"name":"CLOVER","ground":"GRASS","growTimeTicks":200,"yieldItems":1,"seed":null,"regrows":true},{"name":"RADISH","ground":"GRASS","growTimeTicks":300,"yieldItems":4,"seed":{"item":"CLOVER","count":2},"regrows":false}]""";
 
-    private const string ValidTicksJson = """{"moveTicks":20,"harvestTicks":20,"plantTicks":20,"ripeTicks":1,"tillTicks":20,"groundTicks":1,"loopIterationTicks":1,"functionCallTicks":1}""";
+    private const string ValidTicksJson = """{"moveTicks":20,"harvestTicks":20,"plantTicks":20,"ripeTicks":1,"tillTicks":20,"groundTicks":1,"loopIterationTicks":1,"functionCallTicks":1,"spinTicks":10}""";
 
     private const string ValidFieldJson = """{"width":3,"height":3}""";
 
@@ -151,6 +151,7 @@ public class GameRulesTests
 
         Assert.Equal(20, rules.TickCosts.MoveTicks);
         Assert.Equal(1, rules.TickCosts.RipeTicks);
+        Assert.Equal(10, rules.TickCosts.SpinTicks);
     }
 
     [Fact]
@@ -195,8 +196,9 @@ public class GameRulesTests
     }
 
     [Theory]
-    [InlineData("""{"moveTicks":0,"harvestTicks":20,"plantTicks":20,"ripeTicks":1,"tillTicks":20,"groundTicks":1,"loopIterationTicks":1,"functionCallTicks":1}""", "moveTicks must be greater than 0")]
+    [InlineData("""{"moveTicks":0,"harvestTicks":20,"plantTicks":20,"ripeTicks":1,"tillTicks":20,"groundTicks":1,"loopIterationTicks":1,"functionCallTicks":1,"spinTicks":10}""", "moveTicks must be greater than 0")]
     [InlineData("""{"moveTicks":20,"harvestTicks":20,"plantTicks":20,"ripeTicks":1,"tillTicks":20,"groundTicks":1,"functionCallTicks":1}""", "loopIterationTicks")]
+    [InlineData("""{"moveTicks":20,"harvestTicks":20,"plantTicks":20,"ripeTicks":1,"tillTicks":20,"groundTicks":1,"loopIterationTicks":1,"functionCallTicks":1,"spinTicks":0}""", "spinTicks must be greater than 0")]
     public void InvalidTickCostsAreReported(string ticksJson, string expectedText)
     {
         GameRulesException exception = Assert.Throws<GameRulesException>(() => LoadWith(ValidCropsJson, ticksJson));

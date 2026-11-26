@@ -88,6 +88,11 @@ public sealed class DroneApi
                 return CommandOutcome.Done();
             }),
             ["ground"] = new([], ticks.GroundTicks, _ => CommandOutcome.Done(Value.FromGround(field.GetGround()))),
+            ["spin"] = new([], ticks.SpinTicks, _ =>
+            {
+                field.Spin();
+                return CommandOutcome.Done();
+            }),
         };
 
         var constants = new Dictionary<string, Value>

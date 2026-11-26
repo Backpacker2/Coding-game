@@ -6,5 +6,6 @@
   "tillTicks": 20,
   "groundTicks": 1,
   "loopIterationTicks": 1,
-  "functionCallTicks": 1
+  "functionCallTicks": 1,
+  "spinTicks": 10
 }
