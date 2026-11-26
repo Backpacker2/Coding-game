@@ -234,7 +234,7 @@ public class GameProgressTests
     {
         var items = new Dictionary<string, int> { ["CLOVER"] = 5 };
         var bought = new HashSet<string> { "FOR_LOOP" };
-        var progress = new GameProgress(_rules, items, bought, new HashSet<string>(), null, default);
+        var progress = new GameProgress(_rules, items, bought, new HashSet<string>(), new Dictionary<string, int>(), null, default);
 
         Assert.Equal(5, progress.Items["CLOVER"]);
         Assert.True(progress.IsBought(UnlockNamed("FOR_LOOP")));
@@ -245,7 +245,7 @@ public class GameProgressTests
     [Fact]
     public void RestoredProgressWithoutTilesHasAFreshFieldOfSavedSize()
     {
-        var progress = new GameProgress(_rules, new Dictionary<string, int>(), new HashSet<string> { "BIGGER_FIELD" }, new HashSet<string>(), null, default);
+        var progress = new GameProgress(_rules, new Dictionary<string, int>(), new HashSet<string> { "BIGGER_FIELD" }, new HashSet<string>(), new Dictionary<string, int>(), null, default);
 
         Assert.Equal(new FieldSize(5, 5), progress.FieldSize);
         Assert.Equal(5, progress.Field.Width);
@@ -265,7 +265,7 @@ public class GameProgressTests
         }
 
         tiles[2, 1] = new Tile(Ground.Grass, CloverCrop(), 77);
-        var progress = new GameProgress(_rules, new Dictionary<string, int>(), new HashSet<string>(), new HashSet<string>(), tiles, new TilePosition(2, 1));
+        var progress = new GameProgress(_rules, new Dictionary<string, int>(), new HashSet<string>(), new HashSet<string>(), new Dictionary<string, int>(), tiles, new TilePosition(2, 1));
 
         Assert.Equal(new Tile(Ground.Grass, CloverCrop(), 77), progress.Field.GetTile(2, 1));
         Assert.Equal(new TilePosition(2, 1), progress.Field.DronePosition);
@@ -276,14 +276,14 @@ public class GameProgressTests
     {
         var tiles = new Tile[2, 2];
 
-        Assert.Throws<ArgumentException>(() => new GameProgress(_rules, new Dictionary<string, int>(), new HashSet<string>(), new HashSet<string>(), tiles, default));
+        Assert.Throws<ArgumentException>(() => new GameProgress(_rules, new Dictionary<string, int>(), new HashSet<string>(), new HashSet<string>(), new Dictionary<string, int>(), tiles, default));
     }
 
     [Fact]
     public void RestoredProgressDoesNotShareTheSourceDictionary()
     {
         var items = new Dictionary<string, int> { ["CLOVER"] = 5 };
-        var progress = new GameProgress(_rules, items, new HashSet<string>(), new HashSet<string>(), null, default);
+        var progress = new GameProgress(_rules, items, new HashSet<string>(), new HashSet<string>(), new Dictionary<string, int>(), null, default);
 
         items["CLOVER"] = 99;
 

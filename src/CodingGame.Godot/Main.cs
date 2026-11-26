@@ -37,6 +37,7 @@ public partial class Main : Control
     private bool _wasRunning;
     private double _tickBudget;
     private ScriptLanguage _language = ScriptLanguage.Python;
+    private RunStats? _lastRunStats;
 
     /// <inheritdoc/>
     public override void _Ready()
@@ -310,6 +311,7 @@ public partial class Main : Control
     private void EndRun(RunSession session)
     {
         _progress.CheckGoals(session);
+        _lastRunStats = _progress.RecordRunStats(session);
         _codeWindow.ShowHint(_hints.RecordRunEnd(session));
         Save();
     }
@@ -382,6 +384,7 @@ public partial class Main : Control
     private void OnNewGameConfirmed()
     {
         _progress.Reset();
+        _lastRunStats = null;
         _hints = new HintTracker(_rules);
         _scripts = new ScriptBook(_rules);
         _language = ScriptLanguage.Python;
