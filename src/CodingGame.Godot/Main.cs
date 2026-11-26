@@ -25,22 +25,32 @@ public partial class Main : Control
     private Label _itemsLabel = null!;
     private Label _errorLabel = null!;
     private UnlockPanel _unlockPanel = null!;
+    private Label _noticeLabel = null!;
 
     private RunSession? _session;
     private bool _playing;
+    private bool _wasRunning;
     private double _tickBudget;
     private ScriptLanguage _language = ScriptLanguage.Python;
+    private readonly Dictionary<ScriptLanguage, string> _scriptTexts = [];
 
     /// <inheritdoc/>
     public override void _Ready()
     {
         _rules = GameRules.Load(DataFolder);
-        _progress = new GameProgress(_rules);
+        _noticeLabel = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        _noticeLabel.AddThemeColorOverride("font_color", Colors.Red);
+        SavedGame saved = LoadSavedGame();
+        _progress = saved.Progress;
+        _language = saved.Language;
+        _scriptTexts[ScriptLanguage.Python] = saved.Scripts.Python ?? StarterText(ScriptLanguage.Python);
+        _scriptTexts[ScriptLanguage.JavaScript] = saved.Scripts.JavaScript ?? StarterText(ScriptLanguage.JavaScript);
         _idleField = _progress.NewField();
 
         _languagePicker = new OptionButton();
         _languagePicker.AddItem("Python");
         _languagePicker.AddItem("JavaScript");
+        _languagePicker.Select((int)_language);
         _languagePicker.ItemSelected += OnLanguageSelected;
 
         Button runButton = new() { Text = "Run" };
@@ -58,7 +68,7 @@ public partial class Main : Control
         toolbar.AddChild(_stopButton);
         toolbar.AddChild(_tickLabel);
 
-        _editor = new ScriptEditor { Text = StarterText(_language) };
+        _editor = new ScriptEditor { Text = _scriptTexts[_language] };
 
         _errorLabel = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart };
         _errorLabel.AddThemeColorOverride("font_color", Colors.Red);
@@ -68,6 +78,7 @@ public partial class Main : Control
         VBoxContainer left = new() { SizeFlagsHorizontal = SizeFlags.ExpandFill };
         left.AddChild(toolbar);
         left.AddChild(_editor);
+        left.AddChild(_noticeLabel);
         left.AddChild(errorPanel);
 
         _farm = new FarmView { SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsVertical = SizeFlags.ExpandFill };
@@ -102,10 +113,28 @@ public partial class Main : Control
             _tickBudget -= 1;
         }
 
+        bool running = _session?.Status == StepStatus.Running;
+        if (_wasRunning && !running)
+        {
+            Save();
+        }
+
+        _wasRunning = running;
         Refresh();
     }
 
+    /// <inheritdoc/>
+    public override void _Notification(int what)
+    {
+        if (what == NotificationWMCloseRequest)
+        {
+            Save();
+        }
+    }
+
     private static string DataFolder => ProjectSettings.GlobalizePath("res://data");
+
+    private static string SavePath => ProjectSettings.GlobalizePath("user://save.json");
 
     private static string StarterText(ScriptLanguage language)
     {
@@ -118,12 +147,36 @@ public partial class Main : Control
         return File.ReadAllText(Path.Combine(DataFolder, fileName));
     }
 
+    private SavedGame LoadSavedGame()
+    {
+        try
+        {
+            return SaveFile.Load(SavePath, _rules);
+        }
+        catch (SaveException exception)
+        {
+            string keptPath = SaveFile.SetAside(SavePath);
+            _noticeLabel.Text = $"Could not read the save file ({exception.Message}). It was kept as {keptPath}. Starting a new game.";
+            return new SavedGame(new GameProgress(_rules), ScriptLanguage.Python, new SavedScripts(null, null));
+        }
+    }
+
+    private void Save()
+    {
+        _scriptTexts[_language] = _editor.Text;
+        SaveFile.Save(SavePath, new SavedGame(
+            _progress,
+            _language,
+            new SavedScripts(_scriptTexts[ScriptLanguage.Python], _scriptTexts[ScriptLanguage.JavaScript])));
+    }
+
     private RunSession SessionForRun()
     {
         if (_session is null || _session.Status != StepStatus.Running)
         {
             _session = RunSession.Start(_editor.Text, _language, _progress);
             _tickBudget = 0;
+            Save();
         }
 
         return _session;
@@ -140,6 +193,12 @@ public partial class Main : Control
         RunSession session = SessionForRun();
         _playing = false;
         session.StepLine();
+
+        // A step can start and end a run within one frame, which the save check in _Process never sees.
+        if (session.Status != StepStatus.Running)
+        {
+            Save();
+        }
     }
 
     private void OnStop()
@@ -152,17 +211,15 @@ public partial class Main : Control
     private void OnBought()
     {
         _idleField = _progress.NewField();
+        Save();
     }
 
     private void OnLanguageSelected(long index)
     {
         ScriptLanguage next = (ScriptLanguage)index;
-        if (_editor.Text == StarterText(_language))
-        {
-            _editor.Text = StarterText(next);
-        }
-
+        _scriptTexts[_language] = _editor.Text;
         _language = next;
+        _editor.Text = _scriptTexts[next];
     }
 
     private void Refresh()

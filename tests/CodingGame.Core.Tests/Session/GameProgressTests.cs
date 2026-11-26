@@ -144,6 +144,38 @@ public class GameProgressTests
         Assert.Throws<ArgumentOutOfRangeException>(() => progress.AddItems("CLOVER", 0));
     }
 
+    [Fact]
+    public void RestoredProgressHasSavedItemsAndUnlocks()
+    {
+        var items = new Dictionary<string, int> { ["CLOVER"] = 5 };
+        var bought = new HashSet<string> { "FOR_LOOP" };
+        var progress = new GameProgress(_rules, items, bought);
+
+        Assert.Equal(5, progress.Items["CLOVER"]);
+        Assert.True(progress.IsBought(UnlockNamed("FOR_LOOP")));
+        Assert.False(progress.IsBought(UnlockNamed("WHILE_LOOP")));
+        Assert.DoesNotContain("for", progress.LockedFeatures);
+    }
+
+    [Fact]
+    public void RestoredProgressKeepsSavedFieldSize()
+    {
+        var progress = new GameProgress(_rules, new Dictionary<string, int>(), new HashSet<string> { "BIGGER_FIELD" });
+
+        Assert.Equal(new FieldSize(5, 5), progress.FieldSize);
+    }
+
+    [Fact]
+    public void RestoredProgressDoesNotShareTheSourceDictionary()
+    {
+        var items = new Dictionary<string, int> { ["CLOVER"] = 5 };
+        var progress = new GameProgress(_rules, items, new HashSet<string>());
+
+        items["CLOVER"] = 99;
+
+        Assert.Equal(5, progress.Items["CLOVER"]);
+    }
+
     private static Unlock UnlockNamed(string id)
     {
         return _rules.Unlocks.Single(unlock => unlock.Id == id);

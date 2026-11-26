@@ -2,6 +2,14 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.6.0 — 2026-11-26
+
+- Add the save file `save.json` with version 1: the items, the bought unlocks, the script text of each language and the selected language. It is written to Godot's user data folder.
+- Save after each buy, when a run ends or is stopped, when a run starts, and when the window closes. Progress and scripts now survive closing the game.
+- Keep a save the game cannot read as `save.json.broken`, and start a new game with a red notice that says why.
+- Keep each language's own script text, so switching language no longer carries edited text over to the other language's starter.
+- Record the design in decision 0009, and update the play-test guide and decision 0008.
+
 ## 0.5.0 — 2026-11-26
 
 - Add the first unlocks in `data/unlocks.json`: the for loop, a bigger field, radish and `plant()`, `if`/`else` and `ripe()`, the while loop, potato with `till()` and `ground()`, and functions. Each has a price in clover, radish or potato. The file is loaded and checked by `GameRules.Load`.
