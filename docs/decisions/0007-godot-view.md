@@ -18,7 +18,7 @@
 - The project is added to `CodingGame.sln`. The root `dotnet format`, `dotnet build -warnaserror` and `dotnet test` then also cover the view.
 - Godot 4.7.2 (the .NET build) is pinned. The version is the one in the SDK reference.
 - The scene `main.tscn` has one `Control` root with `Main.cs` attached. The whole UI is built in code in `_Ready`. Hand-written `.tscn` files are error-prone, and C# code is checked by the compiler and the analyzers.
-- The game loop is in `Main._Process`. It collects `delta * TicksPerSecond` into a budget and calls `RunSession.StepTick()` once per whole tick. `TicksPerSecond` is 20, so a move (20 ticks) takes about one second. A speed slider is not built yet.
+- The game loop is in `Main._Process`. It collects `delta * TicksPerSecond` into a budget and calls `RunSession.StepTick()` once per whole tick. A speed picker in the toolbar sets the rate: Slow 5, Normal 20 and Fast 200 ticks per second. Normal is the default, so a move (20 ticks) takes about one second. The speed only changes how many ticks run per frame, never what a tick does. It is not saved.
 - Godot's frame rate only decides when ticks are called. It never changes what a tick does, so the simulation stays deterministic.
 
 ### Rendering only reads

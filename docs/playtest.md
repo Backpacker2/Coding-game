@@ -26,6 +26,7 @@ The field starts 3x3. This is for testing only, so that nested loops can be trie
    - Press Run on the starter script. The drone collects two clover.
    - Change the script and press Run again.
    - Press Step several times and watch the yellow line move.
+   - While a loop runs, change the speed to Slow and then to Fast. The drone moves slower or faster, and the end result stays the same.
    - Press Stop. The field is reset, but your items stay.
    - Switch the language between Python and JavaScript. Each language keeps its own script text, so your edits come back when you switch back.
    - Cause an error. For example type `harvest(` (a syntax error), or `mvoe(EAST)` (a name that is not defined, found when the line runs). The line turns red and the message shows the line number.
@@ -41,7 +42,7 @@ The field starts 3x3. This is for testing only, so that nested loops can be trie
    - Open `save.json` in a text editor, replace its whole content with the word `garbage`, and start the game. A red notice explains that the save could not be read. The old file is kept as `save.json.broken` in the same folder, and the game starts as a new game.
 
 8. What to report:
-   - Is the speed too fast or too slow? A move should take about one second.
+   - Do the three speeds (Slow, Normal, Fast) feel right? At Normal, a move should take about one second.
    - Is anything hard to read or ugly?
    - Is anything confusing?
    - Did anything crash, or did Godot print an error?
@@ -54,7 +55,6 @@ The field starts 3x3. This is for testing only, so that nested loops can be trie
 
 - Progress and both scripts are saved when you close the game, after each buy, and when a run starts or ends. Items from a run that is cut off by a crash are lost.
 - JavaScript is not an unlock yet: both languages are open from the start.
-- There is no speed slider.
 - The art is placeholder: coloured circles for crops and a blue square for the drone.
 
 ## Troubleshooting
