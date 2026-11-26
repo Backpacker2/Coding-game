@@ -6,8 +6,6 @@ namespace CodingGame.Godot;
 
 public partial class FieldView3D
 {
-    private static readonly Color _plantingSoilColor = new(0.45f, 0.3f, 0.18f);
-
     private void ShowFeedback(Field field, IReadOnlyList<Crop> crops)
     {
         // Harvests are found by comparing two frames, so at Fast speed several harvests within one frame show as one
@@ -27,11 +25,11 @@ public partial class FieldView3D
     {
         if (view.ShownCrop is { Ripe: true } harvested && (tile.Crop is null || tile.CropAgeTicks == 0))
         {
-            SpawnBurst(position, CropColor(harvested.Crop, crops), 16, 1.5f, 2.5f);
+            SpawnBurst(position, Palette.CropColor(harvested.Crop, crops), 16, 1.5f, 2.5f);
         }
         else if (view.ShownCrop is null && tile.Crop is not null)
         {
-            SpawnBurst(position, _plantingSoilColor, 8, 0.8f, 1.2f);
+            SpawnBurst(position, Palette.PlantingSoil, 8, 0.8f, 1.2f);
         }
     }
 

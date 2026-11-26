@@ -11,20 +11,17 @@ namespace CodingGame.Godot;
 /// </summary>
 public partial class FieldView3D : SubViewportContainer
 {
-    // Placeholder art: the colours only tell the crops apart until real art exists.
-    private static readonly Color[] _cropColors = [Colors.Gold, Colors.Red, Colors.Orange];
-    private static readonly Color _grassColor = new(0.3f, 0.52f, 0.22f);
-    private static readonly Color _soilColor = new(0.55f, 0.36f, 0.2f);
-    private static readonly Color _baseColor = new(0.4f, 0.26f, 0.15f);
-    private static readonly Color _leafColor = new(0.25f, 0.55f, 0.2f);
-    private static readonly Color _droneBodyColor = new(0.85f, 0.87f, 0.9f);
-    private static readonly Color _droneEyeColor = new(0.3f, 0.6f, 1f);
-    private static readonly Color _rotorColor = new(0.2f, 0.2f, 0.22f);
     private const float RotorSpeedRadiansPerSecond = 20f;
     private const float GlideRatePerSecond = 12f;
     private const float MaxGlideDistanceTiles = 1.5f;
     private const float LeanRadiansPerTilePerSecond = 0.15f;
     private const float MaxLeanRadians = 0.35f;
+
+    // The script window starts at 55% of the screen width (Main), so the field is centred in the left 55%.
+    private const float FieldCentreScreenFraction = 0.275f;
+
+    // Leaves room for the item bar at the top.
+    private const float FieldLowerFraction = 0.04f;
 
     private sealed class TileView(MeshInstance3D tileMesh, Node3D cropSlot)
     {
@@ -52,6 +49,7 @@ public partial class FieldView3D : SubViewportContainer
     private Dictionary<string, int> _shownItems = [];
     private Vector2 _droneTarget;
     private Vector2 _droneShown;
+    private float _framingDistance;
 
     /// <summary>
     /// Creates the view. Its 3D scene is built when Godot readies the view.
@@ -59,17 +57,6 @@ public partial class FieldView3D : SubViewportContainer
     public FieldView3D()
     {
         Stretch = true;
-    }
-
-    /// <summary>
-    /// Gets the colour that draws a crop on the field and in the item bar.
-    /// </summary>
-    /// <param name="crop">The crop to colour. It must be one of <paramref name="crops"/>.</param>
-    /// <param name="crops">The crops of the game rules. A crop's index here picks its colour.</param>
-    /// <returns>The colour of the crop.</returns>
-    public static Color CropColor(Crop crop, IReadOnlyList<Crop> crops)
-    {
-        return _cropColors[CropIndex(crop, crops) % _cropColors.Length];
     }
 
     /// <summary>
@@ -115,27 +102,51 @@ public partial class FieldView3D : SubViewportContainer
     /// <inheritdoc/>
     public override void _Ready()
     {
-        SubViewport viewport = new() { OwnWorld3D = true, TransparentBg = true, Msaa3D = Viewport.Msaa.Msaa4X };
+        SubViewport viewport = new() { OwnWorld3D = true, TransparentBg = false, Msaa3D = Viewport.Msaa.Msaa4X };
         AddChild(viewport);
 
         _tiles = new Node3D();
         _effects = new Node3D();
         _drone = BuildDrone();
         _camera = new Camera3D { Fov = 40 };
-        // The compatibility renderer has no tone mapping by default, so a full-strength sun washes the grass out.
         DirectionalLight3D light = new()
         {
             ShadowEnabled = true,
-            RotationDegrees = new Vector3(-55, -35, 0),
-            LightEnergy = 0.75f,
+            RotationDegrees = new Vector3(-35, -40, 0),
+            LightColor = Palette.Sun,
+            LightEnergy = 0.85f,
+            ShadowBlur = 2.0f,
+            ShadowOpacity = 0.7f,
         };
         WorldEnvironment worldEnvironment = new()
         {
             Environment = new Environment
             {
+                BackgroundMode = Environment.BGMode.Sky,
+                Sky = new Sky
+                {
+                    SkyMaterial = new ProceduralSkyMaterial
+                    {
+                        SkyTopColor = Palette.SkyTop,
+                        SkyHorizonColor = Palette.SkyHorizon,
+                        GroundHorizonColor = Palette.SkyGroundHorizon,
+                        GroundBottomColor = Palette.SkyGroundBottom,
+                        SkyCurve = 0.2f,
+                    },
+                },
                 AmbientLightSource = Environment.AmbientSource.Color,
-                AmbientLightColor = new Color(0.75f, 0.8f, 0.9f),
-                AmbientLightEnergy = 0.4f,
+                AmbientLightColor = Palette.Ambient,
+                AmbientLightEnergy = 0.5f,
+                TonemapMode = Environment.ToneMapper.Filmic,
+                TonemapExposure = 1.0f,
+                FogEnabled = true,
+                FogLightColor = Palette.Fog,
+                FogDensity = 0.004f,
+                FogSkyAffect = 0f,
+                GlowEnabled = true,
+                GlowIntensity = 0.5f,
+                GlowBloom = 0f,
+                GlowHdrThreshold = 0.9f,
             },
         };
         viewport.AddChild(_tiles);
@@ -144,6 +155,7 @@ public partial class FieldView3D : SubViewportContainer
         viewport.AddChild(_camera);
         viewport.AddChild(light);
         viewport.AddChild(worldEnvironment);
+        Resized += FrameField;
     }
 
     /// <inheritdoc/>
@@ -159,16 +171,22 @@ public partial class FieldView3D : SubViewportContainer
 
     private void UpdateDrone(double delta)
     {
+        float deltaSeconds = (float)delta;
         Vector2 previous = _droneShown;
-        _droneShown = _droneShown.Lerp(_droneTarget, 1 - Mathf.Exp(-GlideRatePerSecond * (float)delta));
-        Vector2 velocity = (_droneShown - previous) / (float)delta;
+        _droneShown = _droneShown.Lerp(_droneTarget, 1 - Mathf.Exp(-GlideRatePerSecond * deltaSeconds));
+        // A zero-length frame has no velocity (0/0 gave a NaN tilt).
+        Vector2 velocity = deltaSeconds > 0 ? (_droneShown - previous) / deltaSeconds : Vector2.Zero;
         Vector2 lean = velocity.Normalized() * Mathf.Min(velocity.Length() * LeanRadiansPerTilePerSecond, MaxLeanRadians);
         float hover = 0.9f + 0.05f * Mathf.Sin(_elapsedSeconds * 2);
         _drone.Position = new Vector3(_droneShown.X, hover, _droneShown.Y);
         _drone.Rotation = new Vector3(lean.Y, 0, -lean.X);
     }
 
-    private static int CropIndex(Crop crop, IReadOnlyList<Crop> crops)
+    /// <summary>Gets the position of a crop in the game rules, which picks its colour and its shape.</summary>
+    /// <param name="crop">The crop. It must be one of <paramref name="crops"/>.</param>
+    /// <param name="crops">The crops of the game rules.</param>
+    /// <returns>The crop's index in <paramref name="crops"/>.</returns>
+    internal static int CropIndex(Crop crop, IReadOnlyList<Crop> crops)
     {
         return crops.Index().First(entry => entry.Item == crop).Index;
     }
@@ -201,21 +219,36 @@ public partial class FieldView3D : SubViewportContainer
         _tiles.AddChild(new MeshInstance3D
         {
             Mesh = new BoxMesh { Size = new Vector3(width + 0.2f, 0.2f, height + 0.2f) },
-            MaterialOverride = MaterialFor(_baseColor, false),
+            MaterialOverride = MaterialFor(Palette.FieldBase, false),
             Position = new Vector3((width - 1) / 2f, -0.4f, (height - 1) / 2f),
         });
 
         Vector3 target = new((width - 1) / 2f, 0, (height - 1) / 2f);
         Vector3 direction = new Vector3(0, 1, 1).Normalized().Rotated(Vector3.Up, Mathf.DegToRad(35));
-        float distance = Mathf.Max(width, height) * 1.8f + 2;
-        _camera.LookAtFromPosition(target + direction * distance, target, Vector3.Up);
+        _framingDistance = Mathf.Max(width, height) * 1.8f + 2;
+        _camera.LookAtFromPosition(target + direction * _framingDistance, target, Vector3.Up);
+        FrameField();
+    }
+
+    private void FrameField()
+    {
+        // The field is not built or laid out yet.
+        if (_framingDistance == 0 || Size.Y == 0)
+        {
+            return;
+        }
+
+        float visibleHeight = 2 * _framingDistance * Mathf.Tan(Mathf.DegToRad(_camera.Fov / 2));
+        float visibleWidth = visibleHeight * Size.X / Size.Y;
+        _camera.HOffset = (0.5f - FieldCentreScreenFraction) * visibleWidth;
+        _camera.VOffset = FieldLowerFraction * visibleHeight;
     }
 
     private void ShowTile(TileView view, Tile tile, IReadOnlyList<Crop> crops)
     {
         if (view.ShownGround != tile.Ground)
         {
-            view.TileMesh.MaterialOverride = MaterialFor(tile.Ground == Ground.Grass ? _grassColor : _soilColor, false);
+            view.TileMesh.MaterialOverride = MaterialFor(tile.Ground == Ground.Grass ? Palette.Grass : Palette.Soil, false);
             view.ShownGround = tile.Ground;
         }
 
@@ -265,30 +298,31 @@ public partial class FieldView3D : SubViewportContainer
 
     private Node3D BuildCropShape(Crop crop, bool ripe, IReadOnlyList<Crop> crops)
     {
-        Color color = CropColor(crop, crops);
+        Color color = Palette.CropColor(crop, crops);
         Node3D shape = new();
         switch (CropIndex(crop, crops) % 3)
         {
             case 0:
-                SphereMesh berry = new() { Radius = 0.14f, Height = 0.12f };
-                foreach (Vector3 position in new[] { new Vector3(0, 0.06f, -0.15f), new Vector3(0.13f, 0.06f, 0.075f), new Vector3(-0.13f, 0.06f, 0.075f) })
+                SphereMesh leafMesh = new() { Radius = 0.13f, Height = 0.05f };
+                foreach (float angleDegrees in new[] { 90f, 210f, 330f })
                 {
-                    shape.AddChild(Part(berry, color, ripe, position));
+                    float angle = Mathf.DegToRad(angleDegrees);
+                    shape.AddChild(Part(leafMesh, color, ripe, new Vector3(Mathf.Cos(angle) * 0.12f, 0.04f, Mathf.Sin(angle) * 0.12f)));
                 }
 
                 break;
             case 1:
                 shape.AddChild(Part(new SphereMesh { Radius = 0.18f, Height = 0.36f }, color, ripe, new Vector3(0, 0.12f, 0)));
                 PrismMesh leaf = new() { Size = new Vector3(0.08f, 0.2f, 0.02f) };
-                MeshInstance3D leftLeaf = Part(leaf, _leafColor, false, new Vector3(-0.08f, 0.34f, 0));
+                MeshInstance3D leftLeaf = Part(leaf, Palette.Leaf, false, new Vector3(-0.08f, 0.34f, 0));
                 leftLeaf.RotationDegrees = new Vector3(0, 0, 30);
-                MeshInstance3D rightLeaf = Part(leaf, _leafColor, false, new Vector3(0.08f, 0.34f, 0));
+                MeshInstance3D rightLeaf = Part(leaf, Palette.Leaf, false, new Vector3(0.08f, 0.34f, 0));
                 rightLeaf.RotationDegrees = new Vector3(0, 0, -30);
                 shape.AddChild(leftLeaf);
                 shape.AddChild(rightLeaf);
                 break;
             default:
-                shape.AddChild(Part(new SphereMesh { Radius = 0.28f, Height = 0.36f }, _leafColor, false, new Vector3(0, 0.18f, 0)));
+                shape.AddChild(Part(new SphereMesh { Radius = 0.28f, Height = 0.36f }, Palette.Leaf, false, new Vector3(0, 0.18f, 0)));
                 SphereMesh fruit = new() { Radius = 0.07f, Height = 0.14f };
                 foreach (Vector3 position in new[] { new Vector3(0.2f, 0.07f, 0), new Vector3(-0.1f, 0.07f, 0.17f), new Vector3(-0.1f, 0.07f, -0.17f) })
                 {
@@ -304,11 +338,11 @@ public partial class FieldView3D : SubViewportContainer
     private Node3D BuildDrone()
     {
         Node3D drone = new();
-        drone.AddChild(Part(new CylinderMesh { TopRadius = 0.18f, BottomRadius = 0.18f, Height = 0.12f }, _droneBodyColor, false, Vector3.Zero));
-        drone.AddChild(Part(new SphereMesh { Radius = 0.06f, Height = 0.12f }, _droneEyeColor, true, new Vector3(0, 0.02f, -0.18f)));
+        drone.AddChild(Part(new CylinderMesh { TopRadius = 0.18f, BottomRadius = 0.18f, Height = 0.12f }, Palette.DroneBody, false, Vector3.Zero));
+        drone.AddChild(Part(new SphereMesh { Radius = 0.06f, Height = 0.12f }, Palette.DroneLight, true, new Vector3(0, 0.02f, -0.18f)));
         foreach (float armAngle in new[] { 45f, -45f })
         {
-            MeshInstance3D arm = Part(new BoxMesh { Size = new Vector3(0.5f, 0.03f, 0.04f) }, _droneBodyColor, false, new Vector3(0, 0.03f, 0));
+            MeshInstance3D arm = Part(new BoxMesh { Size = new Vector3(0.5f, 0.03f, 0.04f) }, Palette.DroneBody, false, new Vector3(0, 0.03f, 0));
             arm.RotationDegrees = new Vector3(0, armAngle, 0);
             drone.AddChild(arm);
         }
@@ -316,7 +350,7 @@ public partial class FieldView3D : SubViewportContainer
         CylinderMesh rotorMesh = new() { TopRadius = 0.12f, BottomRadius = 0.12f, Height = 0.01f };
         foreach (Vector3 position in new[] { new Vector3(0.18f, 0.06f, 0.18f), new Vector3(-0.18f, 0.06f, 0.18f), new Vector3(0.18f, 0.06f, -0.18f), new Vector3(-0.18f, 0.06f, -0.18f) })
         {
-            MeshInstance3D rotor = Part(rotorMesh, _rotorColor, false, position);
+            MeshInstance3D rotor = Part(rotorMesh, Palette.Rotor, false, position);
             drone.AddChild(rotor);
             _rotors.Add(rotor);
         }
