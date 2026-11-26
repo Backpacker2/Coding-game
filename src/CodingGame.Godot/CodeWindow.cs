@@ -259,7 +259,9 @@ public partial class CodeWindow : Window
         _statusChip = new Label();
         _statsLabel = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, Visible = false };
 
-        HBoxContainer toolbar = new();
+        // The toolbar wraps onto a second row in a narrow window, so no button gets cut off.
+        HFlowContainer toolbar = new();
+        toolbar.AddThemeConstantOverride("v_separation", 6);
         toolbar.AddChild(_languagePicker);
         toolbar.AddChild(runButton);
         toolbar.AddChild(stepButton);
