@@ -39,6 +39,7 @@ The Script window floats over the farm. You can move it by its title bar, resize
 | `ripe()` | `True` if the crop on this tile is ripe. | 1 |
 | `till()` | Turns grass into soil, or soil into grass. It removes the crop on the tile. | 20 |
 | `ground()` | `GRASS` or `SOIL`, what this tile is made of. | 1 |
+| `spin()` | Turns the drone once. Just for fun. | 10 |
 
 Examples, one line each:
 
@@ -78,7 +79,7 @@ Each unlock costs items and opens new commands or language features.
 
 Buying an unlock uses up its items.
 
-At the start, `move()`, `harvest()`, the four directions and `CLOVER` are available. Everything else in the table is locked until you buy it.
+At the start, `move()`, `harvest()`, `spin()`, the four directions and `CLOVER` are available. Everything else in the table is locked until you buy it.
 
 ## Error messages
 

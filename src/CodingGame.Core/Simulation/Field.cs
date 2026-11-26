@@ -79,6 +79,12 @@ public sealed class Field
     public TilePosition DronePosition { get; private set; }
 
     /// <summary>
+    /// Gets the number of times the drone has spun since the field was made. It is not saved, and the view
+    /// compares it between frames to show a spin.
+    /// </summary>
+    public int SpinCount { get; private set; }
+
+    /// <summary>
     /// Gets the items the drone holds, keyed by item name. Every count is at least 1: an item the drone has none of is not listed.
     /// </summary>
     public IReadOnlyDictionary<string, int> Items => _items;
@@ -200,6 +206,14 @@ public sealed class Field
         Tile tile = DroneTile;
         Ground ground = tile.Ground == Ground.Grass ? Ground.Soil : Ground.Grass;
         DroneTile = new Tile(ground, null, 0);
+    }
+
+    /// <summary>
+    /// Turns the drone once on its tile. Only <see cref="SpinCount"/> changes.
+    /// </summary>
+    public void Spin()
+    {
+        SpinCount++;
     }
 
     /// <summary>

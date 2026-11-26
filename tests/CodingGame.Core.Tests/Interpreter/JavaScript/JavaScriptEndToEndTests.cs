@@ -176,6 +176,39 @@ public class JavaScriptEndToEndTests
             result.Error!.ToMessage(ScriptLanguage.JavaScript));
     }
 
+    [Fact]
+    public void SpinCostsSpinTicksAndChangesOnlyTheSpinCount()
+    {
+        Field withSpin = NewField(_rules);
+        Field withoutSpin = NewField(_rules);
+
+        (StepResult spinResult, Evaluator spinEvaluator) = Run("spin();\nmove(EAST);", withSpin);
+        (StepResult plainResult, Evaluator plainEvaluator) = Run("move(EAST);", withoutSpin);
+
+        Assert.Equal(StepStatus.Finished, spinResult.Status);
+        Assert.Equal(plainResult.Status, spinResult.Status);
+        Assert.Equal(plainEvaluator.TicksUsed + _rules.TickCosts.SpinTicks, spinEvaluator.TicksUsed);
+        Assert.Equal(withoutSpin.DronePosition, withSpin.DronePosition);
+        Assert.Equal(withoutSpin.GetTile(1, 0), withSpin.GetTile(1, 0));
+        Assert.Equal(1, withSpin.SpinCount);
+        Assert.Equal(0, withoutSpin.SpinCount);
+    }
+
+    [Fact]
+    public void SpinWithArgumentIsWrongArgument()
+    {
+        Field field = NewField(_rules);
+
+        (StepResult result, _) = Run("spin(EAST);", field);
+
+        Assert.Equal(StepStatus.Failed, result.Status);
+        Assert.Equal(new ScriptError(ScriptErrorKind.WrongArgument, 1, "spin expects 0 argument(s), got 1"), result.Error);
+        Assert.Equal(
+            "TypeError on line 1: spin expects 0 argument(s), got 1",
+            result.Error!.ToMessage(ScriptLanguage.JavaScript));
+        Assert.Equal(0, field.SpinCount);
+    }
+
     private static (StepResult Result, Evaluator Evaluator) Run(string source, Field field)
     {
         ParseResult parsed = JavaScriptFrontEnd.Parse(source);

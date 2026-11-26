@@ -8,7 +8,7 @@ namespace CodingGame.Core.Tests.Interpreter;
 public class DroneApiTests
 {
     private static readonly GameRules _rules = GameRules.Load(Path.Combine(AppContext.BaseDirectory, "data"));
-    private static readonly string[] _commandNames = ["ground", "harvest", "move", "plant", "ripe", "till"];
+    private static readonly string[] _commandNames = ["ground", "harvest", "move", "plant", "ripe", "spin", "till"];
 
     [Fact]
     public void ConstantsHaveNineEntries()
@@ -51,7 +51,7 @@ public class DroneApiTests
     }
 
     [Fact]
-    public void CommandNamesAreTheSixDroneCommands()
+    public void CommandNamesAreTheSevenDroneCommands()
     {
         var api = new DroneApi(_rules, NewField());
 
@@ -72,6 +72,7 @@ public class DroneApiTests
         Assert.Equal(ticks.RipeTicks, api.Commands["ripe"].CostTicks);
         Assert.Equal(ticks.TillTicks, api.Commands["till"].CostTicks);
         Assert.Equal(ticks.GroundTicks, api.Commands["ground"].CostTicks);
+        Assert.Equal(ticks.SpinTicks, api.Commands["spin"].CostTicks);
     }
 
     [Fact]
@@ -105,6 +106,27 @@ public class DroneApiTests
         var api = new DroneApi(_rules, NewField());
 
         Assert.Empty(api.Commands["harvest"].ArgumentKinds);
+    }
+
+    [Fact]
+    public void SpinTakesNoArguments()
+    {
+        var api = new DroneApi(_rules, NewField());
+
+        Assert.Empty(api.Commands["spin"].ArgumentKinds);
+    }
+
+    [Fact]
+    public void SpinCountsOneSpinAndMovesNothing()
+    {
+        Field field = NewField();
+        var api = new DroneApi(_rules, field);
+
+        CommandOutcome outcome = api.Commands["spin"].Run([]);
+
+        Assert.Null(outcome.FailureDetail);
+        Assert.Equal(1, field.SpinCount);
+        Assert.Equal(new TilePosition(0, 0), field.DronePosition);
     }
 
     [Fact]

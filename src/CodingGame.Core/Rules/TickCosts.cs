@@ -11,6 +11,7 @@ namespace CodingGame.Core.Rules;
 /// <param name="GroundTicks">Ticks for checking what a tile is made of.</param>
 /// <param name="LoopIterationTicks">Ticks for each iteration of a loop.</param>
 /// <param name="FunctionCallTicks">Ticks for each function call.</param>
+/// <param name="SpinTicks">Ticks for one spin of the drone.</param>
 public sealed record TickCosts(
     int MoveTicks,
     int HarvestTicks,
@@ -19,4 +20,5 @@ public sealed record TickCosts(
     int TillTicks,
     int GroundTicks,
     int LoopIterationTicks,
-    int FunctionCallTicks);
+    int FunctionCallTicks,
+    int SpinTicks);

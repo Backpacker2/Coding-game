@@ -29,6 +29,27 @@ public class FieldTests
     }
 
     [Fact]
+    public void NewFieldHasNotSpun()
+    {
+        var field = new Field(3, 1, _clover);
+
+        Assert.Equal(0, field.SpinCount);
+    }
+
+    [Fact]
+    public void SpinCountGoesUpByOneEachSpinAndChangesNothingElse()
+    {
+        var field = new Field(3, 1, _clover);
+
+        field.Spin();
+        field.Spin();
+
+        Assert.Equal(2, field.SpinCount);
+        Assert.Equal(new TilePosition(0, 0), field.DronePosition);
+        Assert.Equal(new Tile(Ground.Grass, _clover, 200), field.GetTile(0, 0));
+    }
+
+    [Fact]
     public void GetTileOutsideFieldThrows()
     {
         var field = new Field(3, 1, _clover);

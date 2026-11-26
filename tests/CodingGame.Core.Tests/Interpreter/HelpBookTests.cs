@@ -11,7 +11,7 @@ public class HelpBookTests
 {
     private const string MoveEntry = """{"name": "move", "summary": "Moves the drone.", "python": "move(EAST)", "javascript": "move(EAST);"}""";
 
-    private static readonly string[] _freeNamesAtStart = ["move", "harvest", "NORTH", "EAST", "SOUTH", "WEST", "CLOVER"];
+    private static readonly string[] _freeNamesAtStart = ["move", "harvest", "spin", "NORTH", "EAST", "SOUTH", "WEST", "CLOVER"];
 
     [Fact]
     public void NewPlayerSeesOnlyFreeEntries()
@@ -77,7 +77,7 @@ public class HelpBookTests
 
         IReadOnlyList<HelpEntry> entries = book.EntriesFor(EvaluatorTestSupport.AllUnlocked(rules), ScriptLanguage.Python);
 
-        Assert.Equal(20, entries.Count);
+        Assert.Equal(21, entries.Count);
     }
 
     [Fact]
