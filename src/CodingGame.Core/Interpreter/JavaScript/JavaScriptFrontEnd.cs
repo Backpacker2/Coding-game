@@ -13,6 +13,7 @@ public sealed partial class JavaScriptFrontEnd
 
     private readonly IReadOnlyList<Token> _tokens;
     private readonly ScriptError? _tokenizeError;
+    private readonly HashSet<string> _declaredNames = [];
     private int _position;
     private int _nestingDepth;
 
@@ -78,6 +79,12 @@ public sealed partial class JavaScriptFrontEnd
                 break;
             case { Kind: TokenKind.Keyword, Text: "function" }:
                 into.Add(ParseFunctionDefinition());
+                break;
+            case { Kind: TokenKind.Keyword, Text: "let" }:
+                into.Add(ParseLet());
+                break;
+            case { Kind: TokenKind.Name } when _tokens[_position + 1] is { Kind: TokenKind.Operator, Text: "=" }:
+                into.Add(ParseAssignment());
                 break;
             default:
                 Expression expression = ParseExpression();
@@ -158,7 +165,7 @@ public sealed partial class JavaScriptFrontEnd
                 return Failure(ScriptErrorKind.SyntaxError, token.Line, "'==' is not allowed, use '===': '==' converts types before it compares");
             case { Kind: TokenKind.Operator, Text: "!=" }:
                 return Failure(ScriptErrorKind.SyntaxError, token.Line, "'!=' is not allowed, use '!==': '!=' converts types before it compares");
-            case { Kind: TokenKind.Operator, Text: not ("(" or ")" or "{" or "}" or "," or ";" or "===" or "!==") }:
+            case { Kind: TokenKind.Operator, Text: not ("(" or ")" or "{" or "}" or "," or ";" or "===" or "!==" or "<" or ">" or "<=" or ">=" or "+" or "-" or "*") }:
                 return Failure(ScriptErrorKind.NotInGame, token.Line, token.Text);
             case { Kind: TokenKind.EndOfFile }:
                 return Failure(ScriptErrorKind.SyntaxError, token.Line, "Unexpected end of input");

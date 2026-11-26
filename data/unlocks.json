@@ -5,5 +5,6 @@
   { "id": "CONDITIONS", "title": "if / else and ripe()", "price": { "item": "RADISH", "count": 20 }, "features": ["if", "ripe"], "fieldSize": null },
   { "id": "WHILE_LOOP", "title": "while loop", "price": { "item": "RADISH", "count": 40 }, "features": ["while"], "fieldSize": null },
   { "id": "POTATO", "title": "Potato, till() and ground()", "price": { "item": "RADISH", "count": 60 }, "features": ["till", "ground", "POTATO", "SOIL", "GRASS", "=="], "fieldSize": null },
-  { "id": "FUNCTIONS", "title": "Functions", "price": { "item": "POTATO", "count": 30 }, "features": ["def"], "fieldSize": null }
+  { "id": "FUNCTIONS", "title": "Functions", "price": { "item": "POTATO", "count": 30 }, "features": ["def"], "fieldSize": null },
+  { "id": "VARIABLES", "title": "Variables and counting", "price": { "item": "POTATO", "count": 40 }, "features": ["variables", "+", "-", "*", "<", ">", "<=", ">="], "fieldSize": null }
 ]

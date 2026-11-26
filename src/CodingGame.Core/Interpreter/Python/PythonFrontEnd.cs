@@ -88,6 +88,12 @@ public sealed partial class PythonFrontEnd
                 return;
         }
 
+        if (first.Kind == TokenKind.Name && _tokens[_position + 1] is { Kind: TokenKind.Operator, Text: "=" })
+        {
+            into.Add(ParseAssignment());
+            return;
+        }
+
         Expression expression = ParseExpression();
         Expect(TokenKind.Newline, string.Empty);
         into.Add(new ExpressionStatement(expression.Line, expression));
@@ -133,7 +139,7 @@ public sealed partial class PythonFrontEnd
                 return Failure(ScriptErrorKind.NotInGame, token.Line, token.Text);
             case TokenKind.Operator when token.Text == ")":
                 return Failure(ScriptErrorKind.SyntaxError, token.Line, "unmatched ')'");
-            case TokenKind.Operator when token.Text is not ("(" or "," or ":" or "==" or "!="):
+            case TokenKind.Operator when token.Text is not ("(" or "," or ":" or "==" or "!=" or "<" or ">" or "<=" or ">=" or "+" or "-" or "*"):
                 return Failure(ScriptErrorKind.NotInGame, token.Line, token.Text);
             default:
                 return Failure(ScriptErrorKind.SyntaxError, token.Line, "invalid syntax");

@@ -6,7 +6,7 @@ public sealed partial class JavaScriptFrontEnd
     {
         Token keyword = Advance();
         ExpectOperator("(");
-        Expression condition = ParseExpression();
+        Expression condition = ParseCondition();
         Expect(")");
         List<Statement> then = ParseBlock();
 
@@ -33,10 +33,58 @@ public sealed partial class JavaScriptFrontEnd
     {
         Token keyword = Advance();
         ExpectOperator("(");
-        Expression condition = ParseExpression();
+        Expression condition = ParseCondition();
         Expect(")");
         List<Statement> body = ParseBlock();
         return new While(keyword.Line, condition, body);
+    }
+
+    private Expression ParseCondition()
+    {
+        Expression condition = ParseExpression();
+        if (IsOperator("="))
+        {
+            throw Failure(ScriptErrorKind.SyntaxError, Current.Line, "use === to compare; = gives a variable a value");
+        }
+
+        return condition;
+    }
+
+    private Assign ParseLet()
+    {
+        Token keyword = Advance();
+        if (_nestingDepth > 0)
+        {
+            throw Failure(ScriptErrorKind.NotInGame, keyword.Line, "let inside a block");
+        }
+
+        Token name = ExpectName();
+        if (!_declaredNames.Add(name.Text))
+        {
+            throw Failure(ScriptErrorKind.SyntaxError, name.Line, $"Identifier '{name.Text}' has already been declared");
+        }
+
+        ExpectOperator("=");
+        Expression value = ParseExpression();
+        ExpectSemicolon();
+        return new Assign(name.Line, name.Text, value);
+    }
+
+    private Assign ParseAssignment()
+    {
+        Token name = ExpectName();
+        if (!_declaredNames.Contains(name.Text))
+        {
+            throw Failure(
+                ScriptErrorKind.NameOutOfScope,
+                name.Line,
+                $"'{name.Text}' is not declared; write let {name.Text} = ... first");
+        }
+
+        ExpectOperator("=");
+        Expression value = ParseExpression();
+        ExpectSemicolon();
+        return new Assign(name.Line, name.Text, value);
     }
 
     private Repeat ParseFor()
@@ -50,6 +98,7 @@ public sealed partial class JavaScriptFrontEnd
 
         Advance();
         string variable = ExpectName().Text;
+        _declaredNames.Add(variable);
         if (!IsOperator("="))
         {
             throw Current.Kind == TokenKind.EndOfFile ? UnexpectedToken(Current) : OtherForLoops(Current);
@@ -96,7 +145,7 @@ public sealed partial class JavaScriptFrontEnd
         Advance();
         Expect(")");
         List<Statement> body = ParseBlock();
-        return new Repeat(keyword.Line, count, body);
+        return new Repeat(keyword.Line, count, body, variable);
     }
 
     private FunctionDefinition ParseFunctionDefinition()

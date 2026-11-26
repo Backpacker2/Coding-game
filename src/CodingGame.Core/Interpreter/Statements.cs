@@ -40,7 +40,16 @@ public sealed record While(int Line, Expression Condition, IReadOnlyList<Stateme
 /// <param name="Line">The line in the script, counted from 1.</param>
 /// <param name="Count">The number of iterations. It must be a number.</param>
 /// <param name="Body">The statements of one iteration.</param>
-public sealed record Repeat(int Line, Expression Count, IReadOnlyList<Statement> Body) : Statement(Line);
+/// <param name="Counter">The name the loop counter is read by inside the body, or null when the loop has no counter. The counter holds 0, 1, ... and is read-only.</param>
+public sealed record Repeat(int Line, Expression Count, IReadOnlyList<Statement> Body, string? Counter) : Statement(Line);
+
+/// <summary>
+/// Gives a variable a new value. A variable is created by its first assignment.
+/// </summary>
+/// <param name="Line">The line in the script, counted from 1.</param>
+/// <param name="Name">The name of the variable.</param>
+/// <param name="Value">The expression whose value is stored. It is evaluated before the variable changes.</param>
+public sealed record Assign(int Line, string Name, Expression Value) : Statement(Line);
 
 /// <summary>
 /// Defines a player function. Running the definition registers the function under its name.

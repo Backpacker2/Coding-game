@@ -43,11 +43,11 @@
     "title": "Repeating with for",
     "feature": "for",
     "python": {
-      "text": "A for loop repeats the indented lines under it. range(3) makes the loop run three times. The name after for, i here, counts the turns, but this game does not let you use it in your script yet. End the for line with a colon, and indent the lines inside the loop with 4 spaces or with one tab. Use the same kind of indent for the whole script.",
+      "text": "A for loop repeats the indented lines under it. range(3) makes the loop run three times. The name after for, i here, is the loop counter. It counts 0, 1, 2, and so on; you can read it in your script once you buy Variables and counting. End the for line with a colon, and indent the lines inside the loop with 4 spaces or with one tab. Use the same kind of indent for the whole script.",
       "example": "for i in range(3):\n    harvest()\n    move(EAST)"
     },
     "javascript": {
-      "text": "A for loop repeats the commands between its curly braces. This loop runs three times, because i starts at 0 and stops before 3. The name i counts the turns, but this game does not let you use it in your script yet. Put each command inside the braces, and end each command with a semicolon.",
+      "text": "A for loop repeats the commands between its curly braces. This loop runs three times, because i starts at 0 and stops before 3. The name i is the loop counter. It counts 0, 1, 2, and so on; you can read it in your script once you buy Variables and counting. Put each command inside the braces, and end each command with a semicolon.",
       "example": "for (let i = 0; i < 3; i++) {\n    harvest();\n    move(EAST);\n}"
     }
   },
@@ -114,6 +114,32 @@
     "javascript": {
       "text": "A function gives a name to a group of commands, so one line can run them all. Write function, the name, empty round brackets, and then the commands between curly braces. Write the name with round brackets and a semicolon on its own line wherever the commands should run.",
       "example": "function harvestTwo() {\n    harvest();\n    move(EAST);\n    harvest();\n}\n\nharvestTwo();"
+    }
+  },
+  {
+    "id": "counting",
+    "title": "Counting with the loop counter",
+    "feature": "variables",
+    "python": {
+      "text": "The name i in for i in range(3) is 0 on the first turn, 1 on the second and 2 on the third. Use it on an if line to choose what to do on each turn. This script moves east only while i < 2 is true, so the drone moves on the first two turns and not on the third.",
+      "example": "for i in range(3):\n    if i < 2:\n        move(EAST)"
+    },
+    "javascript": {
+      "text": "The name i in for (let i = 0; i < 3; i++) is 0 on the first turn, 1 on the second and 2 on the third. Use it in an if to choose what to do on each turn. This script moves east only while i < 2 is true, so the drone moves on the first two turns and not on the third.",
+      "example": "for (let i = 0; i < 3; i++) {\n    if (i < 2) {\n        move(EAST);\n    }\n}"
+    }
+  },
+  {
+    "id": "variables",
+    "title": "Your own variables",
+    "feature": "variables",
+    "python": {
+      "text": "A variable is a name that keeps a number. Write count = 0 to make one, and change it later with count = count + 1. Calculate with + - * and compare with < > <= >=. There is no += in this game yet, and a function can read a variable but cannot change it.",
+      "example": "count = 0\ncount = count + 1\nif count < 2:\n    move(EAST)"
+    },
+    "javascript": {
+      "text": "A variable is a name that keeps a number. Write let count = 0; once at the top of the script to make one, and change it later with count = count + 1;. Calculate with + - * and compare with < > <= >=. There is no += in this game yet, and a function can read a variable but cannot change it.",
+      "example": "let count = 0;\ncount = count + 1;\nif (count < 2) {\n    move(EAST);\n}"
     }
   }
 ]

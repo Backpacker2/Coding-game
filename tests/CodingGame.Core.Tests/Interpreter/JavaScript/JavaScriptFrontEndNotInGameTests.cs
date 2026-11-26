@@ -11,14 +11,8 @@ public class JavaScriptFrontEndNotInGameTests
     [InlineData("return;", 1, "return")]
     [InlineData("var x = 1;", 1, "var")]
     [InlineData("const x = 1;", 1, "const")]
-    [InlineData("let x = 1;", 1, "let")]
-    [InlineData("x = 1;", 1, "=")]
     [InlineData("x += 1;", 1, "+=")]
     [InlineData("x++;", 1, "++")]
-    [InlineData("a + 1;", 1, "+")]
-    [InlineData("-1;", 1, "-")]
-    [InlineData("move(a * 2);", 1, "*")]
-    [InlineData("x < 3;", 1, "<")]
     [InlineData("if (a && b) {\n}", 1, "&&")]
     [InlineData("if (a || b) {\n}", 1, "||")]
     [InlineData("if (!ripe()) {\n}", 1, "!")]
@@ -71,7 +65,7 @@ public class JavaScriptFrontEndNotInGameTests
     [Theory]
     [InlineData("move(EAST) harvest();\nmove(#);", ScriptErrorKind.SyntaxError, 1, "Unexpected identifier 'harvest'")]
     [InlineData("harvest();\nmove(#);", ScriptErrorKind.SyntaxError, 2, "invalid character '#'")]
-    [InlineData("harvest();\nx = `a`;", ScriptErrorKind.NotInGame, 2, "=")]
+    [InlineData("harvest();\nlet x = `a`;", ScriptErrorKind.NotInGame, 2, "strings")]
     public void ReportsTheFirstErrorInSourceOrder(string source, ScriptErrorKind kind, int line, string detail)
     {
         ParseResult result = JavaScriptFrontEnd.Parse(source);

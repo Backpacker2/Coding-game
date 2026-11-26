@@ -4,6 +4,7 @@
   { "kind": "commandFailed", "text": "Read the message after the colon: it says which rule stopped the command." },
   { "kind": "notUnlocked", "text": "Harvest the items it costs, then buy it in Unlocks." },
   { "kind": "notInGame", "detailContains": "break", "text": "This game has no break yet: let the loop run to its end, or use fewer repeats." },
+  { "kind": "notInGame", "detailContains": "+=", "text": "Write count = count + 1 to add one." },
   { "kind": "notInGame", "text": "This part of Python is not in the game. Use the commands and words in Help." },
   { "kind": "undefinedName", "text": "Check the spelling. Help lists every name you can use." },
   { "kind": "syntaxError", "text": "Compare the line with the example in Help." },

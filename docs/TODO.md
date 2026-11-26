@@ -51,6 +51,7 @@ Milestones 29 to 35 follow [`gameplay-plan.md`](gameplay-plan.md). The view halv
 - [x] **33. Script stats.** Items per 1,000 ticks and a best per crop in the save (Core: build thread, done in 0.13.0). A stats line and a "New best" moment (view). (0.13.3)
 - [x] **34. Several scripts.** Named scripts, one runs, save format 3 (Core: build thread, done in 0.11.0, decision [0013](decisions/0013-several-scripts.md); the owner agreed on 2026-11-26). Tabs in the script window (view). (0.12.1)
 - [x] **35. A playful command.** `spin()` in every language (Core: build thread, done in 0.12.5). The spin animation (view). (0.13.1)
+- [x] **36. Variables and counting.** The loop counter, variables, + - * and < > <= >= in both languages, behind a new unlock (0.15.0). Design: [0014](decisions/0014-variables.md).
 
 ## Waiting on the owner
 

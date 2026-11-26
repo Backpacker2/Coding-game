@@ -16,6 +16,7 @@ public class UnlockDataTests
         "WHILE_LOOP",
         "POTATO",
         "FUNCTIONS",
+        "VARIABLES",
     ];
 
     [Fact]
@@ -23,7 +24,7 @@ public class UnlockDataTests
     {
         GameRules rules = EvaluatorTestSupport.Rules();
         var drone = new DroneApi(rules, EvaluatorTestSupport.NewField(rules));
-        HashSet<string> known = ["for", "while", "if", "def", "=="];
+        HashSet<string> known = ["for", "while", "if", "def", "==", "variables", "+", "-", "*", "<", ">", "<=", ">="];
         known.UnionWith(drone.Commands.Keys);
         known.UnionWith(drone.Constants.Keys);
 
@@ -50,7 +51,7 @@ public class UnlockDataTests
     }
 
     [Fact]
-    public void UnlocksAreTheSevenOfTheFirstThirtyMinutesInOrder()
+    public void UnlocksAreTheEightOfTheFirstThirtyMinutesInOrder()
     {
         GameRules rules = EvaluatorTestSupport.Rules();
 

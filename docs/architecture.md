@@ -9,7 +9,7 @@ This is the technical overview of the prototype. The rules for writing code are 
 | `src/CodingGame.Core/` | A class library with all the game logic. It does not use Godot, so the tests run without it. |
 | `src/CodingGame.Core/Rules/` | `GameRules` reads and checks the files in `data/`. It also holds the types `Crop`, `TickCosts`, `FieldSize`, `Unlock`, `Goal` (with `GoalKind`) and `Hint`. |
 | `src/CodingGame.Core/Simulation/` | `Field`: the tiles, the drone and the items. Also `Tile`, `Direction` and `PlantResult`. |
-| `src/CodingGame.Core/Interpreter/` | The shared syntax tree, the `Evaluator`, the `DroneApi`, `UnlockCheck`, `HelpBook` and the script errors. |
+| `src/CodingGame.Core/Interpreter/` | The shared syntax tree, the `Evaluator`, the `DroneApi`, `ScopeCheck`, `UnlockCheck`, `HelpBook` and the script errors. |
 | `src/CodingGame.Core/Interpreter/Python/` | The Python front end: tokenizer and parser. |
 | `src/CodingGame.Core/Interpreter/JavaScript/` | The JavaScript front end: tokenizer and parser. |
 | `src/CodingGame.Core/Session/` | `GameProgress`, `ScriptBook` (the named scripts and the selected one), `RunSession`, `RunStats` (the items and rates of an ended run), `HintTracker` (the count of the same error in a row), `SaveFile` and the types around them. |
@@ -48,7 +48,7 @@ data/help.json ──► HelpBook.Load (checked against DroneApi) ──► Help
 
 - `GameRules.Load` reads the JSON files and the two starter scripts, turns them into precise types and checks them. A broken or missing file throws `GameRulesException`.
 - `SaveFile.Load` reads `save.json`, checks it the same way and returns a `SavedGame`: the progress, the language and the `ScriptBook` with the named scripts. A missing file gives a new game.
-- `RunSession.Start` parses the script. A parse error or a locked feature gives a session that has failed at once. Otherwise it creates an `Evaluator` with a `DroneApi` bound to the field of the progress.
+- `RunSession.Start` parses the script, then `ScopeCheck` checks the names and `UnlockCheck` the locked features. A parse error, a name error or a locked feature gives a session that has failed at once. Otherwise it creates an `Evaluator` with a `DroneApi` bound to the field of the progress.
 - Each step of the evaluator runs one tick. The `DroneApi` table gives the command names and their costs, and the field holds the state.
 - The items and the field live in `GameProgress`. The field keeps a reference to the same item store, so a harvest adds to the player's bank at once. A run changes the field of the progress, so crops and the drone stay as the run left them.
 - `HelpBook.Load` reads `data/help.json` and checks it against the drone API and the keywords. `HelpBook.EntriesFor` returns the entries the player can use now, with the example for the selected language.

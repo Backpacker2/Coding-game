@@ -102,12 +102,18 @@ public sealed class RunSession
         }
 
         ScriptProgram program = parsed.Program ?? throw new InvalidOperationException("a parse result has a program or an error");
+        var api = new DroneApi(progress.Rules, field);
+        if (ScopeCheck.Find(program, api) is { } nameError)
+        {
+            return new RunSession(language, field, null, StepStatus.Failed, nameError);
+        }
+
         if (UnlockCheck.FindLocked(program, progress.LockedFeatures) is { } lockedError)
         {
             return new RunSession(language, field, null, StepStatus.Failed, lockedError);
         }
 
-        var evaluator = new Evaluator(program, new DroneApi(progress.Rules, field));
+        var evaluator = new Evaluator(program, api);
         return new RunSession(language, field, evaluator, StepStatus.Running, null);
     }
 

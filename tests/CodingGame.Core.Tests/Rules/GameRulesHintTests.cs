@@ -8,7 +8,7 @@ public class GameRulesHintTests
 {
     private const string ValidCropsJson = """[{"name":"CLOVER","ground":"GRASS","growTimeTicks":200,"yieldItems":1,"seed":null,"regrows":true},{"name":"RADISH","ground":"GRASS","growTimeTicks":300,"yieldItems":4,"seed":{"item":"CLOVER","count":2},"regrows":false}]""";
 
-    private const string ValidTicksJson = """{"moveTicks":20,"harvestTicks":20,"plantTicks":20,"ripeTicks":1,"tillTicks":20,"groundTicks":1,"loopIterationTicks":1,"functionCallTicks":1,"spinTicks":10}""";
+    private const string ValidTicksJson = """{"moveTicks":20,"harvestTicks":20,"plantTicks":20,"ripeTicks":1,"tillTicks":20,"groundTicks":1,"loopIterationTicks":1,"functionCallTicks":1,"spinTicks":10,"assignTicks":1}""";
 
     private const string ValidFieldJson = """{"width":3,"height":3}""";
 
@@ -19,7 +19,7 @@ public class GameRulesHintTests
     {
         GameRules rules = GameRules.Load(Path.Combine(AppContext.BaseDirectory, "data"));
 
-        Assert.Equal(10, rules.Hints.Count);
+        Assert.Equal(11, rules.Hints.Count);
     }
 
     [Fact]

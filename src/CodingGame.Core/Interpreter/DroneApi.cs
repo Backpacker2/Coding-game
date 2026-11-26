@@ -67,6 +67,7 @@ public sealed class DroneApi
         TickCosts ticks = rules.TickCosts;
         LoopIterationTicks = ticks.LoopIterationTicks;
         FunctionCallTicks = ticks.FunctionCallTicks;
+        AssignTicks = ticks.AssignTicks;
 
         Commands = new Dictionary<string, DroneCommand>
         {
@@ -126,6 +127,11 @@ public sealed class DroneApi
     /// Gets the ticks that each call of a player function costs, from the tick costs in the data folder.
     /// </summary>
     public int FunctionCallTicks { get; }
+
+    /// <summary>
+    /// Gets the ticks that each assignment to a variable costs, from the tick costs in the data folder.
+    /// </summary>
+    public int AssignTicks { get; }
 
     /// <summary>
     /// Gets the drone commands by the name a script calls them by.

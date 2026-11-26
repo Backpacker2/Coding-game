@@ -9,6 +9,8 @@ namespace CodingGame.Core.Tests.Interpreter;
 
 public class HelpBookTests
 {
+    private const int MaxTicks = 10_000;
+
     private const string MoveEntry = """{"name": "move", "summary": "Moves the drone.", "python": "move(EAST)", "javascript": "move(EAST);"}""";
 
     private static readonly string[] _freeNamesAtStart = ["move", "harvest", "spin", "NORTH", "EAST", "SOUTH", "WEST", "CLOVER"];
@@ -77,7 +79,49 @@ public class HelpBookTests
 
         IReadOnlyList<HelpEntry> entries = book.EntriesFor(EvaluatorTestSupport.AllUnlocked(rules), ScriptLanguage.Python);
 
-        Assert.Equal(30, entries.Count);
+        Assert.Equal(35, entries.Count);
+    }
+
+    [Fact]
+    public void VariableEntriesAppearOnlyAfterBuyingVariables()
+    {
+        GameRules rules = EvaluatorTestSupport.Rules();
+        HelpBook book = HelpBook.Load(DataFolder(), new DroneApi(rules, EvaluatorTestSupport.NewField(rules)));
+        var progress = new GameProgress(rules);
+        List<string> beforeVariables = NamesFor(book, progress);
+
+        progress.AddItems("POTATO", 40);
+        progress.Buy(UnlockWithId(rules, "VARIABLES"));
+        List<string> afterVariables = NamesFor(book, progress);
+
+        Assert.DoesNotContain("variables", beforeVariables);
+        Assert.DoesNotContain("+", beforeVariables);
+        Assert.DoesNotContain("<", beforeVariables);
+        Assert.Contains("variables", afterVariables);
+        Assert.Contains("+", afterVariables);
+        Assert.Contains("<", afterVariables);
+    }
+
+    [Theory]
+    [InlineData("variables", ScriptLanguage.Python)]
+    [InlineData("variables", ScriptLanguage.JavaScript)]
+    [InlineData("+", ScriptLanguage.Python)]
+    [InlineData("+", ScriptLanguage.JavaScript)]
+    [InlineData("<", ScriptLanguage.Python)]
+    [InlineData("<", ScriptLanguage.JavaScript)]
+    public void VariableHelpExamplesFinish(string name, ScriptLanguage language)
+    {
+        GameProgress progress = EvaluatorTestSupport.AllUnlocked(EvaluatorTestSupport.Rules());
+        string example = EntriesFor(progress, language).Single(entry => entry.Name == name).Example;
+        RunSession session = RunSession.Start(example, language, progress);
+
+        for (int tick = 0; tick < MaxTicks && session.Status == StepStatus.Running; tick++)
+        {
+            session.StepTick();
+        }
+
+        Assert.Equal(StepStatus.Finished, session.Status);
+        Assert.Null(session.ErrorMessage);
     }
 
     [Fact]
@@ -159,8 +203,25 @@ public class HelpBookTests
 
         IReadOnlyList<HelpEntry> entries = EntriesFor(EvaluatorTestSupport.AllUnlocked(rules), ScriptLanguage.Python);
 
-        Assert.Equal(9, LessonNames(entries).Count);
+        Assert.Equal(11, LessonNames(entries).Count);
         Assert.DoesNotContain(entries, entry => entry.Kind == HelpKind.NextLesson);
+    }
+
+    [Fact]
+    public void CountingLessonIsNextAfterFunctions()
+    {
+        GameRules rules = EvaluatorTestSupport.Rules();
+        var progress = new GameProgress(rules);
+        foreach (Unlock unlock in rules.Unlocks.TakeWhile(candidate => candidate.Id != "VARIABLES"))
+        {
+            progress.AddItems(unlock.Price.Item, unlock.Price.Count);
+            progress.Buy(unlock);
+        }
+
+        HelpEntry next = EntriesFor(progress, ScriptLanguage.Python).Single(entry => entry.Kind == HelpKind.NextLesson);
+
+        Assert.Equal("Counting with the loop counter", next.Name);
+        Assert.StartsWith("Next: unlock \"Variables and counting\" to learn this. ", next.Summary);
     }
 
     [Fact]

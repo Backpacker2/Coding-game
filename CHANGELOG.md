@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.15.0 — 2026-11-26
+
+- Variables and counting: a new unlock (40 potato) lets a script read its for-loop counter, make its own variables, calculate with + - * and compare with < > <= >=, in Python and JavaScript with the same results. Help and two new lessons teach it; = in a condition now explains to use == (Python) or === (JavaScript).
+
 ## 0.14.7 — 2026-11-26
 
 - Polish and check (visual milestone 28): the "+N" number rises fast and slows down before it fades, the unlock banner fades out smoothly, and button icons take their colour from the palette. Results of the motion, colour-blindness and 1280 × 720 checks are in `docs/visual-plan.md`, with a before and after picture.

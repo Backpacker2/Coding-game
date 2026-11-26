@@ -16,7 +16,7 @@ public class EvaluatorControlFlowTests
         Field field = NewField();
         Evaluator evaluator = NewEvaluator(
             field,
-            new Repeat(1, new Literal(1, Value.FromNumber(2)), [CallStatement(2, "move", Constant(2, "EAST"))]));
+            new Repeat(1, new Literal(1, Value.FromNumber(2)), [CallStatement(2, "move", Constant(2, "EAST"))], null));
 
         StepResult first = evaluator.Step();
 
@@ -41,7 +41,7 @@ public class EvaluatorControlFlowTests
     {
         Evaluator evaluator = NewEvaluator(
             NewField(),
-            new Repeat(1, new Literal(1, Value.FromNumber(count)), [CallStatement(2, "harvest")]));
+            new Repeat(1, new Literal(1, Value.FromNumber(count)), [CallStatement(2, "harvest")], null));
 
         Assert.Equal(StepStatus.Finished, RunToEnd(evaluator).Status);
         Assert.Equal(0, evaluator.TicksUsed);
@@ -52,7 +52,7 @@ public class EvaluatorControlFlowTests
     {
         Evaluator evaluator = NewEvaluator(
             NewField(),
-            new Repeat(1, new Literal(1, Value.FromBoolean(true)), [CallStatement(2, "harvest")]));
+            new Repeat(1, new Literal(1, Value.FromBoolean(true)), [CallStatement(2, "harvest")], null));
 
         StepResult result = evaluator.Step();
 
@@ -68,8 +68,8 @@ public class EvaluatorControlFlowTests
         Evaluator evaluator = NewEvaluator(
             NewField(),
             new Repeat(1, new Literal(1, Value.FromNumber(2)), [
-                new Repeat(2, new Literal(2, Value.FromNumber(3)), [CallStatement(3, "ripe")]),
-            ]));
+                new Repeat(2, new Literal(2, Value.FromNumber(3)), [CallStatement(3, "ripe")], null),
+            ], null));
 
         Assert.Equal(StepStatus.Finished, RunToEnd(evaluator).Status);
         Assert.Equal(14, evaluator.TicksUsed);

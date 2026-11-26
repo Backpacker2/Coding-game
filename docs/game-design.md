@@ -85,6 +85,7 @@ Times are where we want an average beginner to be, not hard limits. **(guess, al
 | 5 | 0:18 | `while` loop | 40 radish | Loops that run on a condition |
 | 6 | 0:22 | Potato, `till()` and `ground()` | 60 radish | Comparisons (`==`) |
 | 7 | 0:27 | Functions (`def` and calling your own function) | 30 potato | Functions |
+| 8 | 0:31 | Variables and counting (guess): the loop counter, your own variables, `+ - *` and `< > <= >=` | 40 potato | Variables |
 
 Each unlock's price is paid in the newest crop, so the player always has a reason to farm the newest thing.
 
@@ -208,6 +209,6 @@ Not designed yet; listed so the first 30 minutes point somewhere. **(guess, all 
 2. **What happens at the edge of the field?** Proposal: the drone wraps around to the other side, so early loops need no turning logic. Alternative: the edge blocks the drone and `move` fails with a gameplay error, which teaches more care but makes steps 1 and 2 much harder.
 3. **Which language comes first?** The examples use Python because it is the most common first language and has the least syntax. Language choice belongs in `languages.md`.
 4. ~~**Are the command names final?**~~ Settled: the names follow decision record 0002 and [`languages.md`](languages.md).
-5. **Does the loop variable `i` count as teaching variables?** In this draft the player uses it without being taught it. Variables could be its own unlock, before or after functions.
+5. **Does the loop variable `i` count as teaching variables?** In this draft the player uses it without being taught it. Variables could be its own unlock, before or after functions. Note (2026-11-26): the counter is now taught by the unlock Variables and counting (40 potato), after Functions; see [`decisions/0014-variables.md`](decisions/0014-variables.md).
 6. **Is there a goal or story beyond unlocks?** For example a farm order board ("deliver 50 radish"), which would give the player targets other than "the next unlock".
 7. **Can the player lose items?** Radish destroyed by an early harvest is the only loss in this draft. Is that enough tension, or too punishing for minute 11?

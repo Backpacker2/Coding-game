@@ -5,7 +5,7 @@ public sealed partial class PythonFrontEnd
     private If ParseIf()
     {
         Token keyword = Advance();
-        Expression condition = ParseExpression();
+        Expression condition = ParseCondition();
         IReadOnlyList<Statement> then = ParseBlock($"'{keyword.Text}' statement", keyword.Line);
 
         IReadOnlyList<Statement> otherwise = [];
@@ -28,15 +28,35 @@ public sealed partial class PythonFrontEnd
     private While ParseWhile()
     {
         Token keyword = Advance();
-        Expression condition = ParseExpression();
+        Expression condition = ParseCondition();
         IReadOnlyList<Statement> body = ParseBlock("'while' statement", keyword.Line);
         return new While(keyword.Line, condition, body);
+    }
+
+    private Expression ParseCondition()
+    {
+        Expression condition = ParseExpression();
+        if (IsOperator("="))
+        {
+            throw Failure(ScriptErrorKind.SyntaxError, Current.Line, "use == to compare; = gives a variable a value");
+        }
+
+        return condition;
+    }
+
+    private Assign ParseAssignment()
+    {
+        Token name = Advance();
+        ExpectOperator("=");
+        Expression value = ParseExpression();
+        Expect(TokenKind.Newline, string.Empty);
+        return new Assign(name.Line, name.Text, value);
     }
 
     private Repeat ParseFor()
     {
         Token keyword = Advance();
-        ExpectName();
+        Token counter = ExpectName();
         Expect(TokenKind.Keyword, "in");
 
         Token range = Current;
@@ -60,7 +80,7 @@ public sealed partial class PythonFrontEnd
 
         Expect(TokenKind.Operator, ")");
         IReadOnlyList<Statement> body = ParseBlock("'for' statement", keyword.Line);
-        return new Repeat(keyword.Line, count, body);
+        return new Repeat(keyword.Line, count, body, counter.Text);
     }
 
     private FunctionDefinition ParseFunctionDefinition()
