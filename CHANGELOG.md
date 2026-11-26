@@ -2,6 +2,11 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.14.7 — 2026-11-26
+
+- Polish and check (visual milestone 28): the "+N" number rises fast and slows down before it fades, the unlock banner fades out smoothly, and button icons take their colour from the palette. Results of the motion, colour-blindness and 1280 × 720 checks are in `docs/visual-plan.md`, with a before and after picture.
+- Fix: in a narrow window the script toolbar wraps onto a second row instead of cutting off the status chip.
+
 ## 0.14.6 — 2026-11-26
 
 - The round buttons at the top right get line icons: brackets for Code, a padlock for Unlocks, a question mark for Help and three lines for Menu.
