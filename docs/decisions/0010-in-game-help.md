@@ -68,3 +68,5 @@ Option A for the help texts. Hidden locked entries. New game resets in place and
 Since 0.8.0 the help is no longer a tab next to the farm. The Help button at the top right opens it in its own window, and the button closes it again. The entries, the rules and the decision above stay as they are; only the place changed. The New game button moved into the Menu at the top right.
 
 Update 2026-11-26 (0.10.0): since decision [0012](0012-persistent-field.md) the field belongs to `GameProgress`, and `Reset` replaces it with a fresh start field. The unlock panel still keeps the same `GameProgress` object.
+
+Update 2026-11-26 (0.14.0): Help starts with lessons from `data/lessons.json`, in the selected language. Lessons whose feature is unlocked are shown in file order, under LESSONS. The first lesson whose feature is still locked is shown once, under NEXT, with the unlock that teaches it. The commands, constants and keywords follow, as before.

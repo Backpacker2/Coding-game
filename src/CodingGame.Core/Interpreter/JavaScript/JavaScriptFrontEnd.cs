@@ -153,13 +153,13 @@ public sealed partial class JavaScriptFrontEnd
         switch (token)
         {
             case { Kind: TokenKind.Keyword, Text: not ("if" or "else" or "while" or "for" or "function" or "true" or "false") }:
-                return Failure(ScriptErrorKind.NotUnlocked, token.Line, token.Text);
+                return Failure(ScriptErrorKind.NotInGame, token.Line, token.Text);
             case { Kind: TokenKind.Operator, Text: "==" }:
                 return Failure(ScriptErrorKind.SyntaxError, token.Line, "'==' is not allowed, use '===': '==' converts types before it compares");
             case { Kind: TokenKind.Operator, Text: "!=" }:
                 return Failure(ScriptErrorKind.SyntaxError, token.Line, "'!=' is not allowed, use '!==': '!=' converts types before it compares");
             case { Kind: TokenKind.Operator, Text: not ("(" or ")" or "{" or "}" or "," or ";" or "===" or "!==") }:
-                return Failure(ScriptErrorKind.NotUnlocked, token.Line, token.Text);
+                return Failure(ScriptErrorKind.NotInGame, token.Line, token.Text);
             case { Kind: TokenKind.EndOfFile }:
                 return Failure(ScriptErrorKind.SyntaxError, token.Line, "Unexpected end of input");
             case { Kind: TokenKind.Name }:

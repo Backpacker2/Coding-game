@@ -106,7 +106,7 @@ public sealed partial class JavaScriptFrontEnd
         ExpectOperator("(");
         if (Current.Kind == TokenKind.Name)
         {
-            throw Failure(ScriptErrorKind.NotUnlocked, Current.Line, "parameters");
+            throw Failure(ScriptErrorKind.NotInGame, Current.Line, "parameters");
         }
 
         Expect(")");
@@ -159,6 +159,6 @@ public sealed partial class JavaScriptFrontEnd
 
     private static ParseFailure OtherForLoops(Token token)
     {
-        return Failure(ScriptErrorKind.NotUnlocked, token.Line, "other for loops");
+        return Failure(ScriptErrorKind.NotInGame, token.Line, "other for loops");
     }
 }

@@ -19,7 +19,7 @@ public class GameRulesHintTests
     {
         GameRules rules = GameRules.Load(Path.Combine(AppContext.BaseDirectory, "data"));
 
-        Assert.Equal(8, rules.Hints.Count);
+        Assert.Equal(10, rules.Hints.Count);
     }
 
     [Fact]
@@ -59,6 +59,7 @@ public class GameRulesHintTests
         { "undefinedName", ScriptErrorKind.UndefinedName },
         { "wrongArgument", ScriptErrorKind.WrongArgument },
         { "notUnlocked", ScriptErrorKind.NotUnlocked },
+        { "notInGame", ScriptErrorKind.NotInGame },
         { "commandFailed", ScriptErrorKind.CommandFailed },
         { "tooDeep", ScriptErrorKind.TooDeep },
         { "syntaxError", ScriptErrorKind.SyntaxError },

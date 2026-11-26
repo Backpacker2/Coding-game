@@ -59,11 +59,11 @@ internal static class JavaScriptTokenizer
             }
             else if (character == '/' && index + 1 < text.Length && text[index + 1] == '*')
             {
-                return new ScriptError(ScriptErrorKind.NotUnlocked, line, "block comments");
+                return new ScriptError(ScriptErrorKind.NotInGame, line, "block comments");
             }
             else if (character is '\'' or '"' or '`')
             {
-                return new ScriptError(ScriptErrorKind.NotUnlocked, line, "strings");
+                return new ScriptError(ScriptErrorKind.NotInGame, line, "strings");
             }
             else if (IsIdentifierStart(character))
             {
@@ -116,7 +116,7 @@ internal static class JavaScriptTokenizer
         var next = end < text.Length ? text[end] : '\0';
         if (next == '.')
         {
-            return new ScriptError(ScriptErrorKind.NotUnlocked, line, "decimal numbers");
+            return new ScriptError(ScriptErrorKind.NotInGame, line, "decimal numbers");
         }
 
         if (IsIdentifierStart(next))

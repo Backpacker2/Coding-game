@@ -86,8 +86,8 @@ public class JavaScriptFrontEndStatementTests
     [InlineData("}", ScriptErrorKind.SyntaxError, 1, "Unexpected token '}'")]
     [InlineData("{", ScriptErrorKind.SyntaxError, 1, "Unexpected token '{'")]
     [InlineData("harvest();\nmove(EAST EAST);", ScriptErrorKind.SyntaxError, 2, "Unexpected identifier 'EAST'")]
-    [InlineData("a === b === c;", ScriptErrorKind.NotUnlocked, 1, "chained comparisons")]
-    [InlineData("a !== b === c;", ScriptErrorKind.NotUnlocked, 1, "chained comparisons")]
+    [InlineData("a === b === c;", ScriptErrorKind.NotInGame, 1, "chained comparisons")]
+    [InlineData("a !== b === c;", ScriptErrorKind.NotInGame, 1, "chained comparisons")]
     public void ReportsTheFirstErrorWithItsLineAndDetail(string source, ScriptErrorKind kind, int line, string detail)
     {
         ParseResult result = JavaScriptFrontEnd.Parse(source);

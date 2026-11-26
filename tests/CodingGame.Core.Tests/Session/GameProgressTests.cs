@@ -38,7 +38,16 @@ public class GameProgressTests
     {
         var progress = new GameProgress(_rules);
 
-        Assert.Contains(feature, progress.LockedFeatures);
+        Assert.Contains(feature, progress.LockedFeatures.Keys);
+    }
+
+    [Fact]
+    public void LockedFeatureMapsToTheUnlockThatGivesIt()
+    {
+        var progress = new GameProgress(_rules);
+
+        Assert.Equal("FOR_LOOP", progress.LockedFeatures["for"].Id);
+        Assert.Equal("CONDITIONS", progress.LockedFeatures["ripe"].Id);
     }
 
     [Fact]
@@ -46,7 +55,7 @@ public class GameProgressTests
     {
         var progress = new GameProgress(_rules);
 
-        Assert.DoesNotContain("move", progress.LockedFeatures);
+        Assert.DoesNotContain("move", progress.LockedFeatures.Keys);
     }
 
     [Fact]
@@ -75,7 +84,7 @@ public class GameProgressTests
 
         Assert.Equal(2, progress.Items["CLOVER"]);
         Assert.True(progress.IsBought(forLoop));
-        Assert.DoesNotContain("for", progress.LockedFeatures);
+        Assert.DoesNotContain("for", progress.LockedFeatures.Keys);
     }
 
     [Fact]
@@ -170,7 +179,7 @@ public class GameProgressTests
 
         Assert.Empty(progress.Items);
         Assert.False(progress.IsBought(UnlockNamed("FOR_LOOP")));
-        Assert.Contains("for", progress.LockedFeatures);
+        Assert.Contains("for", progress.LockedFeatures.Keys);
     }
 
     [Fact]
@@ -239,7 +248,7 @@ public class GameProgressTests
         Assert.Equal(5, progress.Items["CLOVER"]);
         Assert.True(progress.IsBought(UnlockNamed("FOR_LOOP")));
         Assert.False(progress.IsBought(UnlockNamed("WHILE_LOOP")));
-        Assert.DoesNotContain("for", progress.LockedFeatures);
+        Assert.DoesNotContain("for", progress.LockedFeatures.Keys);
     }
 
     [Fact]
