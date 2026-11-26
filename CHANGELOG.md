@@ -2,6 +2,11 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.10.1 — 2026-11-26
+
+- Fix: radish could never be planted, because every grass tile holds wild clover and `till()` comes later. Planting now replaces wild clover.
+- The window title and the Menu show the version, so a tester can see which build runs.
+
 ## 0.10.0 — 2026-11-26
 
 - Crops stay on the field: what you plant keeps growing in later runs, the drone stays where it stopped, and the field is saved. Save files move to version 2; version 1 saves still load, with a fresh field. Design: decision 0012.

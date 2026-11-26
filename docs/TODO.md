@@ -20,6 +20,7 @@ The prototype is done when a player can write a Python or JavaScript script in t
 - [x] **11. Save and load.** (0.6.0) Progress (items and bought unlocks) and the player's script survive closing the game. A versioned save file, checked at the edge like the data files. Design: [`docs/decisions/0009-save-format.md`](decisions/0009-save-format.md).
 - [x] **12. Run speed.** (0.6.1) A speed control in the window (slow, normal, fast) so long scripts do not take minutes; ticks stay deterministic.
 - [ ] **13. Play-test round 1.** Fix what the owner finds in the play-test of 0.4.0 and 0.5.0.
+  - [x] Radish could not be planted (0.10.1)
 - [x] **14. Documentation of what was built.** (0.6.2) README status, player guide, architecture overview.
 - [x] **15. In-game help and New game.** (0.7.0) A panel listing the commands, constants and language features the player has unlocked, and a New game button that resets the progress and scripts after a confirmation. Design: [`docs/decisions/0010-in-game-help.md`](decisions/0010-in-game-help.md).
 - [x] **16. Crops stay on the field.** (0.10.0) The field belongs to the player's progress: crops keep growing in later runs, the drone stays where it stopped, and the field is saved (save format version 2). The owner chose this on 2026-11-26. Design: [`docs/decisions/0012-persistent-field.md`](decisions/0012-persistent-field.md).
