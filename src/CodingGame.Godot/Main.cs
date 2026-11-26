@@ -28,6 +28,8 @@ public partial class Main : Control
     private UnlockPanel _unlockPanel = null!;
     private HelpPanel _helpPanel = null!;
     private HelpBook _help = null!;
+    private HintTracker _hints = null!;
+    private bool _showingHint;
     private MenuButton _menuButton = null!;
     private ConfirmationDialog _newGameDialog = null!;
 
@@ -53,6 +55,7 @@ public partial class Main : Control
         _scripts = saved.Scripts;
         _api = new DroneApi(_rules, _progress.Field);
         _help = HelpBook.Load(DataFolder, _api);
+        _hints = new HintTracker(_rules);
 
         _codeWindow.Editor.Text = _scripts.Text(_scripts.Selected, _language);
         _codeWindow.ShowScripts(_scripts.Names, _scripts.Selected);
@@ -257,6 +260,10 @@ public partial class Main : Control
             _session = RunSession.Start(_codeWindow.Editor.Text, _language, _progress);
             _tickBudget = 0;
             Save();
+            if (_session.Status != StepStatus.Running)
+            {
+                EndRun(_session);
+            }
         }
 
         return _session;
@@ -272,14 +279,19 @@ public partial class Main : Control
     {
         RunSession session = SessionForRun();
         _playing = false;
-        session.StepLine();
 
-        // A step can start and end a run within one frame, which the run check in _Process never sees.
-        if (session.Status != StepStatus.Running)
+        // A run that failed when it started was ended in SessionForRun already.
+        if (session.Status == StepStatus.Running)
         {
-            // Clears the flag so _Process does not end this run a second time.
-            _wasRunning = false;
-            EndRun(session);
+            session.StepLine();
+
+            // A step can start and end a run within one frame, which the run check in _Process never sees.
+            if (session.Status != StepStatus.Running)
+            {
+                // Clears the flag so _Process does not end this run a second time.
+                _wasRunning = false;
+                EndRun(session);
+            }
         }
     }
 
@@ -297,6 +309,15 @@ public partial class Main : Control
     private void EndRun(RunSession session)
     {
         _progress.CheckGoals(session);
+        string? hint = _hints.RecordRunEnd(session);
+
+        // The notice also carries the save warning from start-up, so only a hint this code showed is cleared.
+        if (hint is not null || _showingHint)
+        {
+            _codeWindow.ShowNotice(hint is null ? "" : $"Hint: {hint}");
+            _showingHint = hint is not null;
+        }
+
         Save();
     }
 
@@ -368,6 +389,7 @@ public partial class Main : Control
     private void OnNewGameConfirmed()
     {
         _progress.Reset();
+        _hints = new HintTracker(_rules);
         _scripts = new ScriptBook(_rules);
         _language = ScriptLanguage.Python;
         _codeWindow.SelectLanguage(_language);

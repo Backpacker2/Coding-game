@@ -115,6 +115,7 @@ public class GameRulesGoalTests
             {
                 File.WriteAllText(Path.Combine(folder, "goals.json"), goalsJson);
             }
+            File.WriteAllText(Path.Combine(folder, "hints.json"), "[]");
 
             return GameRules.Load(folder);
         }

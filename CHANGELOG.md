@@ -2,9 +2,13 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
-## 0.12.2 — 2026-11-26
+## 0.12.3 — 2026-11-26
 
 - First steps on screen: a small card under the goal bar shows the current first-steps goal in one sentence, with a ? button for a hint. A goal that gets done shows a tick for a moment before the next one; with every goal done the card hides.
+
+## 0.12.2 — 2026-11-26
+
+- Hints when stuck: when the same script error happens three times in a row, the message gets a hint from data/hints.json.
 
 ## 0.12.1 — 2026-11-26
 
