@@ -7,12 +7,13 @@ using ScriptLanguage = CodingGame.Core.Interpreter.ScriptLanguage;
 
 namespace CodingGame.Godot;
 
-/// <summary>The game window: the script editor, the controls and the farm view.</summary>
+/// <summary>
+/// The game screen: the farm fills it, with the script window floating over it, the item bar at the top left
+/// and round buttons at the top right that open the Unlocks, Help and Menu overlays.
+/// </summary>
 public partial class Main : Control
 {
-    // Ticks per second for Slow, Normal and Fast. A move costs 20 ticks, so Normal moves the drone about
-    // once a second. Slow lets the player follow each step; Fast finishes long loops in seconds.
-    private static readonly double[] _ticksPerSecondBySpeed = [5, 20, 200];
+    private static readonly Color _skyColor = new(0.36f, 0.45f, 0.55f);
 
     // The controls and the rules are created in _Ready, after Godot has built the object.
     private GameRules _rules = null!;
@@ -20,19 +21,13 @@ public partial class Main : Control
     private Field _idleField = null!;
     private DroneApi _api = null!;
     private FarmView _farm = null!;
-    private ScriptEditor _editor = null!;
-    private OptionButton _languagePicker = null!;
-    private OptionButton _speedPicker = null!;
-    private Button _stopButton = null!;
-    private Label _tickLabel = null!;
-    private Label _itemsLabel = null!;
-    private Label _errorLabel = null!;
+    private ResourceBar _resourceBar = null!;
+    private CodeWindow _codeWindow = null!;
     private UnlockPanel _unlockPanel = null!;
     private HelpPanel _helpPanel = null!;
     private HelpBook _help = null!;
-    private Button _newGameButton = null!;
+    private MenuButton _menuButton = null!;
     private ConfirmationDialog _newGameDialog = null!;
-    private Label _noticeLabel = null!;
 
     private RunSession? _session;
     private bool _playing;
@@ -45,8 +40,8 @@ public partial class Main : Control
     public override void _Ready()
     {
         _rules = GameRules.Load(DataFolder);
-        _noticeLabel = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart };
-        _noticeLabel.AddThemeColorOverride("font_color", Colors.Red);
+        _codeWindow = new CodeWindow();
+        AddChild(_codeWindow);
         SavedGame saved = LoadSavedGame();
         _progress = saved.Progress;
         _language = saved.Language;
@@ -56,26 +51,49 @@ public partial class Main : Control
         _api = new DroneApi(_rules, _idleField);
         _help = HelpBook.Load(DataFolder, _api);
 
-        _languagePicker = new OptionButton();
-        _languagePicker.AddItem("Python");
-        _languagePicker.AddItem("JavaScript");
-        _languagePicker.Select((int)_language);
-        _languagePicker.ItemSelected += OnLanguageSelected;
+        _codeWindow.Editor.Text = _scriptTexts[_language];
+        _codeWindow.Editor.UseLanguage(_language, _api);
+        _codeWindow.SelectLanguage(_language);
+        _codeWindow.RunPressed += OnRun;
+        _codeWindow.StepPressed += OnStep;
+        _codeWindow.StopPressed += OnStop;
+        _codeWindow.LanguageSelected += OnLanguageSelected;
+        Vector2 viewport = GetViewportRect().Size;
+        _codeWindow.Position = new Vector2I((int)(viewport.X * 0.55f), 80);
+        _codeWindow.Size = new Vector2I((int)(viewport.X * 0.42f), (int)(viewport.Y * 0.8f));
 
-        Button runButton = new() { Text = "Run" };
-        runButton.Pressed += OnRun;
-        Button stepButton = new() { Text = "Step" };
-        stepButton.Pressed += OnStep;
-        _stopButton = new Button { Text = "Stop" };
-        _stopButton.Pressed += OnStop;
-        _speedPicker = new OptionButton();
-        _speedPicker.AddItem("Slow");
-        _speedPicker.AddItem("Normal");
-        _speedPicker.AddItem("Fast");
-        _speedPicker.Select(1);
-        _tickLabel = new Label();
-        _newGameButton = new Button { Text = "New game" };
-        _newGameButton.Pressed += () => _newGameDialog.PopupCentered();
+        ColorRect background = new() { Color = _skyColor };
+        background.SetAnchorsPreset(LayoutPreset.FullRect);
+        AddChild(background);
+
+        _farm = new FarmView();
+        _farm.SetAnchorsPreset(LayoutPreset.FullRect);
+
+        // The script window starts on the right part of the screen, so the farm is centred in the rest.
+        _farm.AnchorRight = 0.55f;
+        _farm.OffsetTop = 64;
+        _farm.OffsetLeft = 24;
+        _farm.OffsetRight = -24;
+        _farm.OffsetBottom = -24;
+        AddChild(_farm);
+
+        _resourceBar = new ResourceBar { Position = new Vector2(16, 12) };
+        AddChild(_resourceBar);
+
+        _unlockPanel = new UnlockPanel { SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        _unlockPanel.Show(_progress);
+        _unlockPanel.Bought += OnBought;
+        ScrollContainer unlockScroll = new() { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
+        unlockScroll.AddChild(_unlockPanel);
+        Window unlocksWindow = OverlayWindow("Unlocks", new Vector2I(520, 480));
+        unlocksWindow.AddChild(unlockScroll);
+        unlockScroll.SetAnchorsPreset(LayoutPreset.FullRect);
+
+        _helpPanel = new HelpPanel();
+        Window helpWindow = OverlayWindow("Help", new Vector2I(560, 520));
+        helpWindow.AddChild(_helpPanel);
+        _helpPanel.SetAnchorsPreset(LayoutPreset.FullRect);
+
         _newGameDialog = new ConfirmationDialog
         {
             DialogText = "Start a new game? Your items, unlocks and scripts are erased.",
@@ -85,72 +103,32 @@ public partial class Main : Control
         _newGameDialog.Confirmed += OnNewGameConfirmed;
         AddChild(_newGameDialog);
 
-        HBoxContainer toolbar = new();
-        toolbar.AddChild(_languagePicker);
-        toolbar.AddChild(runButton);
-        toolbar.AddChild(stepButton);
-        toolbar.AddChild(_stopButton);
-        toolbar.AddChild(_speedPicker);
-        toolbar.AddChild(_tickLabel);
-        toolbar.AddChild(_newGameButton);
+        Button codeButton = new() { Text = "Code" };
+        ApplyRoundStyle(codeButton);
+        codeButton.Pressed += () => ToggleWindow(_codeWindow);
+        Button unlocksButton = new() { Text = "Unlocks" };
+        ApplyRoundStyle(unlocksButton);
+        unlocksButton.Pressed += () => ToggleWindow(unlocksWindow);
+        Button helpButton = new() { Text = "Help" };
+        ApplyRoundStyle(helpButton);
+        helpButton.Pressed += () => ToggleWindow(helpWindow);
+        // A menu button is flat by default, which hides the round background.
+        _menuButton = new MenuButton { Text = "Menu", Flat = false };
+        ApplyRoundStyle(_menuButton);
+        PopupMenu menu = _menuButton.GetPopup();
+        menu.AddItem("New game");
+        menu.IdPressed += _ => _newGameDialog.PopupCentered();
 
-        _editor = new ScriptEditor { Text = _scriptTexts[_language] };
-        _editor.UseLanguage(_language, _api);
-
-        _errorLabel = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart };
-        PanelContainer errorPanel = new() { CustomMinimumSize = new Vector2(0, 80) };
-        errorPanel.AddChild(_errorLabel);
-
-        VBoxContainer left = new() { SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsStretchRatio = 1 };
-        left.AddChild(toolbar);
-        left.AddChild(_editor);
-        left.AddChild(_noticeLabel);
-        left.AddChild(new Label { Text = "Messages" });
-        left.AddChild(errorPanel);
-
-        _farm = new FarmView
-        {
-            SizeFlagsHorizontal = SizeFlags.ExpandFill,
-            SizeFlagsVertical = SizeFlags.ExpandFill,
-            SizeFlagsStretchRatio = 1,
-        };
-        _itemsLabel = new Label();
-        _unlockPanel = new UnlockPanel { SizeFlagsHorizontal = SizeFlags.ExpandFill };
-        _unlockPanel.Show(_progress);
-        _unlockPanel.Bought += OnBought;
-        ScrollContainer unlockScroll = new()
-        {
-            Name = "Unlocks",
-            HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
-        };
-        unlockScroll.AddChild(_unlockPanel);
-        _helpPanel = new HelpPanel { Name = "Help" };
-        TabContainer tabs = new()
-        {
-            SizeFlagsVertical = SizeFlags.ExpandFill,
-            SizeFlagsStretchRatio = 1,
-        };
-        tabs.AddChild(unlockScroll);
-        tabs.AddChild(_helpPanel);
-
-        VBoxContainer right = new() { SizeFlagsHorizontal = SizeFlags.ExpandFill, SizeFlagsStretchRatio = 1 };
-        right.AddChild(_farm);
-        right.AddChild(_itemsLabel);
-        right.AddChild(tabs);
-
-        HSplitContainer split = new();
-        split.AddChild(left);
-        split.AddChild(right);
-
-        MarginContainer margin = new();
-        margin.SetAnchorsPreset(LayoutPreset.FullRect);
-        const int marginPixels = 8;
-        margin.AddThemeConstantOverride("margin_left", marginPixels);
-        margin.AddThemeConstantOverride("margin_top", marginPixels);
-        margin.AddThemeConstantOverride("margin_right", marginPixels);
-        margin.AddThemeConstantOverride("margin_bottom", marginPixels);
-        margin.AddChild(split);
-        AddChild(margin);
+        HBoxContainer roundButtons = new() { GrowHorizontal = GrowDirection.Begin };
+        roundButtons.SetAnchorsPreset(LayoutPreset.TopRight);
+        roundButtons.OffsetTop = 12;
+        roundButtons.OffsetRight = -16;
+        roundButtons.AddThemeConstantOverride("separation", 8);
+        roundButtons.AddChild(codeButton);
+        roundButtons.AddChild(unlocksButton);
+        roundButtons.AddChild(helpButton);
+        roundButtons.AddChild(_menuButton);
+        AddChild(roundButtons);
         RefreshHelp();
     }
 
@@ -159,7 +137,7 @@ public partial class Main : Control
     {
         if (_playing && _session?.Status == StepStatus.Running)
         {
-            _tickBudget += delta * _ticksPerSecondBySpeed[_speedPicker.Selected];
+            _tickBudget += delta * _codeWindow.TicksPerSecond;
         }
 
         while (_tickBudget >= 1 && _session is { Status: StepStatus.Running })
@@ -202,6 +180,50 @@ public partial class Main : Control
         return File.ReadAllText(Path.Combine(DataFolder, fileName));
     }
 
+    private static void ApplyRoundStyle(Button button)
+    {
+        button.CustomMinimumSize = new Vector2(48, 48);
+        button.AddThemeStyleboxOverride("normal", RoundStyle(new Color(0.25f, 0.45f, 0.2f)));
+        button.AddThemeStyleboxOverride("hover", RoundStyle(new Color(0.31f, 0.55f, 0.25f)));
+        button.AddThemeStyleboxOverride("pressed", RoundStyle(new Color(0.18f, 0.34f, 0.15f)));
+    }
+
+    private static StyleBoxFlat RoundStyle(Color background)
+    {
+        StyleBoxFlat style = new() { BgColor = background };
+        style.SetCornerRadiusAll(24);
+        style.ContentMarginLeft = 16;
+        style.ContentMarginRight = 16;
+        return style;
+    }
+
+    private static void ToggleWindow(Window window)
+    {
+        if (window.Visible)
+        {
+            window.Hide();
+            return;
+        }
+
+        window.Show();
+        window.GrabFocus();
+    }
+
+    private Window OverlayWindow(string title, Vector2I size)
+    {
+        Vector2I viewport = (Vector2I)GetViewportRect().Size;
+        Window window = new()
+        {
+            Title = title,
+            Size = size,
+            Position = (viewport - size) / 2,
+            Visible = false,
+        };
+        window.CloseRequested += window.Hide;
+        AddChild(window);
+        return window;
+    }
+
     private SavedGame LoadSavedGame()
     {
         try
@@ -211,14 +233,14 @@ public partial class Main : Control
         catch (SaveException exception)
         {
             string keptPath = SaveFile.SetAside(SavePath);
-            _noticeLabel.Text = $"Could not read the save file ({exception.Message}). It was kept as {keptPath}. Starting a new game.";
+            _codeWindow.ShowNotice($"Could not read the save file ({exception.Message}). It was kept as {keptPath}. Starting a new game.");
             return new SavedGame(new GameProgress(_rules), ScriptLanguage.Python, new SavedScripts(null, null));
         }
     }
 
     private void Save()
     {
-        _scriptTexts[_language] = _editor.Text;
+        _scriptTexts[_language] = _codeWindow.Editor.Text;
         SaveFile.Save(SavePath, new SavedGame(
             _progress,
             _language,
@@ -229,7 +251,7 @@ public partial class Main : Control
     {
         if (_session is null || _session.Status != StepStatus.Running)
         {
-            _session = RunSession.Start(_editor.Text, _language, _progress);
+            _session = RunSession.Start(_codeWindow.Editor.Text, _language, _progress);
             _tickBudget = 0;
             Save();
         }
@@ -270,13 +292,12 @@ public partial class Main : Control
         Save();
     }
 
-    private void OnLanguageSelected(long index)
+    private void OnLanguageSelected(ScriptLanguage next)
     {
-        ScriptLanguage next = (ScriptLanguage)index;
-        _scriptTexts[_language] = _editor.Text;
+        _scriptTexts[_language] = _codeWindow.Editor.Text;
         _language = next;
-        _editor.Text = _scriptTexts[next];
-        _editor.UseLanguage(_language, _api);
+        _codeWindow.Editor.Text = _scriptTexts[next];
+        _codeWindow.Editor.UseLanguage(_language, _api);
         RefreshHelp();
     }
 
@@ -286,13 +307,13 @@ public partial class Main : Control
         _scriptTexts[ScriptLanguage.Python] = StarterText(ScriptLanguage.Python);
         _scriptTexts[ScriptLanguage.JavaScript] = StarterText(ScriptLanguage.JavaScript);
         _language = ScriptLanguage.Python;
-        _languagePicker.Select((int)_language);
-        _editor.Text = _scriptTexts[_language];
-        _editor.UseLanguage(_language, _api);
+        _codeWindow.SelectLanguage(_language);
+        _codeWindow.Editor.Text = _scriptTexts[_language];
+        _codeWindow.Editor.UseLanguage(_language, _api);
         _session = null;
         _playing = false;
         _tickBudget = 0;
-        _noticeLabel.Text = "";
+        _codeWindow.ShowNotice("");
         _idleField = _progress.NewField();
         RefreshHelp();
         Save();
@@ -308,38 +329,11 @@ public partial class Main : Control
         RunSession? session = _session;
         Field field = session?.Field ?? _idleField;
         _farm.ShowField(field, _rules.Crops);
+        _resourceBar.ShowItems(field.Items, _rules.Crops);
+        _codeWindow.Refresh(session);
 
-        string statusText = session?.Status switch
-        {
-            StepStatus.Finished => " - finished",
-            StepStatus.Failed => " - stopped by an error",
-            _ => "",
-        };
-        _tickLabel.Text = $"Ticks: {session?.TicksUsed ?? 0}{statusText}";
-
-        string items = string.Join(", ", field.Items.Select(item => $"{item.Key} {item.Value}"));
-        _itemsLabel.Text = items.Length == 0 ? "Items: none" : $"Items: {items}";
-
-        string? error = session?.ErrorMessage;
-        _errorLabel.Text = error ?? "Errors in your script appear here, with the line number.";
-        _errorLabel.AddThemeColorOverride("font_color", error is null ? new Color(0.6f, 0.6f, 0.6f) : Colors.Red);
         bool running = session?.Status == StepStatus.Running;
-        _editor.Editable = !running;
-        _stopButton.Disabled = session is null;
-        _languagePicker.Disabled = running;
-        _newGameButton.Disabled = running;
+        _menuButton.GetPopup().SetItemDisabled(0, running);
         _unlockPanel.Refresh(running);
-
-        int line = session?.Error?.Line ?? session?.CurrentLine ?? 0;
-        if (session is null || line == 0)
-        {
-            _editor.ClearHighlight();
-            return;
-        }
-
-        Color color = session.Status == StepStatus.Failed
-            ? new Color(1, 0, 0, 0.35f)
-            : new Color(1, 1, 0, 0.25f);
-        _editor.HighlightLine(line, color);
     }
 }

@@ -4,21 +4,30 @@ Coding Game puts you in charge of a drone on a farm. You control it with code. Y
 
 The same drone commands work in both languages. Only the way you write them changes. You start with a few commands and buy more with the items you harvest.
 
-## The window
+## The screen
 
-- **Editor** (left, top): your script, with line numbers and colours: keywords purple, drone commands blue, constants amber, numbers green, strings orange and comments grey. You cannot edit it while a script runs.
-- **Language picker**: Python or JavaScript. Each language keeps its own script.
-- **Run**: starts the script, or carries on with a script that Step paused. After a run has ended, Run starts a new one.
-- **Step**: runs the script until the next line starts. The yellow line shows the line that is about to run.
-- **Stop**: ends the run and resets the farm. Your items stay.
-- **Speed**: Slow, Normal or Fast. It only changes how fast the ticks run, not the result. Normal is the default.
-- **Ticks**: how many ticks this run has used. It says `finished` or `stopped by an error` when the run ends.
-- **New game**: starts over. After a confirmation it erases your items, your unlocks and both scripts, and it goes back to Python. There is no undo. It is greyed out while a script runs.
-- **Messages** (under the editor): the message for an error in red, with its line number. The line with the error turns red. When there is no error, a grey hint says where errors appear.
-- **Farm**: the field, centred in the right half of the window. Dark green is grass, brown is soil. A coloured circle is a crop: clover is gold, radish red and potato orange. A circle grows as the crop grows, and a white ring means it is ripe. The drone is the blue dot with a white ring in the top-left of its tile, inside a blue outline.
-- **Items**: what you own, for example `Items: CLOVER 3, RADISH 1`, or `Items: none`.
-- **Unlocks tab** (under the farm): each unlock with its price and a Buy button. A bought unlock says `Unlocked`. Buy is greyed out while a script runs or when you cannot pay. The tab scrolls when the list is long.
-- **Help tab** (next to the Unlocks tab): what you can use now, for the language you selected. Each entry has a short description and an example. The panel lists only what you have unlocked, so new entries appear when you buy an unlock. Switch the language and the examples change to that language's style.
+- **Farm**: the field fills the screen and is centred. Dark green is grass, brown is soil. A coloured circle is a crop: clover is gold, radish red and potato orange. A circle grows as the crop grows, and a white ring means it is ripe. The drone is the blue dot with a white ring in the top-left of its tile, inside a blue outline.
+- **Items** (top left): one pill for each item you own, with a coloured circle and the count, for example clover 3 and radish 1. Hover over a pill to see the item's name. With no items it says `No items yet`.
+- **Code** (top right): shows or hides the Script window. See below.
+- **Unlocks** (top right): opens the unlock list in its own window. Each unlock has its price and a Buy button. A bought unlock says `Unlocked`. Buy is greyed out while a script runs or when you cannot pay. The list scrolls when it is long.
+- **Help** (top right): opens the help in its own window: what you can use now, for the language you selected. Each entry has a short description and an example. The help lists only what you have unlocked, so new entries appear when you buy an unlock. Switch the language and the examples change to that language's style.
+- **Menu** (top right): **New game**. It is greyed out while a script runs.
+
+The Unlocks, Help and Menu buttons work the same way: press once to open, and press again to close the window.
+
+## The Script window
+
+The Script window floats over the farm. You can move it by its title bar, resize it by its edges, and close it with its close button. Closing only hides it: press **Code** to bring it back. It has these parts, from top to bottom:
+
+- **Toolbar**: the language picker (Python or JavaScript; each language keeps its own script), **Run**, **Step**, **Stop**, the speed picker and the tick count.
+  - **Run** starts the script, or carries on with a script that Step paused. After a run has ended, Run starts a new one.
+  - **Step** runs the script until the next line starts. The yellow line shows the line that is about to run.
+  - **Stop** ends the run and resets the farm. Your items stay.
+  - **Speed**: Slow, Normal or Fast. It only changes how fast the ticks run, not the result. Normal is the default.
+  - **Ticks**: how many ticks this run has used. It says `finished` or `stopped by an error` when the run ends.
+- **Editor**: your script, with line numbers and colours: keywords purple, drone commands blue, constants amber, numbers green, strings orange and comments grey. You cannot edit it while a script runs.
+- **Notice**: a red message when something went wrong at start-up, for example when the save file could not be read.
+- **Messages**: the message for an error in red, with its line number. The line with the error turns red. When there is no error, a grey hint says where errors appear.
 
 ## Commands
 
@@ -99,9 +108,9 @@ An unlocked feature is checked before the run starts, so the drone does not move
 
 ## Help and New game
 
-The Help tab shows the commands, constants and language words you can use now. Locked ones are left out until you buy the unlock that opens them. Each entry has an example in the language you selected.
+The Help window shows the commands, constants and language words you can use now. Locked ones are left out until you buy the unlock that opens them. Each entry has an example in the language you selected.
 
-New game erases everything: your items, your unlocks, both scripts and the language, which goes back to Python. It asks first, and there is no undo. Choose Keep playing in the question to cancel.
+New game is in the Menu. It erases everything: your items, your unlocks, both scripts and the language, which goes back to Python. It asks first, and there is no undo. Choose Keep playing in the question to cancel.
 
 ## Saving
 

@@ -25,6 +25,18 @@ public partial class FarmView : Control
         QueueRedraw();
     }
 
+    /// <summary>
+    /// Gets the colour that draws a crop on the farm and in the item bar.
+    /// </summary>
+    /// <param name="crop">The crop to colour. It must be one of <paramref name="crops"/>.</param>
+    /// <param name="crops">The crops of the game rules. A crop's index here picks its colour.</param>
+    /// <returns>The colour of the crop.</returns>
+    public static Color CropColor(Crop crop, IReadOnlyList<Crop> crops)
+    {
+        int cropIndex = crops.Index().First(entry => entry.Item == crop).Index;
+        return _cropColors[cropIndex % _cropColors.Length];
+    }
+
     /// <inheritdoc/>
     public override void _Draw()
     {
@@ -62,8 +74,7 @@ public partial class FarmView : Control
         Crop crop = fieldTile.Crop!;
         float growth = Mathf.Min(1f, (float)fieldTile.CropAgeTicks / crop.GrowTimeTicks);
         float radius = tile / 4 * (0.3f + 0.7f * growth);
-        int cropIndex = _crops.Index().First(entry => entry.Item == crop).Index;
-        Color color = _cropColors[cropIndex % _cropColors.Length];
+        Color color = CropColor(crop, _crops);
         Vector2 center = rect.GetCenter();
         DrawCircle(center, radius, color);
         if (fieldTile.CropAgeTicks >= crop.GrowTimeTicks)

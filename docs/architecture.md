@@ -13,7 +13,9 @@ This is the technical overview of the prototype (version 0.7.0). The rules for w
 | `src/CodingGame.Core/Interpreter/Python/` | The Python front end: tokenizer and parser. |
 | `src/CodingGame.Core/Interpreter/JavaScript/` | The JavaScript front end: tokenizer and parser. |
 | `src/CodingGame.Core/Session/` | `GameProgress`, `RunSession`, `SaveFile` and the types around them. |
-| `src/CodingGame.Godot/` | The Godot 4.7 project (C#): `Main.cs` (the window), `FarmView.cs`, `ScriptEditor.cs`, `UnlockPanel.cs`, `HelpPanel.cs`, `main.tscn` and `project.godot`. |
+| `src/CodingGame.Godot/` | The Godot 4.7 project (C#): `Main.cs` (the screen), `CodeWindow.cs`, `ResourceBar.cs`, `FarmView.cs`, `ScriptEditor.cs`, `UnlockPanel.cs`, `HelpPanel.cs`, `main.tscn` and `project.godot`. |
+| `src/CodingGame.Godot/CodeWindow.cs` | The floating Script window: toolbar, editor, notice and Messages box. It shows the run and reports Run, Step, Stop and the language to `Main`. |
+| `src/CodingGame.Godot/ResourceBar.cs` | The item bar at the top left: one pill per item with its crop colour and count. |
 | `src/CodingGame.Godot/data/` | A copy of the top-level `data/` folder, made by the build and not in the repository. |
 | `data/` | The game rules, the help texts and the starter scripts: `crops.json`, `ticks.json`, `field.json`, `unlocks.json`, `help.json`, `starter.py` and `starter.js`. |
 | `tests/CodingGame.Core.Tests/` | The xUnit tests of Core. |
@@ -53,10 +55,12 @@ data/help.json ──► HelpBook.Load (checked against DroneApi) ──► Help
 
 ### Who reads and who changes
 
-The Godot project never changes the field or the rules itself. It changes the game only through `GameProgress.Buy` (the Buy button in `UnlockPanel`), `GameProgress.Reset` (the New game button in `Main`) and through `RunSession.Start`, `StepTick` and `StepLine` (the Run and Step buttons in `Main`). Everything else is read:
+The Godot project never changes the field or the rules itself. It changes the game only through `GameProgress.Buy` (the Buy button in `UnlockPanel`), `GameProgress.Reset` (the New game item of the Menu in `Main`) and through `RunSession.Start`, `StepTick` and `StepLine` (the Run and Step buttons of `CodeWindow`, handled in `Main`). Everything else is read:
 
 - `Main` reads the session status, the tick count, the error and the current line, and calls `SaveFile.Save` at the save points.
 - `FarmView` reads the `Field` and draws it.
+- `ResourceBar` reads the items of the `Field` and shows one pill for each.
+- `CodeWindow` shows the run state and the Messages box, and raises events for Run, Step, Stop and the language picker, which `Main` handles.
 - `ScriptEditor` only shows and highlights the text, and colours its syntax for the selected language.
 - `UnlockPanel` reads `GameProgress` to show each unlock and its price.
 - `HelpPanel` shows the entries that `Main` gives it from `HelpBook`.
@@ -76,7 +80,7 @@ The Godot project never changes the field or the rules itself. It changes the ga
 | Which Python or JavaScript features exist | The two front ends | Parsing |
 | Error wording per language | `ScriptError.ToMessage` | `RunSession.ErrorMessage` |
 | Save format and its checks | `Session/SaveFile.cs` | `Main` |
-| Speed of the window (5, 20 and 200 ticks a second) | `src/CodingGame.Godot/Main.cs` | `Main` |
+| Speed of the window (5, 20 and 200 ticks a second) | `src/CodingGame.Godot/CodeWindow.cs` | `CodeWindow` |
 
 The numbers that players can change are in `data/`. The behaviour is in code.
 
@@ -95,7 +99,7 @@ The drone API is the same set of commands in every language (`CLAUDE.md`, Game-s
 A new language is a larger change, so it starts with a decision record that sketches two designs (`CLAUDE.md`, Design). After that, it needs:
 
 - a front end in its own folder under `Interpreter/`, whose `Parse` method returns a `ParseResult` with the shared syntax tree,
-- a new value in `ScriptLanguage`, and a case for it in `RunSession.Start`, `ScriptError.ToMessage`, `UnlockCheck` and the picker and starter text in `Main.cs`,
+- a new value in `ScriptLanguage`, and a case for it in `RunSession.Start`, `ScriptError.ToMessage`, `UnlockCheck` the picker in `CodeWindow.cs` and the starter text in `Main.cs`,
 - a starter script in `data/`, and example folders in `tests/examples/`,
 - an example for the new language in every entry of `data/help.json`.
 
