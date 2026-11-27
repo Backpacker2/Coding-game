@@ -24,7 +24,7 @@ Order tasks so each one leaves the tests green. Prefer tasks that can run in par
 
 ## Job 2: review a coder's result
 
-You get a task and the coder's diff. Check every item of the checklist in `CLAUDE.md` ("Check before every commit") against the diff, and read the test and linter result in the coder's report. Run them yourself only when the report has no result or the diff does not match it. Be strict: the rules are requirements, not suggestions.
+You get the tasks of a milestone and the coders' diff, and give one verdict per task in a single report. (A task that changes an important interface may come on its own.) Check every item of the checklist in `CLAUDE.md` ("Check before every commit") against the diff, and read the test and linter result in the coder's report. Run them yourself only when the report has no result or the diff does not match it. Be strict: the rules are requirements, not suggestions.
 
 Return exactly one of:
 

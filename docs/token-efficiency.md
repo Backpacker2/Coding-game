@@ -1,6 +1,6 @@
 # Token efficiency: where the tokens go and what to change
 
-The owner sees many cache-read tokens and few output tokens across the project. This document explains why, ranks the causes by estimated impact, and proposes changes. On 27 November 2026 the owner agreed to the first three changes; they are now in `docs/workflow.md` and the agent files. The others wait for the owner's agreement.
+The owner sees many cache-read tokens and few output tokens across the project. This document explains why, ranks the causes by estimated impact, and proposes changes. On 27 November 2026 the owner agreed to all ten changes; they are now in `CLAUDE.md`, `docs/workflow.md`, the `tiered-loop` skill and the agent files.
 
 The numbers are estimates from the repository, the project's threads and how Claude Code bills tokens. No per-session usage figures were available, so the ranking is about orders of magnitude, not exact counts.
 
@@ -39,7 +39,7 @@ Each change names what it saves and what it costs. The first three give most of 
 5. **Fewer, bigger merges.** Bundle small milestones into one branch and one pull request, so one merger pass covers them. One thread at a time on `main`-touching work avoids renumbering. Addresses sink 6.
 6. **Fewer progress replies.** Reply in a thread only for a result, a question or a pull request; keep progress on the checklist. Each reply skipped is one coordinator wake skipped. Addresses sink 7.
 7. **Screenshots only when the owner asks or a visual milestone ships, and at scale 1 for checks.** Save them to project files rather than reading them back into the context. Addresses sink 8.
-8. **Shorter `CLAUDE.md`.** Move the reasoning and the less-used sections (versions table, branch details, merge steps) to `docs/coding-standards.md` or `docs/workflow.md`, which only the agents that need them read. Halving it saves about 1,500 tokens on every turn of every agent. Addresses sink 2 partly; the tool and system prompt part is outside the repository.
+8. **Shorter `CLAUDE.md`.** Move the reasoning and the less-used sections (versions table, branch details, merge steps) to `docs/coding-standards.md` or `docs/workflow.md`, which only the agents that need them read. Done on 27 November: the branch and version rules moved out, which took it from 11 KB to 9 KB, about 450 tokens less on every turn of every agent. The remaining rules are used in nearly every task, so they stay. Addresses sink 2 partly; the tool and system prompt part is outside the repository.
 9. **Status page: update only when the state changes** (start, waiting on the owner, pull request open, merged), not at every loop step. Addresses sink 9.
 10. **Consider Sonnet as the orchestrator for routine milestones**, and keep Opus for milestones that change an important interface. The orchestrator carries the longest context, so its price per token matters most. This changes the tiered setup, so it is the owner's choice.
 
