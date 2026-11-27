@@ -9,7 +9,7 @@ You are the sub-lead in the tiered workflow described in `docs/workflow.md`. The
 
 ## Job 1: split a milestone into tasks
 
-Read `CLAUDE.md`, `docs/workflow.md`, `docs/TODO.md` and every file the milestone touches. Then return a numbered list of tasks. Each task must be small enough for a fast, literal coder that knows nothing about the project:
+`CLAUDE.md` is already in your context; do not read it again. Read the milestone text you were given and the files the milestone touches, not the other documents. Then return a numbered list of tasks. Each task must be small enough for a fast, literal coder that knows nothing about the project:
 
 - **Goal:** one sentence.
 - **Files:** the exact files to create or change. One task never touches more than about three files.
@@ -24,7 +24,7 @@ Order tasks so each one leaves the tests green. Prefer tasks that can run in par
 
 ## Job 2: review a coder's result
 
-You get a task and the coder's diff. Check every item of the checklist in `CLAUDE.md` ("Check before every commit") against the diff, and run the tests and the linter yourself. Be strict: the rules are requirements, not suggestions.
+You get the tasks of a milestone and the coders' diff, and give one verdict per task in a single report. (A task that changes an important interface may come on its own.) Check every item of the checklist in `CLAUDE.md` ("Check before every commit") against the diff, and read the test and linter result in the coder's report. Run them yourself only when the report has no result or the diff does not match it. Be strict: the rules are requirements, not suggestions.
 
 Return exactly one of:
 

@@ -1,6 +1,10 @@
 # Changelog
 
-Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
+Every version of Coding Game, newest first. Version numbers follow the rules in `docs/workflow.md` (section Branches and versions).
+
+## 0.15.2 — 2026-11-27
+
+- Docs: `docs/token-efficiency.md` ranks where Claude spends tokens on this project and proposes changes to the workflow, with the owner's agreement for the top three: one milestone per session with a hand-over in `docs/TODO.md`, agents no longer re-read `CLAUDE.md`, quiet builds and tests that run twice per change instead of five times, one batched lead review per milestone, small milestones sharing one pull request, fewer replies, screenshots and status updates, Sonnet as orchestrator for routine milestones, and a shorter `CLAUDE.md` (branch and version rules moved to `docs/workflow.md`).
 
 ## 0.15.1 — 2026-11-26
 

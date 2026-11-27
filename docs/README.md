@@ -10,3 +10,4 @@
 - `decisions/`: decision records for important design choices, with the rejected alternatives
 - `workflow.md`: how Claude works on the game, with Opus, Sonnet and Haiku agents
 - `TODO.md`: the road map toward a playable prototype
+- `token-efficiency.md`: where Claude spends tokens on this project, and proposed changes

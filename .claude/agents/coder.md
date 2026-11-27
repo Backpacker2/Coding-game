@@ -9,10 +9,10 @@ You are a coder in the tiered workflow described in `docs/workflow.md`. You get 
 
 ## How to work
 
-1. Read `CLAUDE.md` once, then the files named in the task.
+1. Read the files named in the task. `CLAUDE.md` is already in your context; do not read it again.
 2. Write the tests from the task first and see them fail.
 3. Write the smallest code that makes them pass. Use exactly the names and signatures in the task.
-4. Run the "done when" command. Fix until it passes. Then run the full test suite and the linter.
+4. Run the "done when" command. Fix until it passes. Then run the full suite and the linter quietly (see "Quiet checks" in `docs/workflow.md`) and put their last lines in your report.
 5. Go through the checklist "Check before every commit" in `CLAUDE.md` and fix what fails.
 
 ## Rules you must not break

@@ -91,30 +91,11 @@ Complexity is the main enemy. Choose the simplest solution that solves today's p
 - Before every push, check both the files and the commit history (author, email, messages) for personal or sensitive information, and report what you found.
 - If something slipped into a commit that has not been pushed yet, rewrite the history so it no longer appears anywhere. If it has already been pushed, report it immediately, and treat a leaked key as known and replace it.
 
-## Branches
+## Branches and versions
 
-- Never commit directly to `main`. `main` always works.
-- Every change gets its own branch from an up-to-date `main`: one feature, one bug fix, one clean-up, one documentation change.
-- Branch names use the same types as the commits, followed by a short description in kebab-case: `feat/while-loop`, `fix/tick-count-for-loop`, `docs/drone-api`, `refactor/parser-errors`, `chore/linter-setup`.
-- Merge into `main` only when the change works: all tests pass, the linter shows no warnings and the checklist below is done. The merger agent (`docs/workflow.md`) does the merging, with the owner's standing agreement.
-- Merge with `git merge --no-ff`, so the branch stays visible in the history. Delete the branch after the merge.
-- A branch that turns out to be a dead end is deleted, not merged.
-
-## Versions
-
-Versions follow `MAJOR.MINOR.PATCH`:
-
-| Change | Example | Version step |
-| --- | --- | --- |
-| Normal change: a bug fix, a small addition, a documentation or tooling change | fix the tick count of a `for` loop | patch: `0.0.1` → `0.0.2` |
-| Bigger change: a new system or a noticeable new part of the game | a new language, saving and loading | minor: `0.1.0` → `0.2.0` (patch back to 0) |
-| Finished product that meets the release requirements | first complete version | `1.0.0` |
-
-- Every merge into `main` gets a new version: decide patch or minor, then tag the merge commit as `vX.Y.Z` (for example `v0.0.2`).
-- `1.0.0` only comes once the release requirements are met. These requirements have not been defined yet; the owner will set them later and they will be listed here.
-- After `1.0.0`: patch for fixes, minor for new content and features, major for changes that break something for the player (for example save files that no longer load).
-- `CHANGELOG.md` records every version: the version, the date and a short list of what changed. Write the entry on the branch, in the same merge.
-- Once the game has code, the version number lives in one place in the project configuration, and the game reads it from there.
+- Never commit directly to `main`. `main` always works. Every change gets its own branch from an up-to-date `main`.
+- Every merge into `main` gets a new version, tagged `vX.Y.Z`, with a `CHANGELOG.md` entry written on the branch. `1.0.0` only comes once the owner's release requirements are met.
+- Branch names, version steps and merge rules are in `docs/workflow.md` (section Branches and versions).
 
 ## Commits
 
@@ -149,4 +130,3 @@ Run from the repository root. CI runs the same three on every push and pull requ
 - Build: `dotnet build -warnaserror`
 - Test: `dotnet test` (xUnit)
 
-The tool that generates documentation from the doc comments has not been chosen yet.
