@@ -93,6 +93,13 @@ public static class UnlockCheck
             Negate negate =>
                 Check(negate.Line, "-", "-", lockedFeatures)
                 ?? FindInExpression(negate.Operand, language, lockedFeatures, declared),
+            Logical logical =>
+                Check(logical.Line, "and", OperatorText.Of(logical.Operator, language), lockedFeatures)
+                ?? FindInExpression(logical.Left, language, lockedFeatures, declared)
+                ?? FindInExpression(logical.Right, language, lockedFeatures, declared),
+            Not negation =>
+                Check(negation.Line, "and", OperatorText.OfNot(language), lockedFeatures)
+                ?? FindInExpression(negation.Operand, language, lockedFeatures, declared),
             _ => throw new InvalidOperationException("unknown expression type"),
         };
     }

@@ -16,8 +16,6 @@ public class PythonFrontEndNotInGameTests
     [InlineData("a // 2", 1, "//")]
     [InlineData("a ** 2", 1, "**")]
     [InlineData("move(a / 2)", 1, "/")]
-    [InlineData("if a and b:\n    pass", 1, "and")]
-    [InlineData("if not ripe():\n    pass", 1, "not")]
     [InlineData("while None:\n    pass", 1, "None")]
     [InlineData("lst[0]", 1, "[")]
     [InlineData("a.b()", 1, ".")]

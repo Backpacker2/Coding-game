@@ -79,7 +79,7 @@ public class HelpBookTests
 
         IReadOnlyList<HelpEntry> entries = book.EntriesFor(EvaluatorTestSupport.AllUnlocked(rules), ScriptLanguage.Python);
 
-        Assert.Equal(35, entries.Count);
+        Assert.Equal(37, entries.Count);
     }
 
     [Fact]
@@ -203,7 +203,7 @@ public class HelpBookTests
 
         IReadOnlyList<HelpEntry> entries = EntriesFor(EvaluatorTestSupport.AllUnlocked(rules), ScriptLanguage.Python);
 
-        Assert.Equal(11, LessonNames(entries).Count);
+        Assert.Equal(12, LessonNames(entries).Count);
         Assert.DoesNotContain(entries, entry => entry.Kind == HelpKind.NextLesson);
     }
 

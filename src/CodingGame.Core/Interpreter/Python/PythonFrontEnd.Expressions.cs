@@ -6,6 +6,51 @@ public sealed partial class PythonFrontEnd
 {
     private Expression ParseExpression()
     {
+        Expression expression = ParseAnd();
+        while (Current is { Kind: TokenKind.Keyword, Text: "or" })
+        {
+            Advance();
+            Expression right = ParseAnd();
+            expression = new Logical(expression.Line, expression, LogicalOperator.Or, right);
+        }
+
+        if (Current.Kind == TokenKind.Keyword)
+        {
+            throw UnexpectedToken(Current);
+        }
+
+        return expression;
+    }
+
+    private Expression ParseAnd()
+    {
+        Expression expression = ParseNot();
+        while (Current is { Kind: TokenKind.Keyword, Text: "and" })
+        {
+            Advance();
+            Expression right = ParseNot();
+            expression = new Logical(expression.Line, expression, LogicalOperator.And, right);
+        }
+
+        return expression;
+    }
+
+    private Expression ParseNot()
+    {
+        if (Current is not { Kind: TokenKind.Keyword, Text: "not" })
+        {
+            return ParseComparison();
+        }
+
+        Token keyword = Advance();
+        EnterNesting(keyword.Line);
+        Expression operand = ParseNot();
+        _nestingDepth--;
+        return new Not(keyword.Line, operand);
+    }
+
+    private Expression ParseComparison()
+    {
         Expression expression = ParseSum();
         Token token = Current;
         if (token is { Kind: TokenKind.Operator, Text: "==" or "!=" or "<" or ">" or "<=" or ">=" })
@@ -26,11 +71,6 @@ public sealed partial class PythonFrontEnd
             {
                 throw Failure(ScriptErrorKind.NotInGame, chained.Line, "chained comparisons");
             }
-        }
-
-        if (Current.Kind == TokenKind.Keyword)
-        {
-            throw UnexpectedToken(Current);
         }
 
         return expression;

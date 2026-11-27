@@ -126,7 +126,7 @@ These come next, in the order `game-design.md` settles on. They are listed here 
 | --- | --- | --- | --- |
 | Create a variable (built in 0.15.0, see [`decisions/0014-variables.md`](decisions/0014-variables.md)) | `count = 0` | `let count = 0;` | JavaScript needs `let` the first time only, at the top level. `var` stays out. |
 | Arithmetic (built in 0.15.0) | `+` `-` `*` | `+` `-` `*` | `%` differs: `-7 % 3` is `2` in Python and `-1` in JavaScript. `/` brings in decimal numbers. Both wait. |
-| Combine conditions | `and`, `or`, `not` | `&&`, `\|\|`, `!` | |
+| Combine conditions (built in 0.16.0, see [`decisions/0016-combining-conditions.md`](decisions/0016-combining-conditions.md)) | `and`, `or`, `not` | `&&`, `\|\|`, `!` | Both sides must be true or false. `not` binds looser than `==` in Python (`not x == 3` is `not (x == 3)`) and tighter in JavaScript (`!x === 3` is `(!x) === 3`). |
 | Parameters and return | `def f(x):` `return x` | `function f(x) { return x; }` | |
 | Print for debugging | `print(x)` | `console.log(x);` | |
 
@@ -243,6 +243,15 @@ The variables and the loop counter follow the same rules in both languages, so a
 
 The limits and their reasons are in [`decisions/0014-variables.md`](decisions/0014-variables.md).
 
+### Combining conditions
+
+`and`, `or` and `not` (`&&`, `||` and `!` in JavaScript) work only on true and false values, so a script gives the same result in both languages. The right side of `and` and `or` is not run when the left side decides the result, so its ticks are not spent. The errors are found before the run, or when the operator is reached:
+
+- A locked operator: `Error on line 3: 'and' is not unlocked yet. Buy "and, or, not" in Unlocks for 60 POTATO.` (Python), with `'or'`, `'not'`, and in JavaScript `'&&'`, `'||'` or `'!'` in its place.
+- A number or a direction as an operand: `TypeError on line 2: and needs true or false on both sides, got a number` (Python), `TypeError on line 2: && needs true or false on both sides, got a number` (JavaScript); `TypeError on line 2: not needs true or false, got a direction` (Python), `TypeError on line 2: ! needs true or false, got a direction` (JavaScript).
+
+The reasons are in [`decisions/0016-combining-conditions.md`](decisions/0016-combining-conditions.md).
+
 ### Features that are not bought yet
 
 The game teaches some features only after the player buys the unlock that opens them. Using one of them gives `'x' is not unlocked yet. Buy "Title" in Unlocks for N ITEM.`, with the line number, in the language of the script. The message names the unlock that opens the feature and its price. The check runs on the whole script before it starts, so the drone does not move at all. The first locked use in source order is reported (in JavaScript, function declarations are checked first, because they are hoisted). A locked feature is refused even in a branch that would never run.
@@ -259,6 +268,7 @@ The unlocks are listed in `data/unlocks.json`. They open these features:
 | Potato, till() and ground() | 60 radish | `till`, `ground`, `POTATO`, `SOIL`, `GRASS`, `==`, `!=` |
 | Functions | 30 potato | `def` |
 | Variables and counting | 40 potato | `variables` (the loop counter and your own names), `+`, `-`, `*`, `<`, `>`, `<=`, `>=` |
+| and, or, not | 60 potato | `and`, `or`, `not`; in JavaScript `&&`, `||`, `!` (one feature, `and`) |
 
 The name in the message is the one the player wrote. Two exceptions: in JavaScript the function feature is named `function`, and the comparison is named `===` or `!==`. A JavaScript `==` is still a syntax error, as described above. For example, a Python and a JavaScript script that call `plant(RADISH)` both give `'plant' is not unlocked yet. Buy "Radish and plant()" in Unlocks for 40 CLOVER.`.
 

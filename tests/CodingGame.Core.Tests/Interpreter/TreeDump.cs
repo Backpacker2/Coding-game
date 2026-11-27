@@ -66,6 +66,8 @@ internal static class TreeDump
             Name name => name.Identifier,
             Call call => $"{call.Callee}({string.Join(", ", call.Arguments.Select(FormatExpression))})",
             Compare compare => $"({FormatExpression(compare.Left)} {FormatOperator(compare.Operator)} {FormatExpression(compare.Right)})",
+            Logical logical => $"({FormatExpression(logical.Left)} {FormatLogicalOperator(logical.Operator)} {FormatExpression(logical.Right)})",
+            Not negation => $"(not {FormatExpression(negation.Operand)})",
             _ => throw new InvalidOperationException($"unexpected expression {expression.GetType().Name}"),
         };
     }
@@ -87,6 +89,16 @@ internal static class TreeDump
             CompareOperator.Equal => "==",
             CompareOperator.NotEqual => "!=",
             _ => throw new InvalidOperationException($"unexpected operator {compareOperator}"),
+        };
+    }
+
+    private static string FormatLogicalOperator(LogicalOperator logicalOperator)
+    {
+        return logicalOperator switch
+        {
+            LogicalOperator.And => "and",
+            LogicalOperator.Or => "or",
+            _ => throw new InvalidOperationException($"unexpected operator {logicalOperator}"),
         };
     }
 }

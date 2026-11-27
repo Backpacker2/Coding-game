@@ -142,5 +142,11 @@
     "summary": "Compares two whole numbers: < less than, > greater than, <= less than or equal, >= greater than or equal.",
     "python": "for i in range(3):\n    if i < 2:\n        move(EAST)",
     "javascript": "for (let i = 0; i < 3; i++) {\n    if (i < 2) {\n        move(EAST);\n    }\n}"
+  },
+  {
+    "name": "and",
+    "summary": "Combines conditions: and needs both to be true, or needs one of them to be true, and not turns true into false. JavaScript writes &&, || and !.",
+    "python": "if ripe() and ground() == SOIL:\n    harvest()",
+    "javascript": "if (ripe() && ground() === SOIL) {\n    harvest();\n}"
   }
 ]

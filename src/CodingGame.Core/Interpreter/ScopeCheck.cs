@@ -87,6 +87,8 @@ public static class ScopeCheck
                 Compare comparison => FindInExpression(comparison.Left) ?? FindInExpression(comparison.Right),
                 Arithmetic arithmetic => FindInExpression(arithmetic.Left) ?? FindInExpression(arithmetic.Right),
                 Negate negate => FindInExpression(negate.Operand),
+                Logical logical => FindInExpression(logical.Left) ?? FindInExpression(logical.Right),
+                Not negation => FindInExpression(negation.Operand),
                 _ => throw new InvalidOperationException("unknown expression type"),
             };
         }
