@@ -96,11 +96,11 @@ public class GameRulesTests
     }
 
     [Fact]
-    public void LoadsEightUnlocksFromDataFolder()
+    public void LoadsNineUnlocksFromDataFolder()
     {
         GameRules rules = GameRules.Load(Path.Combine(AppContext.BaseDirectory, "data"));
 
-        Assert.Equal(8, rules.Unlocks.Count);
+        Assert.Equal(9, rules.Unlocks.Count);
     }
 
     [Fact]

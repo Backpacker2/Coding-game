@@ -6,6 +6,32 @@ public sealed partial class JavaScriptFrontEnd
 {
     private Expression ParseExpression()
     {
+        Expression expression = ParseAnd();
+        while (IsOperator("||"))
+        {
+            Advance();
+            Expression right = ParseAnd();
+            expression = new Logical(expression.Line, expression, LogicalOperator.Or, right);
+        }
+
+        return expression;
+    }
+
+    private Expression ParseAnd()
+    {
+        Expression expression = ParseComparison();
+        while (IsOperator("&&"))
+        {
+            Advance();
+            Expression right = ParseComparison();
+            expression = new Logical(expression.Line, expression, LogicalOperator.And, right);
+        }
+
+        return expression;
+    }
+
+    private Expression ParseComparison()
+    {
         Expression expression = ParseSum();
         if (Current is { Kind: TokenKind.Operator, Text: "===" or "!==" or "<" or ">" or "<=" or ">=" } operatorToken)
         {
@@ -59,6 +85,15 @@ public sealed partial class JavaScriptFrontEnd
 
     private Expression ParseUnary()
     {
+        if (IsOperator("!"))
+        {
+            Token bang = Advance();
+            EnterNesting(bang.Line);
+            Expression negated = ParseUnary();
+            _nestingDepth--;
+            return new Not(bang.Line, negated);
+        }
+
         if (!IsOperator("-"))
         {
             return ParsePrimary();

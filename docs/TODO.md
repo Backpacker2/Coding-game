@@ -55,6 +55,7 @@ Milestones 29 to 35 follow [`gameplay-plan.md`](gameplay-plan.md). The view halv
 - [x] **34. Several scripts.** Named scripts, one runs, save format 3 (Core: build thread, done in 0.11.0, decision [0013](decisions/0013-several-scripts.md); the owner agreed on 2026-11-26). Tabs in the script window (view). (0.12.1)
 - [x] **35. A playful command.** `spin()` in every language (Core: build thread, done in 0.12.5). The spin animation (view). (0.13.1)
 - [x] **36. Variables and counting.** The loop counter, variables, + - * and < > <= >= in both languages, behind a new unlock (0.15.0). Design: [0014](decisions/0014-variables.md).
+- [x] **37. Combining conditions.** and, or, not in both languages, behind a new unlock (0.16.0). Design: [0016](decisions/0016-combining-conditions.md).
 
 ## Waiting on the owner
 

@@ -2,6 +2,10 @@
 
 Every version of Coding Game, newest first. Version numbers follow the rules in `CLAUDE.md` (section Versions).
 
+## 0.16.0 — 2026-11-27
+
+- Combining conditions: a new unlock (60 potato) adds and, or and not (&&, || and ! in JavaScript). Help and a lesson teach it.
+
 ## 0.15.1 — 2026-11-26
 
 - Real 3D models: the trees and rocks on the island, every crop's sprout, the radish and the potato's bush are now low-poly models from Kenney's Nature Kit (CC0), in the game's own colours. Credits are in `src/CodingGame.Godot/models/CREDITS.md`, the design in decision 0015.

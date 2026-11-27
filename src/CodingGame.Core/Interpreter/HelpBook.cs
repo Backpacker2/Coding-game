@@ -37,9 +37,9 @@ public sealed class HelpBook
     private const string FileName = "help.json";
     private const string LessonsFileName = "lessons.json";
 
-    // These have no table of their own; they are the same names as in data/unlocks.json. "+" stands for + - *
-    // and "<" for < > <= >=, one help entry each, gated by the first feature of the group.
-    private static readonly string[] _keywords = ["for", "while", "if", "def", "==", "variables", "+", "<"];
+    // These have no table of their own; they are the same names as in data/unlocks.json. "+" stands for + - *,
+    // "<" for < > <= >= and "and" for and, or and not, one help entry each, gated by the first feature of the group.
+    private static readonly string[] _keywords = ["for", "while", "if", "def", "==", "variables", "+", "<", "and"];
 
     private static readonly JsonSerializerOptions _jsonOptions = new()
     {

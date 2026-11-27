@@ -77,6 +77,7 @@ Each unlock costs items and opens new commands or language features.
 | Potato, till() and ground() | 60 radish | `till()`, `ground()`, `POTATO`, `SOIL`, `GRASS`, and comparisons: `==` and `!=` in Python, `===` and `!==` in JavaScript |
 | Functions | 30 potato | `def` in Python, `function` in JavaScript |
 | Variables and counting | 40 potato | `for` loop counter (you can read it inside its loop), your own variables, `+`, `-`, `*`, and comparisons `<`, `>`, `<=`, `>=` |
+| and, or, not | 60 potato | `and`, `or` and `not`; in JavaScript `&&`, `||` and `!`. Both sides must be true or false. |
 
 Buying an unlock uses up its items.
 
@@ -98,6 +99,8 @@ Errors name the line they happened on. Python errors look like Python errors, an
 - `TypeError on line 1: move expects direction, got number` (a command with the wrong kind of argument)
 - `NameError on line 4: 'i' can only be used inside its for loop` (Python, a loop counter read outside its loop; JavaScript says `ReferenceError on line 4:`)
 - `Error on line 2: '+=' is not part of this game yet` (`+=` is not in this game yet; use `count = count + 1`)
+- `Error on line 3: 'and' is not unlocked yet. Buy "and, or, not" in Unlocks for 60 POTATO.` (a logic operator you have not bought yet; `&&` in JavaScript)
+- `TypeError on line 2: and needs true or false on both sides, got a number` (`and`, `or` and `not` need true or false; JavaScript says `&&`, `||` and `!`)
 
 When the same error happens in three runs in a row, a Show hint button appears under the Messages box; it opens a short hint on what to check.
 

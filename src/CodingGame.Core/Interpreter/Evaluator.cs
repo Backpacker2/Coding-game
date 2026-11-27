@@ -14,6 +14,7 @@ public sealed partial class Evaluator
     public const int MaxCallDepth = 100;
 
     private readonly DroneApi _api;
+    private readonly ScriptLanguage _language;
     private readonly Stack<Frame> _frames = new();
     private readonly Dictionary<string, FunctionDefinition> _functions = new();
     private readonly Dictionary<string, Value> _variables = new();
@@ -31,6 +32,7 @@ public sealed partial class Evaluator
     public Evaluator(ScriptProgram program, DroneApi api)
     {
         _api = api;
+        _language = program.Language;
         _frames.Push(new Frame(program.Body));
     }
 

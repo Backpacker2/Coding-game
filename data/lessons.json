@@ -69,11 +69,11 @@
     "title": "Choosing with if",
     "feature": "if",
     "python": {
-      "text": "An if line runs the indented lines under it only when its condition is true. ripe() is true when the crop under the drone is ripe. Add an else: line with a colon to run other lines when the condition is false.",
+      "text": "An if line runs the indented lines under it only when its condition is true. ripe() is true when the crop under the drone is ripe. Add an else: line with a colon to run other lines when the condition is false. Use elif with a condition to test another case when the first one is false.",
       "example": "if ripe():\n    harvest()\nelse:\n    move(EAST)"
     },
     "javascript": {
-      "text": "An if runs the commands between its curly braces only when its condition is true. ripe() is true when the crop under the drone is ripe. Add an else part after the closing brace to run other commands when the condition is false.",
+      "text": "An if runs the commands between its curly braces only when its condition is true. ripe() is true when the crop under the drone is ripe. Add an else part after the closing brace to run other commands when the condition is false. Write else if (condition) to test another case when the first one is false.",
       "example": "if (ripe()) {\n    harvest();\n} else {\n    move(EAST);\n}"
     }
   },
@@ -140,6 +140,19 @@
     "javascript": {
       "text": "A variable is a name that keeps a number. Write let count = 0; once at the top of the script to make one, and change it later with count = count + 1;. Calculate with + - * and compare with < > <= >=. There is no += in this game yet, and a function can read a variable but cannot change it.",
       "example": "let count = 0;\ncount = count + 1;\nif (count < 2) {\n    move(EAST);\n}"
+    }
+  },
+  {
+    "id": "logic",
+    "title": "Combining conditions",
+    "feature": "and",
+    "python": {
+      "text": "Join two conditions with and when both must be true, or with or when one of them is enough. not turns a condition around. Use brackets when you are not sure which part is checked first. Each part must be true or false, so ripe() and ground() == SOIL works but a number does not.",
+      "example": "if ripe() and not ground() == GRASS:\n    harvest()\nif ripe() or ground() == GRASS:\n    move(EAST)"
+    },
+    "javascript": {
+      "text": "Join two conditions with && when both must be true, or with || when one of them is enough. ! turns a condition around. Use brackets when you are not sure which part is checked first. Each part must be true or false, so ripe() && ground() === SOIL works but a number does not.",
+      "example": "if (ripe() && !(ground() === GRASS)) {\n    harvest();\n}\nif (ripe() || ground() === GRASS) {\n    move(EAST);\n}"
     }
   }
 ]

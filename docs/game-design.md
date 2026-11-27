@@ -86,6 +86,7 @@ Times are where we want an average beginner to be, not hard limits. **(guess, al
 | 6 | 0:22 | Potato, `till()` and `ground()` | 60 radish | Comparisons (`==`) |
 | 7 | 0:27 | Functions (`def` and calling your own function) | 30 potato | Functions |
 | 8 | 0:31 | Variables and counting (guess): the loop counter, your own variables, `+ - *` and `< > <= >=` | 40 potato | Variables |
+| 9 | 0:35 | and, or, not (guess): combine conditions; Python's `elif` is part of `if` | 60 potato | Combining conditions |
 
 Each unlock's price is paid in the newest crop, so the player always has a reason to farm the newest thing.
 

@@ -27,6 +27,10 @@ public sealed partial class Evaluator
                 return TryArithmetic(arithmetic, out value);
             case Negate negate:
                 return TryNegate(negate, out value);
+            case Logical logical:
+                return TryLogical(logical, out value);
+            case Not negation:
+                return TryNot(negation, out value);
             default:
                 throw new InvalidOperationException($"unknown expression type {expression.GetType().Name}");
         }
@@ -196,6 +200,73 @@ public sealed partial class Evaluator
         }
 
         return TryNumberResult(negate.Line, -(long)operand.AsNumber(), out result);
+    }
+
+    private bool TryLogical(Logical logical, out Value result)
+    {
+        result = Value.None;
+        if (!TryEvaluate(logical.Left, out Value left))
+        {
+            return false;
+        }
+
+        string operatorText = OperatorText.Of(logical.Operator, _language);
+        if (!RequireBoolean(logical.Line, $"{operatorText} needs true or false on both sides", left))
+        {
+            return false;
+        }
+
+        // The left value decides the result for and when it is false, and for or when it is true.
+        bool leftDecides = logical.Operator == LogicalOperator.And ? !left.AsBoolean() : left.AsBoolean();
+        if (leftDecides)
+        {
+            result = left;
+            return true;
+        }
+
+        if (!TryEvaluate(logical.Right, out Value right))
+        {
+            return false;
+        }
+
+        if (!RequireBoolean(logical.Line, $"{operatorText} needs true or false on both sides", right))
+        {
+            return false;
+        }
+
+        result = right;
+        return true;
+    }
+
+    private bool TryNot(Not negation, out Value result)
+    {
+        result = Value.None;
+        if (!TryEvaluate(negation.Operand, out Value operand))
+        {
+            return false;
+        }
+
+        if (!RequireBoolean(negation.Line, $"{OperatorText.OfNot(_language)} needs true or false", operand))
+        {
+            return false;
+        }
+
+        result = Value.FromBoolean(!operand.AsBoolean());
+        return true;
+    }
+
+    private bool RequireBoolean(int line, string requirement, Value value)
+    {
+        if (value.Kind == ValueKind.Boolean)
+        {
+            return true;
+        }
+
+        _failure = new ScriptError(
+            ScriptErrorKind.WrongArgument,
+            line,
+            $"{requirement}, got {DescribeKind(value.Kind)}");
+        return false;
     }
 
     private bool RequireNumbers(int line, string operatorText, Value left, Value right)
