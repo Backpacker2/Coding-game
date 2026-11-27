@@ -4,7 +4,7 @@ Every version of Coding Game, newest first. Version numbers follow the rules in 
 
 ## 0.15.2 — 2026-11-27
 
-- Docs: `docs/token-efficiency.md` ranks where Claude spends tokens on this project and proposes changes to the workflow, waiting for the owner's agreement.
+- Docs: `docs/token-efficiency.md` ranks where Claude spends tokens on this project and proposes changes to the workflow, with the owner's agreement for the top three: one milestone per session with a hand-over in `docs/TODO.md`, agents no longer re-read `CLAUDE.md`, and quiet builds and tests that run twice per change instead of five times.
 
 ## 0.15.1 — 2026-11-26
 

@@ -1,6 +1,6 @@
 # Token efficiency: where the tokens go and what to change
 
-The owner sees many cache-read tokens and few output tokens across the project. This document explains why, ranks the causes by estimated impact, and proposes changes. Nothing here changes the workflow yet: each change waits for the owner's agreement.
+The owner sees many cache-read tokens and few output tokens across the project. This document explains why, ranks the causes by estimated impact, and proposes changes. On 27 November 2026 the owner agreed to the first three changes; they are now in `docs/workflow.md` and the agent files. The others wait for the owner's agreement.
 
 The numbers are estimates from the repository, the project's threads and how Claude Code bills tokens. No per-session usage figures were available, so the ranking is about orders of magnitude, not exact counts.
 

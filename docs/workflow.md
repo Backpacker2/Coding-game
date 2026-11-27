@@ -26,7 +26,7 @@ The agent types `lead` and `coder` are only known to a session that started insi
 5. **Review, level 1.** The lead reviews each result. On `CHANGES REQUESTED` the same coder fixes it. After two failed rounds the task goes back to the lead to be split smaller.
 6. **Review, level 2.** The orchestrator reviews the whole milestone diff: design, interfaces, and whether it matches the design documents. It fixes small things itself; anything larger goes back to step 2.
 7. **Ship.** The orchestrator runs the full checklist from `CLAUDE.md`, updates `CHANGELOG.md`, runs the privacy check below, commits, pushes and opens a pull request for the owner.
-8. **Tick off.** The milestone is ticked in `docs/TODO.md` with a link to its pull request, and the loop starts again.
+8. **Tick off and hand over.** The milestone is ticked in `docs/TODO.md` with a link to its pull request and a short hand-over: what is done, what is next, open questions. Then the session ends, and the next milestone starts in a fresh session (two or three small milestones may share one).
 9. **Merge.** At the end of a coding session the orchestrator starts the merger. It reviews all open pull requests, resolves conflicts, and merges into `main` with git under the noreply identity, one version tag per merge. The orchestrator reads its report and tells the owner what was merged.
 
 The owner gave standing agreement (25 November 2026) that the merger merges into `main` when a pull request passes its review. The loop still stops and asks the owner when a choice changes the game itself: a design decision, a new dependency, or anything else that cannot be undone.
@@ -43,6 +43,11 @@ If anything is found, it is removed before the upload, from the history too (`CL
 
 ## Keeping cost down
 
+The analysis behind these rules is in `docs/token-efficiency.md`.
+
+- **One milestone per session.** Every turn re-reads the whole conversation, so a long session gets more expensive with every step. A fresh session starts from `docs/TODO.md` and its hand-over.
+- **No re-reading of `CLAUDE.md`.** It is loaded into every agent automatically. Agents read only the files their job needs.
+- **Quiet checks, run twice.** Every log line stays in the context. Use `dotnet build -warnaserror -v q -nologo` and `dotnet test --nologo -v q`, and keep only the last 20 lines unless something fails. The coder runs the full suite, and the merger runs it on the merged result. The lead and the orchestrator read those results and only run the checks again after changing code themselves or when a result is missing.
 - The orchestrator reads diffs and reports, not whole files, wherever it can.
 - Tasks are small and fully specified, so the cheapest model can do them right the first time.
 - Reviews are strict early. One rejected task is cheaper than one bad milestone.

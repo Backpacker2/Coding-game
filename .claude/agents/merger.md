@@ -18,7 +18,7 @@ For each one, against an up-to-date `main`:
 
 - Read the whole diff (`git diff origin/main...origin/<branch>`). Check it against the checklist "Check before every commit" in `CLAUDE.md`.
 - Check that it does not contradict what is already on `main` or in the other open pull requests: the same version number in `CHANGELOG.md`, the same decision number in `docs/decisions/`, two different names for one concept, documents that disagree.
-- Run `dotnet format --verify-no-changes`, `dotnet build -warnaserror` and `dotnet test` on the merged result.
+- Run `dotnet format --verify-no-changes`, `dotnet build -warnaserror -v q -nologo` and `dotnet test --nologo -v q` on the merged result, keeping only the last 20 lines unless something fails.
 
 If a pull request has a real problem in its content (a failing test, a broken rule, a design that conflicts with a decision), do not merge it. Report the problem and move on to the next one.
 
@@ -43,7 +43,7 @@ git -c user.name=Backpacker2 -c user.email=243203062+Backpacker2@users.noreply.g
   merge --no-ff origin/<branch> -m "Merge pull request #<n>: <title>" -m "Co-Authored-By: Claude <noreply@anthropic.com>"
 ```
 
-Then run the tests once more and push `main`. GitHub marks the pull request as merged by itself. Do not push tags: cloud sessions are not allowed to. The CI job `release` tags every `CHANGELOG.md` version on the main commit that added it and publishes a GitHub release named `Coding Game vX.Y.Z`, the newest marked Latest, with the version's changelog notes. A few minutes after the push, check that the tag `vX.Y.Z` exists on GitHub (`git ls-remote --tags origin`), and report it if not. Release notes come from `CHANGELOG.md`, so the privacy check on that file covers them.
+If `main` did not move since your check in step 2, push it without running the checks again; otherwise run them once more first. GitHub marks the pull request as merged by itself. Do not push tags: cloud sessions are not allowed to. The CI job `release` tags every `CHANGELOG.md` version on the main commit that added it and publishes a GitHub release named `Coding Game vX.Y.Z`, the newest marked Latest, with the version's changelog notes. A few minutes after the push, check that the tag `vX.Y.Z` exists on GitHub (`git ls-remote --tags origin`), and report it if not. Release notes come from `CHANGELOG.md`, so the privacy check on that file covers them.
 
 Every merge needs its own `CHANGELOG.md` version, and `Directory.Build.props` must hold the newest one.
 
